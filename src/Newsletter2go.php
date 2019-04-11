@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace BaseClass;
+namespace Swag\Newsletter2go;
 
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Routing\RouteCollectionBuilder;
 
-class BaseClass extends Plugin
+class Newsletter2go extends Plugin
 {
     public function install(InstallContext $context): void
     {
@@ -54,22 +54,17 @@ class BaseClass extends Plugin
     {
         parent::build($container);
 
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
-        $loader->load('services.xml');
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/Resources/'));
+        $loader->load(__DIR__ . '/Resources/config/services.xml');
     }
 
     public function configureRoutes(RouteCollectionBuilder $routes, string $environment): void
     {
-        $routes->import(__DIR__ . '/routes.xml');
+        $routes->import(__DIR__ . '/Resources/config/routes.xml');
     }
 
     public function getMigrationNamespace(): string
     {
-        return 'BaseClass\MyMigrationNamespace';
-    }
-
-    public function getContainerPrefix(): string
-    {
-        return 'my_container_prefix';
+        return 'Newsletter2go\Migration';
     }
 }

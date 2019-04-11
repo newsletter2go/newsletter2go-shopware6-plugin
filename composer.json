@@ -1,26 +1,32 @@
 {
-    "name": "swag/base-class",
-    "description": "Plugin base class example",
+    "name": "swag/newsletter2go",
+    "description": "Newsletter2go plugin",
     "version": "v1.0.0",
-    "type": "shopware-plugin",
+    "type": "shopware-platform-plugin",
     "license": "MIT",
     "authors": [
         {
-            "name": "shopware AG"
+            "name": "Newsletter2Go GmbH"
         }
     ],
     "require": {
         "shopware/platform": "dev-master"
     },
     "extra": {
-        "installer-name": "BaseClass",
+        "shopware-plugin-class": "Swag\\Newsletter2go\\Newsletter2go",
+        "plugin-icon": "src/Resources/public/static/img/plugin.png",
         "label": {
-            "de_DE": "Beispiel Plugin für die Base Class",
-            "en_GB": "Example plugin for the base class"
+            "de_DE": "Newsletter2go Plugin für die Base Class",
+            "en_GB": "Newsletter2go plugin for the base class"
         },
         "description": {
-            "de_DE": "Beispiel Plugin für die Base Class",
-            "en_GB": "Example plugin for the base class"
+            "de_DE": "Newsletter2go Plugin für die Base Class",
+            "en_GB": "Newsletter2go plugin for the base class"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Swag\\Newsletter2go\\": "src/"
         }
     }
 }
