@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Swag\Newsletter2go\Migration;
+namespace Newsletter2go\Migration;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
@@ -16,10 +16,10 @@ class Migration1554822929CreateNewsletter2goTable extends MigrationStep
     {
         $query = <<<SQL
 CREATE TABLE `newsletter2go_config` (
-	id INT NOT NULL AUTO_INCREMENT,
-	name varchar(255) NOT NULL,
+    id BINARY(16) NOT NULL,
+	name varchar(255) NOT NULL UNIQUE,
 	value varchar(255) NULL,
-	CONSTRAINT s_newsletter2go_config_PK PRIMARY KEY (id)
+	PRIMARY KEY (`id`)
 )
 ENGINE=InnoDB
 DEFAULT CHARSET=utf8mb4
