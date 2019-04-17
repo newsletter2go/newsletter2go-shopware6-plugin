@@ -13,7 +13,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class LanguageController extends AbstractController
 {
         /**
-        * @Route("/api/{version}/n2g/languages", name="api.action.n2g.languages", methods={"GET"})
+        * @Route("/api/{version}/n2g/languages", name="api.action.n2g.getLanguages", methods={"GET"})
         */
         public function getLanguagesAction(): JsonResponse
         {
