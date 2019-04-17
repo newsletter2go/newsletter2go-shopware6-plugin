@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class PluginController extends AbstractController
 {
     /**
-     * @Route("/api/{version}/n2g/test", name="api.action.n2g.test", methods={"GET"})
+     * @Route("/api/{version}/n2g/test", name="api.action.n2g.testConnection", methods={"GET"})
      */
     public function testConnectionAction(): JsonResponse
     {
@@ -24,9 +24,9 @@ class PluginController extends AbstractController
     }
 
     /**
-     * @Route("/api/{version}/n2g/info", name="api.action.n2g.info", methods={"GET"})
+     * @Route("/api/{version}/n2g/info", name="api.action.n2g.getPluginInfo", methods={"GET"})
      */
-    public function pluginInfoAction(): JsonResponse
+    public function getPluginInfoAction(): JsonResponse
     {
         $response = [];
         try {
