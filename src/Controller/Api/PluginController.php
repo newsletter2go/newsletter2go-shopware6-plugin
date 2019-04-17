@@ -30,24 +30,15 @@ class PluginController extends AbstractController
     {
         $response = [];
         try {
-            /** @var EntityRepositoryInterface $pluginRepository */
-            $pluginRepository = $this->container->get('plugin.repository');
-            $plugins = $pluginRepository->search(new Criteria(), Context::createDefaultContext());
+            $pluginVersion = $this->getPluginVersion();
 
-            /** @var PluginEntity $plugin */
-            foreach ($plugins->getElements() as $plugin) {
-                if ($plugin->get('name') === 'Newsletter2go\Newsletter2go') {
-                    $response['success'] = true;
-                    $response['version'] = $plugin->get('version');
-                    break;
-                }
-            }
-
-            if (empty($response['version'])) {
+            if ($pluginVersion) {
+                $response['success'] = true;
+                $response['version'] = $pluginVersion;
+            } else {
                 $response['success'] = false;
-                $response['error'] = 'plugin name not found';
+                $response['error'] = 'plugin not found';
             }
-
 
         } catch (\Exception $exception) {
             $response['success'] = false;
@@ -55,5 +46,22 @@ class PluginController extends AbstractController
         }
 
         return new JsonResponse($response);
+    }
+
+    private function getPluginVersion() : string
+    {
+        /** @var EntityRepositoryInterface $pluginRepository */
+        $pluginRepository = $this->container->get('plugin.repository');
+        $plugins = $pluginRepository->search(new Criteria(), Context::createDefaultContext());
+
+        /** @var PluginEntity $plugin */
+        foreach ($plugins->getElements() as $plugin) {
+            if ($plugin->get('name') === 'Newsletter2go\Newsletter2go') {
+
+                return $plugin->get('version');
+            }
+        }
+
+        return false;
     }
 }
