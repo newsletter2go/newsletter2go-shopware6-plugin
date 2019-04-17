@@ -8,7 +8,7 @@ class Crypto
      * @param int $length
      * @return string
      */
-    public function generateRandomString($length = 40)
+    public static function generateRandomString($length = 40) :string
     {
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $charactersLength = strlen($characters);
