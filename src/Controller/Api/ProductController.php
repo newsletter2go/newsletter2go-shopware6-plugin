@@ -34,7 +34,7 @@ class ProductController extends AbstractController
             $criteria->addFilter(new EqualsFilter('active', 1));
 
             if ($identifier) {
-                $criteria->setIds($identifier);
+                $criteria->setIds([$identifier]);
             } elseif ($productTile) {
                 $criteria->addFilter([
                     'title' => $productTile
