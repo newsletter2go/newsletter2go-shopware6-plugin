@@ -8,6 +8,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class Newsletter2goConfig extends Entity
 {
+    const TABLE_NAME = 'newsletter2go_config';
+    const FIELD_NAME = 'name';
+    const FIELD_VALUE = 'value';
+    const NAME_VALUE_ACCESS_KEY = 'accessKey';
+    const NAME_VALUE_SECRET_ACCESS_KEY = 'secretAccessKey';
+    const NAME_VALUE_COMPANY_ID = 'companyId';
+
+
     use EntityIdTrait;
 
     /**
