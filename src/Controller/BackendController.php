@@ -94,9 +94,10 @@ class BackendController extends AbstractController
 
         $accessKey = AccessKeyHelper::generateAccessKey('integration');
         $secretAccessKey = AccessKeyHelper::generateSecretAccessKey();
+        $integrationLabel = 'Newsletter2Go - ' . (new \DateTime())->format('Y-m-d H:i:s');
 
         $data = [
-            'label' => 'Newsletter2Go - ' . (new \DateTime())->format('Y-m-d H:i:s'),
+            'label' => $integrationLabel,
             'accessKey' => $accessKey,
             'secretAccessKey' => $secretAccessKey,
             'writeAccess' => true
@@ -112,7 +113,8 @@ class BackendController extends AbstractController
             $criteria->addFilter(new EqualsAnyFilter(Newsletter2goConfig::FIELD_NAME,
                 [
                     Newsletter2goConfig::NAME_VALUE_ACCESS_KEY,
-                    Newsletter2goConfig::NAME_VALUE_SECRET_ACCESS_KEY
+                    Newsletter2goConfig::NAME_VALUE_SECRET_ACCESS_KEY,
+                    Newsletter2goConfig::NAME_VALUE_SHOPWARE_INTEGRATION_LABEL
                 ]
             ));
             /** @var EntitySearchResult $n2gElements */
@@ -128,8 +130,9 @@ class BackendController extends AbstractController
             }
 
             $n2gConfigRepository->create([
-                ['name' => 'accessKey', 'value' => $accessKey],
-                ['name' => 'secretAccessKey', 'value' => $secretAccessKey],
+                ['name' => Newsletter2goConfig::NAME_VALUE_ACCESS_KEY, 'value' => $accessKey],
+                ['name' => Newsletter2goConfig::NAME_VALUE_SECRET_ACCESS_KEY, 'value' => $secretAccessKey],
+                ['name' => Newsletter2goConfig::NAME_VALUE_SHOPWARE_INTEGRATION_LABEL, 'value' => $integrationLabel],
             ],$context);
 
         } catch (\Exception $exception) {

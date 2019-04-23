@@ -2,12 +2,18 @@
 
 namespace Newsletter2go;
 
+use Newsletter2go\Entity\Newsletter2goConfig;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
+use Shopware\Core\System\Integration\IntegrationEntity;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\Config\FileLocator;
@@ -42,7 +48,37 @@ class Newsletter2go extends Plugin
 
     public function uninstall(UninstallContext $context): void
     {
-        // your code you need to execute while your plugin gets uninstalled
+        try {
+            $this->deleteNewsletter2goIntegration($context);
+        } catch (\Exception $exception) {
+            //
+        }
+    }
+
+    private function deleteNewsletter2goIntegration(UninstallContext $context)
+    {
+        $n2gRepository = $this->container->get('newsletter2go_config.repository');
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter(Newsletter2goConfig::FIELD_NAME, Newsletter2goConfig::NAME_VALUE_SHOPWARE_INTEGRATION_LABEL));
+        $result = $n2gRepository->search($criteria, Context::createDefaultContext());
+
+        if ($result->getTotal() === 1) {
+            /** @var EntityRepositoryInterface $integrationRepository */
+            $integrationRepository = $this->container->get('integration.repository');
+            /** @var Newsletter2goConfig $labelConfig */
+            $labelConfig = $result->first();
+            $integrationCriteria = new Criteria();
+            $integrationCriteria->addFilter(new EqualsFilter('label', $labelConfig->getValue()));
+            $integration = $integrationRepository->search($integrationCriteria, $context->getContext());
+
+            if ($integration->getTotal() === 1) {
+                /** @var IntegrationEntity $integrationEntity */
+                $integrationEntity = $integration->first();
+                $integrationRepository->delete([
+                    ['id' => $integrationEntity->getId()]
+                ], $context->getContext());
+            }
+        }
     }
 
     public function boot(): void
