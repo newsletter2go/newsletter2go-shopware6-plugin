@@ -59,16 +59,16 @@ class Newsletter2go extends Plugin
     {
         $n2gRepository = $this->container->get('newsletter2go_config.repository');
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter(Newsletter2goConfig::FIELD_NAME, Newsletter2goConfig::NAME_VALUE_SHOPWARE_INTEGRATION_LABEL));
+        $criteria->addFilter(new EqualsFilter(Newsletter2goConfig::FIELD_NAME, Newsletter2goConfig::NAME_VALUE_ACCESS_KEY));
         $result = $n2gRepository->search($criteria, Context::createDefaultContext());
 
         if ($result->getTotal() === 1) {
             /** @var EntityRepositoryInterface $integrationRepository */
             $integrationRepository = $this->container->get('integration.repository');
-            /** @var Newsletter2goConfig $labelConfig */
-            $labelConfig = $result->first();
+            /** @var Newsletter2goConfig $accessKey */
+            $accessKey = $result->first();
             $integrationCriteria = new Criteria();
-            $integrationCriteria->addFilter(new EqualsFilter('label', $labelConfig->getValue()));
+            $integrationCriteria->addFilter(new EqualsFilter('accessKey', $accessKey->getValue()));
             $integration = $integrationRepository->search($integrationCriteria, $context->getContext());
 
             if ($integration->getTotal() === 1) {

@@ -114,7 +114,6 @@ class BackendController extends AbstractController
                 [
                     Newsletter2goConfig::NAME_VALUE_ACCESS_KEY,
                     Newsletter2goConfig::NAME_VALUE_SECRET_ACCESS_KEY,
-                    Newsletter2goConfig::NAME_VALUE_SHOPWARE_INTEGRATION_LABEL
                 ]
             ));
             /** @var EntitySearchResult $n2gElements */
@@ -132,7 +131,6 @@ class BackendController extends AbstractController
             $n2gConfigRepository->create([
                 ['name' => Newsletter2goConfig::NAME_VALUE_ACCESS_KEY, 'value' => $accessKey],
                 ['name' => Newsletter2goConfig::NAME_VALUE_SECRET_ACCESS_KEY, 'value' => $secretAccessKey],
-                ['name' => Newsletter2goConfig::NAME_VALUE_SHOPWARE_INTEGRATION_LABEL, 'value' => $integrationLabel],
             ],$context);
 
         } catch (\Exception $exception) {
