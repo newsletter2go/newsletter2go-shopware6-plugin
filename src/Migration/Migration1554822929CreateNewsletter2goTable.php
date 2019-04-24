@@ -15,7 +15,7 @@ class Migration1554822929CreateNewsletter2goTable extends MigrationStep
     public function update(Connection $connection): void
     {
         $query = <<<SQL
-CREATE TABLE `newsletter2go_config` (
+CREATE TABLE IF NOT EXISTS `newsletter2go_config` (
     id BINARY(16) NOT NULL,
 	name varchar(255) NOT NULL UNIQUE,
 	value varchar(255) NULL,
