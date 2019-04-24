@@ -4,8 +4,11 @@ namespace Newsletter2go;
 
 use Newsletter2go\Entity\Newsletter2goConfig;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
@@ -49,36 +52,57 @@ class Newsletter2go extends Plugin
     public function uninstall(UninstallContext $context): void
     {
         try {
-            $this->deleteNewsletter2goIntegration($context);
+            $this->deleteNewsletter2goIntegration();
+            $this->deleteNewsletter2goConfig();
         } catch (\Exception $exception) {
             //
         }
     }
 
-    private function deleteNewsletter2goIntegration(UninstallContext $context)
+    private function deleteNewsletter2goIntegration()
     {
-        $n2gRepository = $this->container->get('newsletter2go_config.repository');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter(Newsletter2goConfig::FIELD_NAME, Newsletter2goConfig::NAME_VALUE_ACCESS_KEY));
+
+        /** @var EntityRepository $n2gRepository */
+        $n2gRepository = $this->container->get('newsletter2go_config.repository');
         $result = $n2gRepository->search($criteria, Context::createDefaultContext());
 
-        if ($result->getTotal() === 1) {
+        if ($result->first()) {
+            $accessKey = $result->first();
             /** @var EntityRepositoryInterface $integrationRepository */
             $integrationRepository = $this->container->get('integration.repository');
             /** @var Newsletter2goConfig $accessKey */
-            $accessKey = $result->first();
             $integrationCriteria = new Criteria();
             $integrationCriteria->addFilter(new EqualsFilter('accessKey', $accessKey->getValue()));
-            $integration = $integrationRepository->search($integrationCriteria, $context->getContext());
+            $integration = $integrationRepository->search($integrationCriteria, Context::createDefaultContext());
 
-            if ($integration->getTotal() === 1) {
+            if ($integration->first()) {
                 /** @var IntegrationEntity $integrationEntity */
                 $integrationEntity = $integration->first();
                 $integrationRepository->delete([
                     ['id' => $integrationEntity->getId()]
-                ], $context->getContext());
+                ], Context::createDefaultContext());
             }
         }
+    }
+
+    /**
+     * this method deletes ALL Newsletter2Go configurations at `newsletter2go_config` table
+     * @throws InconsistentCriteriaIdsException
+     */
+    private function deleteNewsletter2goConfig()
+    {
+        /** @var EntityRepository $n2gRepository */
+        $n2gRepository = $this->container->get('newsletter2go_config.repository');
+        $ids = [];
+        $result = $n2gRepository->search(new Criteria(), Context::createDefaultContext());
+        /** @var Newsletter2goConfig $n2gConfig */
+        foreach ($result->getElements() as $n2gConfig) {
+            $ids[]['id'] = $n2gConfig->getId();
+        }
+
+        $n2gRepository->delete($ids, Context::createDefaultContext());
     }
 
     public function boot(): void
