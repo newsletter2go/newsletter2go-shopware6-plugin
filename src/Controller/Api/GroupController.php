@@ -3,6 +3,7 @@
 namespace Newsletter2go\Controller\Api;
 
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -23,8 +24,9 @@ class GroupController extends AbstractController
         try {
 
             $groups = $this->getCustomerGroups();
+
             $response['success'] = false;
-            $response['data'] = $groups->getElements();
+            $response['data'] = $this->prepareEntityAttributes($groups);
 
         } catch (\Exception $exception) {
             $response['success'] = false;
@@ -41,5 +43,19 @@ class GroupController extends AbstractController
         $result = $groupRepository->search(new Criteria(), Context::createDefaultContext());
 
         return $result->getEntities();
+    }
+
+    private function prepareEntityAttributes(EntityCollection $entityCollection) : array
+    {
+        $attributes = [];
+
+        /** @var CustomerGroupEntity $entity */
+        foreach ($entityCollection->getElements() as $key => $entity) {
+            $attributes[$key]['id'] = $entity->getId();
+            $attributes[$key]['name'] = $entity->getName();
+            $attributes[$key]['displayGross'] = $entity->getDisplayGross();
+        }
+
+        return $attributes;
     }
 }
