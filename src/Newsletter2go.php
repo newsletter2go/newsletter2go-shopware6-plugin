@@ -2,13 +2,12 @@
 
 namespace Newsletter2go;
 
+use Doctrine\DBAL\Connection;
 use Newsletter2go\Entity\Newsletter2goConfig;
+use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
@@ -16,10 +15,11 @@ use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Integration\IntegrationEntity;
+use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
-use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Routing\RouteCollectionBuilder;
 
 class Newsletter2go extends Plugin
@@ -32,6 +32,7 @@ class Newsletter2go extends Plugin
     public function postInstall(InstallContext $context): void
     {
         // your code you need to execute after your plugin gets installed
+        $this->createIntegration();
     }
 
     public function update(UpdateContext $context): void
@@ -61,54 +62,86 @@ class Newsletter2go extends Plugin
 
     private function deleteNewsletter2goIntegration()
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter(Newsletter2goConfig::FIELD_NAME, Newsletter2goConfig::NAME_VALUE_ACCESS_KEY));
+        $connection = $this->container->get(Connection::class);
+        $n2gConfig = $connection->executeQuery('SELECT `value` FROM `newsletter2go_config` WHERE `name` = :name', ['name' => 'accessKey'])->fetchAll();
 
-        /** @var EntityRepository $n2gRepository */
-        $n2gRepository = $this->container->get('newsletter2go_config.repository');
-        $result = $n2gRepository->search($criteria, Context::createDefaultContext());
+        if (empty($n2gConfig[0]['value'])) {
+            return;
+        }
 
-        if ($result->first()) {
-            $accessKey = $result->first();
-            /** @var EntityRepositoryInterface $integrationRepository */
-            $integrationRepository = $this->container->get('integration.repository');
-            /** @var Newsletter2goConfig $accessKey */
-            $integrationCriteria = new Criteria();
-            $integrationCriteria->addFilter(new EqualsFilter('accessKey', $accessKey->getValue()));
-            $integration = $integrationRepository->search($integrationCriteria, Context::createDefaultContext());
+        $accessKey= $n2gConfig[0]['value'];
 
-            if ($integration->first()) {
-                /** @var IntegrationEntity $integrationEntity */
-                $integrationEntity = $integration->first();
-                $integrationRepository->delete([
-                    ['id' => $integrationEntity->getId()]
-                ], Context::createDefaultContext());
-            }
+        /** @var EntityRepositoryInterface $integrationRepository */
+        $integrationRepository = $this->container->get('integration.repository');
+        $integrationCriteria = new Criteria();
+        $integrationCriteria->addFilter(new EqualsFilter('accessKey', $accessKey));
+        $integration = $integrationRepository->search($integrationCriteria, Context::createDefaultContext());
+
+        if ($integration->first()) {
+            /** @var IntegrationEntity $integrationEntity */
+            $integrationEntity = $integration->first();
+            $integrationRepository->delete([
+                ['id' => $integrationEntity->getId()]
+            ], Context::createDefaultContext());
         }
     }
 
     /**
-     * this method deletes ALL Newsletter2Go configurations at `newsletter2go_config` table
-     * @throws InconsistentCriteriaIdsException
+     * this method drops `newsletter2go_config` table
      */
     private function deleteNewsletter2goConfig()
     {
-        /** @var EntityRepository $n2gRepository */
-        $n2gRepository = $this->container->get('newsletter2go_config.repository');
-        $ids = [];
-        $result = $n2gRepository->search(new Criteria(), Context::createDefaultContext());
-        /** @var Newsletter2goConfig $n2gConfig */
-        foreach ($result->getElements() as $n2gConfig) {
-            $ids[]['id'] = $n2gConfig->getId();
+        try {
+            $connection = $this->container->get(Connection::class);
+            $connection->executeQuery('DROP TABLE IF EXISTS `newsletter2go_config`');
+        } catch (\Exception $exception) {
+            //
         }
-
-        $n2gRepository->delete($ids, Context::createDefaultContext());
     }
 
     public function boot(): void
     {
         parent::boot();
     }
+
+    /**
+     * delete integration related to plugin and create a new integration
+     */
+    private function createIntegration()
+    {
+
+        try {
+            $context = Context::createDefaultContext();
+
+            /** @var EntityRepositoryInterface $integrationRepository */
+            $integrationRepository = $this->container->get('integration.repository');
+
+            $accessKey = AccessKeyHelper::generateAccessKey('integration');
+            $secretAccessKey = AccessKeyHelper::generateSecretAccessKey();
+            $integrationLabel = 'Newsletter2Go';
+
+            $data = [
+                'label' => $integrationLabel,
+                'accessKey' => $accessKey,
+                'secretAccessKey' => $secretAccessKey,
+                'writeAccess' => true
+            ];
+
+            /** @var IntegrationEntity $integrationEntity */
+            $integrationEntity = $integrationRepository->create([$data], $context);
+
+            $connection = $this->container->get(Connection::class);
+            $connection->executeQuery("INSERT INTO `newsletter2go_config` VALUES(:id, :name, :value) ",
+                ['id' => Uuid::randomBytes(), 'name' => Newsletter2goConfig::NAME_VALUE_ACCESS_KEY, 'value' => $accessKey]);
+
+            $connection->executeQuery("INSERT INTO `newsletter2go_config` VALUES(:id, :name, :value) ",
+                ['id' => Uuid::randomBytes(), 'name' => Newsletter2goConfig::NAME_VALUE_SECRET_ACCESS_KEY, 'value' => $secretAccessKey]);
+
+        } catch (\Exception $exception) {
+            //
+        }
+    }
+
 
     public function build(ContainerBuilder $container): void
     {
@@ -127,4 +160,11 @@ class Newsletter2go extends Plugin
     {
         return 'Newsletter2go\Migration';
     }
+
+    public function getAdministrationEntryPath(): string
+    {
+        return 'Administration';
+    }
+
+
 }
