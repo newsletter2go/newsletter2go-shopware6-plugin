@@ -89,21 +89,21 @@ class BackendController extends AbstractController
 
     private function createIntegration(Context $context)
     {
-        /** @var EntityRepositoryInterface $integrationRepository */
-        $integrationRepository = $this->container->get('integration.repository');
-
-        $accessKey = AccessKeyHelper::generateAccessKey('integration');
-        $secretAccessKey = AccessKeyHelper::generateSecretAccessKey();
-        $integrationLabel = 'Newsletter2Go - ' . (new \DateTime())->format('Y-m-d H:i:s');
-
-        $data = [
-            'label' => $integrationLabel,
-            'accessKey' => $accessKey,
-            'secretAccessKey' => $secretAccessKey,
-            'writeAccess' => true
-        ];
-
         try {
+            /** @var EntityRepositoryInterface $integrationRepository */
+            $integrationRepository = $this->container->get('integration.repository');
+
+            $accessKey = AccessKeyHelper::generateAccessKey('integration');
+            $secretAccessKey = AccessKeyHelper::generateSecretAccessKey();
+            $integrationLabel = 'Newsletter2Go';
+
+            $data = [
+                'label' => $integrationLabel,
+                'accessKey' => $accessKey,
+                'secretAccessKey' => $secretAccessKey,
+                'writeAccess' => true
+            ];
+
             /** @var IntegrationEntity $integrationEntity */
             $integrationEntity = $integrationRepository->create([$data], $context);
 
