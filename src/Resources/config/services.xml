@@ -7,18 +7,17 @@
     <services>
         <service class="Newsletter2go\Service\Crypto" id="Newsletter2go\Service\Crypto"/>
 
+        <service class="Newsletter2go\Service\Newsletter2goConfigService" id="Newsletter2go\Service\Newsletter2goConfigService">
+            <argument type="service" id="service_container"/>
+        </service>
+
         <service id="Newsletter2go\Entity\Newsletter2goConfigDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
 
-<!--        <service id="Newsletter2go\Subscriber\ConversionTracking">-->
-<!--            <tag name="kernel.event_subscriber"/>-->
-<!--        </service>-->
-
-<!--        <service class="Newsletter2go\Service\ApiService" id="Newsletter2go\Service\ApiService"/>-->
-<!--        <service id="Newsletter2go\Controller\N2GoController" public="true">-->
-<!--            <argument type="service" id="Newsletter2go\Service\ApiService" />-->
-<!--        </service>-->
+        <service id="Newsletter2go\Controller\Api\CallbackController" public="true">
+            <argument type="service" id="Newsletter2go\Service\Newsletter2goConfigService"/>
+        </service>
     </services>
 </container>
 
