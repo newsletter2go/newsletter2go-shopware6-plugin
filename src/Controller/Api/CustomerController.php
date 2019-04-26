@@ -6,6 +6,7 @@ namespace Newsletter2go\Controller\Api;
 use Newsletter2go\Model\Field;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -71,11 +72,17 @@ class CustomerController extends AbstractController
                 $criteria->addFilter(new EqualsAnyFilter('customer.email',
                     $emails));
             }
-            //TODO and add vouchers
+
+            $promotionAssociationCriteria = new Criteria();
+            $promotionAssociationCriteria->addFilter(new EqualsFilter('active', 1));
+            $promotionAssociationCriteria->addAssociation('discounts');
+            $criteria->addAssociation('promotions', $promotionAssociationCriteria);
+
             $result = $customerRepository->search($criteria, $context)->getEntities();
-            $preparedList = $this->filterCustomerAttribute($result, $fields);
+            $preparedList = $this->prepareCustomerAttributes($result, $fields);
             $response['success'] = true;
             $response['data'] = $preparedList;
+
         } catch (\Exception $exception) {
             $response['success'] = false;
             $response['error'] = $exception->getMessage();
@@ -87,7 +94,9 @@ class CustomerController extends AbstractController
     private function getCustomerEntityFields(String $customFields): array
     {
         $fields = [];
-        $customFields = explode(',', preg_replace('/\s+/', '', $customFields));
+
+        $customFields = $this->prepareCustomFields($customFields);
+
         $defaultCustomerFields = $this->getCustomerDefaultFields();
         if (count($customFields) === 0) {
             return $defaultCustomerFields;
@@ -108,6 +117,17 @@ class CustomerController extends AbstractController
         return $fields;
     }
 
+    private function prepareCustomFields($customFields): array
+    {
+        $customFields = preg_replace('/\s+/', '', $customFields);
+        if (empty($customFields)) {
+            $customFields = [];
+        } else {
+            $customFields = explode(',', $customFields);
+        }
+
+        return $customFields;
+    }
 
     private function getCustomerDefaultFields(): array
     {
@@ -135,12 +155,14 @@ class CustomerController extends AbstractController
             new Field('defaultPaymentMethod', Field::DATATYPE_DATE),
             new Field('createdAt', Field::DATATYPE_DATE),
             new Field('updatedAt', Field::DATATYPE_DATE),
+            new Field('salesChannel', Field::DATATYPE_ARRAY),
+            new Field('promotions', Field::DATATYPE_ARRAY),
         ];
 
         return $defaultFields;
     }
 
-    private function filterCustomerAttribute(EntityCollection $customerList, array $fields) : array
+    private function prepareCustomerAttributes(EntityCollection $customerList, array $fields): array
     {
         $preparedCustomerList = [];
         /**
@@ -154,29 +176,18 @@ class CustomerController extends AbstractController
                     $attribute = $customerEntity->get($field->getId());
 
                     if ($attribute instanceof Entity) {
-                        if ($attribute instanceof CustomerAddressEntity) {
-                            /** @var CountryEntity $country */
-                            $country =  $attribute->getCountry();
-                            $preparedCustomerList[$key][$field->getId()]['countryIso'] = $country->getIso();
-                            $preparedCustomerList[$key][$field->getId()]['countryName'] = $country->getName();
-                            $preparedCustomerList[$key][$field->getId()]['city'] = $attribute->getCity();
-                        }
-                        if ($attribute instanceof SalutationEntity) {
-                            $preparedCustomerList[$key][$field->getId()]['displayName'] = $attribute->getDisplayName();
-                            $preparedCustomerList[$key][$field->getId()]['letterName'] = $attribute->getLetterName();
-                            continue; //
-                        }
-                        if (property_exists($attribute, 'id')) {
-                            $preparedCustomerList[$key][$field->getId()]['id'] = $attribute->getUniqueIdentifier();
-                        }
-                        if (property_exists($attribute, 'name')) {
-                            $preparedCustomerList[$key][$field->getId()]['name'] = $attribute->get('name');
-                        }
+                        $preparedCustomerList[$key][$field->getId()] = $this->prepareEntity($attribute);
                     } else {
-                        if (is_string($attribute)) {
-                            $preparedCustomerList[$key][$field->getId()] = $attribute;
-                        } elseif ($attribute instanceof \DateTimeImmutable) {
-                            $preparedCustomerList[$key][$field->getId()] = $attribute->format('Y-m-d H:i:s');
+                        if ($attribute instanceof EntityCollection) {
+                            if ($attribute instanceof PromotionCollection) {
+                                $preparedCustomerList[$key][$field->getId()] = $this->preparePromotionCollection($attribute);
+                            }
+                        } else {
+                            if ($attribute instanceof \DateTimeImmutable) {
+                                $preparedCustomerList[$key][$field->getId()] = $attribute->format('Y-m-d H:i:s');
+                            } else {
+                                $preparedCustomerList[$key][$field->getId()] = $attribute;
+                            }
                         }
                     }
                 }
@@ -184,6 +195,66 @@ class CustomerController extends AbstractController
         }
 
         return $preparedCustomerList;
+    }
+
+    private function prepareEntity(Entity $entity): ?array
+    {
+        $preparedEntity = [];
+        if ($entity instanceof CustomerAddressEntity) {
+            $preparedEntity = $this->prepareCustomerAddressEntity($entity);
+        }
+        if ($entity instanceof SalutationEntity) {
+            $preparedEntity['displayName'] = $entity->getDisplayName();
+            $preparedEntity['letterName'] = $entity->getLetterName();
+        } else {
+
+            if (property_exists($entity, 'id')) {
+                $preparedCustomerList['id'] = $entity->getUniqueIdentifier();
+            }
+            if (property_exists($entity, 'name')) {
+                $preparedCustomerList['name'] = $entity->get('name');
+            }
+        }
+
+        return $preparedEntity;
+    }
+
+    private function prepareCustomerAddressEntity(CustomerAddressEntity $customerAddressEntity): ?array
+    {
+        $addressEntity = [];
+        /** @var CountryEntity $country */
+        $country = $customerAddressEntity->getCountry();
+        $addressEntity['countryIso'] = $country->getIso();
+        $addressEntity['countryName'] = $country->getName();
+        $addressEntity['city'] = $customerAddressEntity->getCity();
+
+        return $addressEntity;
+    }
+
+    private function preparePromotionCollection(PromotionCollection $promotionCollection): ?array
+    {
+        $promotions = [];
+
+        if ($promotionCollection->count() > 0) {
+            foreach ($promotionCollection->getElements() as $promotionKey => $promotionEntity) {
+                $promotions[$promotionKey]['id'] = $promotionEntity->getId();
+                $promotions[$promotionKey]['name'] = $promotionEntity->getName();
+                $promotions[$promotionKey]['name'] = $promotionEntity->getName();
+                $promotions[$promotionKey]['percental'] = $promotionEntity->isPercental();
+                $promotions[$promotionKey]['validFrom'] = $promotionEntity->getValidFrom()->format('Y-m-d H:i:s');
+                $promotions[$promotionKey]['validUntil'] = $promotionEntity->getValidUntil()->format('Y-m-d H:i:s');
+                $promotions[$promotionKey]['redeemable'] = $promotionEntity->getRedeemable();
+                $promotions[$promotionKey]['exclusive'] = $promotionEntity->isExclusive();
+                $promotions[$promotionKey]['priority'] = $promotionEntity->getPriority();
+                $promotions[$promotionKey]['codeType'] = $promotionEntity->getCodeType();
+                $promotions[$promotionKey]['code'] = $promotionEntity->getCode();
+                $promotions[$promotionKey]['discounts'] = $promotionEntity->getDiscounts() ?: null;
+            }
+        } else {
+            $promotions = null;
+        }
+
+        return $promotions;
     }
 
     /**
