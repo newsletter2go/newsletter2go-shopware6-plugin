@@ -3,16 +3,29 @@
 namespace Newsletter2go\Controller\Api;
 
 
+use Newsletter2go\Service\Newsletter2goConfigService;
 use Shopware\Core\Framework\Context;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class AuthController extends AbstractController
+class CallbackController extends AbstractController
 {
+    private $newsletter2goConfigService;
+
     /**
-     * @Route("/api/{version}/n2g/auth", name="api.action.n2g.auth", methods={"POST"})
+     * AuthController constructor.
+     * @param Newsletter2goConfigService $newsletter2goConfigService
+     */
+    public function __construct(Newsletter2goConfigService $newsletter2goConfigService)
+    {
+        $this->newsletter2goConfigService = $newsletter2goConfigService;
+    }
+
+
+    /**
+     * @Route("/api/{version}/n2g/callback", name="api.action.n2g.callback", methods={"POST"})
      * @param Request $request
      * @param Context $context
      * @return JsonResponse
@@ -27,26 +40,10 @@ class AuthController extends AbstractController
         $companyId = $request->get('company_id', null);
 
         try {
-            $repository = $this->container->get('newsletter2go_config.repository');
-
-            $repository->create([
-                [
-                    'name' => 'auth_key',
-                    'value' => $authKey
-                ],
-                [
-                    'name' => 'access_token',
-                    'value' => $accessToken
-                ],
-                [
-                    'name' => 'refresh_token',
-                    'value' => $refreshToken
-                ],
-                [
-                    'name' => 'company_id',
-                    'value' => $companyId
-                ],
-            ], $context);
+            $this->newsletter2goConfigService->addConfig('auth_key', $authKey);
+            $this->newsletter2goConfigService->addConfig('access_token', $accessToken);
+            $this->newsletter2goConfigService->addConfig('refresh_token', $refreshToken);
+            $this->newsletter2goConfigService->addConfig('company_id', $companyId);
 
             $response['success'] = true;
 
