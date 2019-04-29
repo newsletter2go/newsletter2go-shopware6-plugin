@@ -131,11 +131,12 @@ class Newsletter2go extends Plugin
             $integrationEntity = $integrationRepository->create([$data], $context);
 
             $connection = $this->container->get(Connection::class);
-            $connection->executeQuery("INSERT INTO `newsletter2go_config` VALUES(:id, :name, :value) ",
-                ['id' => Uuid::randomBytes(), 'name' => Newsletter2goConfig::NAME_VALUE_ACCESS_KEY, 'value' => $accessKey]);
+            $createdAtTimeStampFormat = (new \DateTime())->format('Y-m-d H:i:s');
+            $connection->executeQuery("INSERT INTO `newsletter2go_config` VALUES(:id, :name, :value, :createdAt, NULL) ",
+                ['id' => Uuid::randomBytes(), 'name' => Newsletter2goConfig::NAME_VALUE_ACCESS_KEY, 'value' => $accessKey, 'createdAt' => $createdAtTimeStampFormat]);
 
-            $connection->executeQuery("INSERT INTO `newsletter2go_config` VALUES(:id, :name, :value) ",
-                ['id' => Uuid::randomBytes(), 'name' => Newsletter2goConfig::NAME_VALUE_SECRET_ACCESS_KEY, 'value' => $secretAccessKey]);
+            $connection->executeQuery("INSERT INTO `newsletter2go_config` VALUES(:id, :name, :value, :createdAt, NULL) ",
+                ['id' => Uuid::randomBytes(), 'name' => Newsletter2goConfig::NAME_VALUE_SECRET_ACCESS_KEY, 'value' => $secretAccessKey, 'createdAt' => $createdAtTimeStampFormat]);
 
         } catch (\Exception $exception) {
             //
