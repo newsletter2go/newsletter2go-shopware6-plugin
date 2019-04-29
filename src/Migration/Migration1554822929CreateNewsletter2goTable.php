@@ -16,9 +16,11 @@ class Migration1554822929CreateNewsletter2goTable extends MigrationStep
     {
         $query = <<<SQL
 CREATE TABLE IF NOT EXISTS `newsletter2go_config` (
-    id BINARY(16) NOT NULL,
-	name varchar(255) NOT NULL UNIQUE,
-	value varchar(255) NULL,
+    `id` BINARY(16) NOT NULL,
+	`name` varchar(255) NOT NULL UNIQUE,
+	`value` varchar(255) NULL,
+	`created_at` DATETIME(3) NOT NULL,
+    `updated_at` DATETIME(3),
 	PRIMARY KEY (`id`)
 )
 ENGINE=InnoDB

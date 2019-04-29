@@ -1,7 +1,6 @@
 {
     "name": "newsletter2go/newsletter2go-shopware6-plugin",
     "description": "Newsletter2go plugin",
-    "version": "v1.0.0",
     "type": "shopware-platform-plugin",
     "license": "MIT",
     "authors": [
@@ -9,19 +8,16 @@
             "name": "Newsletter2Go GmbH"
         }
     ],
-    "require": {
-        "shopware/platform": "dev-master"
-    },
     "extra": {
         "shopware-plugin-class": "Newsletter2go\\Newsletter2go",
         "plugin-icon": "src/Resources/public/static/img/plugin.png",
         "label": {
-            "de_DE": "Newsletter2go Plugin für die Base Class",
-            "en_GB": "Newsletter2go plugin for the base class"
+            "de-DE": "Newsletter2go Plugin für die Base Class",
+            "en-GB": "Newsletter2go plugin for the base class"
         },
         "description": {
-            "de_DE": "Newsletter2go Plugin für die Base Class",
-            "en_GB": "Newsletter2go plugin for the base class"
+            "de-DE": "Newsletter2go Plugin für die Base Class",
+            "en-GB": "Newsletter2go plugin for the base class"
         }
     },
     "autoload": {
