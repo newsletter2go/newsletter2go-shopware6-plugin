@@ -38,12 +38,14 @@ class CallbackController extends AbstractController
         $accessToken = $request->get('access_token', null);
         $refreshToken = $request->get('refresh_token', null);
         $companyId = $request->get('company_id', null);
+        $email = $request->get('email');
 
         try {
             $this->newsletter2goConfigService->addConfig('auth_key', $authKey);
             $this->newsletter2goConfigService->addConfig('access_token', $accessToken);
             $this->newsletter2goConfigService->addConfig('refresh_token', $refreshToken);
             $this->newsletter2goConfigService->addConfig('company_id', $companyId);
+            $this->newsletter2goConfigService->addConfig('email', $email);
 
             $response['success'] = true;
 
