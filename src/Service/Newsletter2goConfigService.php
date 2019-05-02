@@ -4,6 +4,7 @@ namespace Newsletter2go\Service;
 
 
 use Newsletter2go\Entity\Newsletter2goConfig;
+use Newsletter2go\Entity\Newsletter2goConfigDefinition;
 use Psr\Container\ContainerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -25,12 +26,11 @@ class Newsletter2goConfigService
 
     /**
      * Newsletter2goConfigService constructor.
-     * @param ContainerInterface $container
+     * @param Newsletter2goConfigDefinition $newsletter2goConfigDefinition
      */
-    public function __construct(ContainerInterface $container)
+    public function __construct(Newsletter2goConfigDefinition $newsletter2goConfigDefinition)
     {
-        $this->container = $container;
-        $this->n2gConfigRepository = $container->get('newsletter2go_config.repository');
+        $this->n2gConfigRepository = $newsletter2goConfigDefinition;
         $this->context = Context::createDefaultContext();
     }
 

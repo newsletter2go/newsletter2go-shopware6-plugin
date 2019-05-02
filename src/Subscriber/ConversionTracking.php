@@ -1,6 +1,6 @@
 <?php
 
-namespace Swag\Newsletter2go\Subscriber;
+namespace Newsletter2go\Subscriber;
 
 
 use Shopware\Core\Content\Product\ProductEvents;
@@ -19,6 +19,6 @@ class ConversionTracking extends EventSubscriberInterface
 
     public function onProductPurchaseSuccess(EntityLoadedEvent $event)
     {
-        echo var_dump($_SERVER);
+        echo var_dump($_SERVER); //TODO
     }
 }

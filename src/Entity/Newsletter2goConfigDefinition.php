@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Newsletter2go\Entity;
 
@@ -14,22 +14,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class Newsletter2goConfigDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'newsletter2go_config';
     }
 
-    public static function getCollectionClass(): string
-    {
-        return Newsletter2goConfigCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return Newsletter2goConfig::class;
-    }
-
-    protected static function defineFields(): FieldCollection
+    public function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
@@ -40,4 +30,13 @@ class Newsletter2goConfigDefinition extends EntityDefinition
         ]);
     }
 
+    public function getCollectionClass(): string
+    {
+        return Newsletter2goConfigCollection::class;
+    }
+
+    public function getEntityClass(): string
+    {
+        return Newsletter2goConfig::class;
+    }
 }

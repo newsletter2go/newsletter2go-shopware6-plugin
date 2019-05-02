@@ -32,7 +32,7 @@ class Newsletter2go extends Plugin
     public function postInstall(InstallContext $context): void
     {
         // your code you need to execute after your plugin gets installed
-        $this->createIntegration();
+        $this->createIntegration($context->getContext());
     }
 
     public function update(UpdateContext $context): void
@@ -106,12 +106,12 @@ class Newsletter2go extends Plugin
 
     /**
      * delete integration related to plugin and create a new integration
+     * @param Context $context
      */
-    private function createIntegration()
+    private function createIntegration(Context $context)
     {
 
         try {
-            $context = Context::createDefaultContext();
 
             /** @var EntityRepositoryInterface $integrationRepository */
             $integrationRepository = $this->container->get('integration.repository');

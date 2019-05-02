@@ -1,6 +1,1 @@
-import { Component } from 'src/core/shopware';
-import template from './index.html.twig';
-
-Component.override('sw-product-settings-form', {
-    template,
-});
+import './src/component/newsletter2go';
