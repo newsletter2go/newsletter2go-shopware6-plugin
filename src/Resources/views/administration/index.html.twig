@@ -1,7 +1,13 @@
 {% sw_extends 'administration/index.html.twig' %}
 
+{% block administration_stylesheets %}
+    {{ parent() }}
+
+{#    <link rel="stylesheet" href="{{ asset('bundles/newsletter2go/static/css/Newsletter2go.css') }}">#}
+{% endblock %}
+
 {% block administration_scripts %}
     {{ parent() }}
 
-    <script type="text/javascript" src="{{ asset('public/bundles/newsletter2go/static/js/Newsletter2go.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('bundles/newsletter2go/static/js/Newsletter2go.js') }}"></script>
 {% endblock %}

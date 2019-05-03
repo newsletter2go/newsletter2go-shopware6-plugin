@@ -1,0 +1,8 @@
+{
+    "name": "newsletter2go",
+    "version": "1.0.0",
+    "description": "Administration for PayPal",
+    "main": "index.js",
+    "author": "Newsletter2 GmbH",
+    "license": "MIT"
+}

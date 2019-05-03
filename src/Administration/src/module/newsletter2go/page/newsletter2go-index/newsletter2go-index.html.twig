@@ -1,0 +1,47 @@
+{% block newsletter2go %}
+    <sw-page class="newsletter2go">
+
+{# header start #}
+        {% block newsletter2go_header %}
+            <template slot="smart-bar-header">
+                <h2>
+                     Newsletter2Go
+                    <sw-icon name="small-arrow-medium-right" small></sw-icon>
+                     Plugin
+                </h2>
+            </template>
+        {% endblock %}
+{# header start #}
+
+{# buttons bar start#}
+        {% block newsletter2go_actions %}
+            <template slot="smart-bar-actions">
+                {% block newsletter2go_connect_button %}
+                    <sw-button :disabled="false" variant="primary" :square="false" :block="false" link="https://ui.newsletter2go.com/" :isLoading="false">
+                        Connect to Newsletter2Go
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+{# buttons bar end#}
+
+{# content start #}
+        {% block newsletter2go_content %}
+            <sw-card-view slot="content">
+
+                {% block newsletter2go_account_configuration %}
+                    <sw-card title="Account Configuration" :isLoading="false" :large="false">
+                            <sw-icon name="default-basic-checkmark-circle" color="#65c765"></sw-icon> connected to account max@exampe.com
+                            <sw-icon name="default-badge-error" color="#f76363"></sw-icon> error
+                    </sw-card>
+                {% endblock %}
+
+                <sw-card title="Conversion-Tracking" :isLoading="false" :large="false">
+                    <sw-checkbox-field label="Enable"></sw-checkbox-field>
+                </sw-card>
+            </sw-card-view>
+
+        {% endblock %}
+{# content end #}
+    </sw-page>
+{% endblock %}

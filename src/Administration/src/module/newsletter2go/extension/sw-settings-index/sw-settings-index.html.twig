@@ -1,0 +1,13 @@
+{% block sw_settings_content_card_slot_default %}
+    {% parent %}
+
+    <sw-settings-item :label="Newsletter2Go"
+                      :to="{ name: 'newsletter2go.index' }"
+                      :backgroundEnabled="false">
+        <template slot="icon">
+            <sw-avatar size="48px"
+                       imageUrl="{{ asset('bundles/newsletter2go/static/img/plugin.png') }}">
+            </sw-avatar>
+        </template>
+    </sw-settings-item>
+{% endblock %}
