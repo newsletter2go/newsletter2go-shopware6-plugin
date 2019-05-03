@@ -44,7 +44,7 @@ class BackendController extends AbstractController
     {
         $params = [];
         $params['version'] = $this->getPluginVersion();
-        $params['apiVersion'] = $request->get('version');
+        $params['apiVersion'] = 'v' . PlatformRequest::API_VERSION;
         $params['url'] = $request->getSchemeAndHttpHost();
         $params['callback'] = $request->getSchemeAndHttpHost() . '/admin';
 
