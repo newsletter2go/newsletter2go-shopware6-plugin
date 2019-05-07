@@ -12,6 +12,7 @@
         </service>
 
         <service class="Newsletter2go\Service\Newsletter2goConfigService" id="Newsletter2go\Service\Newsletter2goConfigService">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Newsletter2go\Entity\Newsletter2goConfigDefinition"/>
         </service>
 

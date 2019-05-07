@@ -7,6 +7,7 @@ use Newsletter2go\Entity\Newsletter2goConfig;
 use Newsletter2go\Entity\Newsletter2goConfigDefinition;
 use Psr\Container\ContainerInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -26,11 +27,12 @@ class Newsletter2goConfigService
 
     /**
      * Newsletter2goConfigService constructor.
+     * @param DefinitionInstanceRegistry $definitionRegistry
      * @param Newsletter2goConfigDefinition $newsletter2goConfigDefinition
      */
-    public function __construct(Newsletter2goConfigDefinition $newsletter2goConfigDefinition)
+    public function __construct(DefinitionInstanceRegistry $definitionRegistry, Newsletter2goConfigDefinition $newsletter2goConfigDefinition)
     {
-        $this->n2gConfigRepository = $newsletter2goConfigDefinition;
+        $this->n2gConfigRepository = $definitionRegistry->getRepository($newsletter2goConfigDefinition->getEntityName());
         $this->context = Context::createDefaultContext();
     }
 
