@@ -3,6 +3,7 @@
 namespace Newsletter2go\Migration;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 class Migration1554822929CreateNewsletter2goTable extends MigrationStep
@@ -18,7 +19,7 @@ class Migration1554822929CreateNewsletter2goTable extends MigrationStep
 CREATE TABLE IF NOT EXISTS `newsletter2go_config` (
     `id` BINARY(16) NOT NULL,
 	`name` varchar(255) NOT NULL UNIQUE,
-	`value` varchar(300) NULL,
+	`value` LONGTEXT COLLATE utf8mb4_unicode_ci NULL,
 	`created_at` DATETIME(3) NOT NULL,
     `updated_at` DATETIME(3),
 	PRIMARY KEY (`id`)
