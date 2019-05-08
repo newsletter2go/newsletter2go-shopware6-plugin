@@ -6,14 +6,14 @@ namespace Newsletter2go\Service;
 class ApiService
 {
     const GRANT_TYPE = 'https://nl2go.com/jwt';
+    const REFRESH_GRANT_TYPE = 'https://nl2go.com/jwt_refresh';
     const API_BASE_URL = 'https://api.newsletter2go.com';
-    const SHOPWARE_N2G_AGENT = 'Shopware/6';
 
-    //TODO
-    private $ref = '';
-    private $authKey;
+    private $ref = '936f38795cf8df6ce1e25ce887e8676a';
+    private $apiKey;
     private $accessToken;
     private $refreshToken;
+    private $lastStatusCode;
 
     /**
      * ApiService constructor.
@@ -23,7 +23,7 @@ class ApiService
      */
     public function __construct($authKey, $accessToken, $refreshToken)
     {
-        $this->authKey = $authKey;
+        $this->apiKey = $authKey;
         $this->accessToken = $accessToken;
         $this->refreshToken = $refreshToken;
     }
@@ -34,45 +34,53 @@ class ApiService
      * @param string $endpoint
      * @param array $params
      * @param array $headers
+     * @param bool $authorize
      * @return array
      */
-    private function httpRequest($method, $endpoint, $params = [], $headers = ['Content-Type' => 'application/json']) : ?array
+    private function httpRequest($method, $endpoint, $params = [], $headers = ['Content-Type: application/json'], $authorize = false) : ?array
     {
+        $response = [];
+        $response['status'] = 0;
+
         try {
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLOPT_HEADER, $headers);
-            curl_setopt($ch, CURLOPT_USERAGENT, self::SHOPWARE_N2G_AGENT);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+            if ($authorize) {
+                // this is needed to refreshing token
+                curl_setopt($ch, CURLOPT_USERPWD, $this->apiKey);
+            }
 
             switch ($method) {
                 case 'PATCH':
                 case 'POST':
                     curl_setopt($ch, CURLOPT_POST, true);
-                    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
                     break;
                 case 'GET':
                     $encodedParams = array();
-                    foreach ($params as $key => $value) {
-                        $encodedParams[] = urlencode($key) . '=' . urlencode($value);
-                    }
+                    if (count($params) > 0) {
+                        foreach ($params as $key => $value) {
+                            $encodedParams[] = urlencode($key) . '=' . urlencode($value);
+                        }
 
-                    $getParams = "?" . http_build_query($params);
-                    $endpoint .= $endpoint . $getParams;
+                        $getParams = "?" . http_build_query($params);
+                        $endpoint .= $endpoint . $getParams;
+                    }
                     break;
                 default:
                     return null;
             }
-
             curl_setopt($ch, CURLOPT_URL, self::API_BASE_URL . $endpoint);
 
-            $response['success'] = true;
-            $response['data'] = curl_exec($ch);
+            $response = json_decode(curl_exec($ch), true);
+            $this->setLastStatusCode(curl_getinfo($ch, CURLINFO_HTTP_CODE));
 
             curl_close($ch);
 
-        } catch (Exception $exception) {
-            $response['success'] = false;
+        } catch (\Exception $exception) {
             $response['error'] = $exception->getMessage();
         }
 
@@ -81,19 +89,19 @@ class ApiService
 
     private function refreshToken() : ?array
     {
+        $headers = ['Content-Type' => 'application/json'];
+
         $data = [
-            'grant_type' => self::GRANT_TYPE,
-            'refresh_token' => $this->refreshToken
+            'refresh_token' => $this->getRefreshToken(),
+            'grant_type' => self::REFRESH_GRANT_TYPE
         ];
 
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Authorization' => 'Basic ' . base64_encode($this->authKey)
-        ];
-
-        $result = $this->httpRequest('GET', '/oauth/v2/token', $data, $headers);
+        $result = $this->httpRequest('POST', '/oauth/v2/token', $data, $headers, true);
 
         if (isset($result['access_token'])) {
+            $this->setAccessToken($result['access_token']);
+            $this->setRefreshToken($result['refresh_token']);
+
             return $result;
         }
 
@@ -153,4 +161,34 @@ class ApiService
         // TODO
     }
 
+    public function testConnection()
+    {
+        $response = $this->refreshToken();
+
+        if ($this->getLastStatusCode() === 200) {
+            $headers = ['Content-Type: application/json', 'Authorization: Bearer ' . $this->getAccessToken()];
+
+            $response =  $this->httpRequest('GET', '/companies', [], $headers);
+
+            return ['status' => $response['status']];
+        }
+
+        return ['status' => $this->getLastStatusCode(), 'error' => $response];
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLastStatusCode()
+    {
+        return $this->lastStatusCode;
+    }
+
+    /**
+     * @param mixed $lastStatusCode
+     */
+    public function setLastStatusCode($lastStatusCode): void
+    {
+        $this->lastStatusCode = $lastStatusCode;
+    }
 }
