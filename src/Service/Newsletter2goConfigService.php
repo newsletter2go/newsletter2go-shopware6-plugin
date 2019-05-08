@@ -9,7 +9,6 @@ use Psr\Container\ContainerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
@@ -57,21 +56,40 @@ class Newsletter2goConfigService
         return $result->getElements();
     }
 
-    public function addConfig(String $name, String $value): ?String
+    public function addConfig(array $config)
     {
-        $event = $this->n2gConfigRepository->create([
-            [
-                'name' => $name,
-                'value' => $value
-            ]
-        ],
-            $this->context
-        );
+        $config = $this->updateConfig($config);
 
-        /** @var EntityWrittenEvent $config */
-        $config = $event->getEvents()->getElements()[0];
+        if ($config) {
+            $newData = [];
 
-        return $config->getIds()[0];
+            foreach ($config as $key => $value) {
+                $newData[] = [ 'name' => $key, 'value' =>  $value];
+            }
+
+            $this->n2gConfigRepository->create($newData, $this->context);
+        }
+    }
+
+    private function updateConfig(array $config) : array
+    {
+        $data = [];
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('name', array_keys($config)));
+        $result = $this->n2gConfigRepository->search($criteria, $this->context);
+
+        if ($result->count()) {
+            /** @var Newsletter2goConfig $configItem */
+            foreach ($result->getElements() as $configItem) {
+                $data[] = [ 'id' => $configItem->getId(), 'name' => $configItem->getName(), 'value' =>  $config[$configItem->getName()]];
+                unset($config[$configItem->getName()]);
+            }
+
+            $event = $this->n2gConfigRepository->update($data ,$this->context);
+            $count = $event->getEvents()->count();
+        }
+
+        return $config;
     }
 
     public function deleteConfigByName(String $name): bool
