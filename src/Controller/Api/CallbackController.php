@@ -33,20 +33,16 @@ class CallbackController extends AbstractController
     public function authAction(Request $request, Context $context): JsonResponse
     {
         $response = [];
-
-        $authKey = $request->get('auth_key', null);
-        $accessToken = $request->get('access_token', null);
-        $refreshToken = $request->get('refresh_token', null);
-        $companyId = $request->get('company_id', null);
-        $email = $request->get('email');
+        $config = [];
+        $config['api_key'] = $request->get('api_key', null);
+        $config['access_token'] = $request->get('access_token', null);
+        $config['refresh_token'] = $request->get('refresh_token', null);
+        $config['company_id'] = $request->get('company_id', null);
+        $config['account_id'] = $request->get('account_id', null);
+        $config['email'] = $request->get('email');
 
         try {
-            $this->newsletter2goConfigService->addConfig('auth_key', $authKey);
-            $this->newsletter2goConfigService->addConfig('access_token', $accessToken);
-            $this->newsletter2goConfigService->addConfig('refresh_token', $refreshToken);
-            $this->newsletter2goConfigService->addConfig('company_id', $companyId);
-            $this->newsletter2goConfigService->addConfig('email', $email);
-
+            $this->newsletter2goConfigService->addConfig($config);
             $response['success'] = true;
 
         } catch (\Exception $exception) {
