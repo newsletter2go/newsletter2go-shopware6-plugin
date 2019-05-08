@@ -4,16 +4,11 @@ namespace Newsletter2go\Controller;
 
 
 use Newsletter2go\Entity\Newsletter2goConfig;
-use Newsletter2go\Entity\Newsletter2goConfigCollection;
-use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
+use Newsletter2go\Model\Auth;
+use Newsletter2go\Service\ApiService;
+use Newsletter2go\Service\Newsletter2goConfigService;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\Plugin\PluginEntity;
-use Shopware\Core\System\Integration\IntegrationEntity;
+use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -22,43 +17,80 @@ class BackendController extends AbstractController
 {
     const CONNECTOR_URL = 'https://ui.newsletter2go.com/integrations/connect/SW6/';
 
+    private $newsletter2goConfigService;
+    private $apiService;
+
+    /**
+     * BackendController constructor.
+     * @param Newsletter2goConfigService $newsletter2goConfigService
+     */
+    public function __construct(Newsletter2goConfigService $newsletter2goConfigService)
+    {
+        $this->newsletter2goConfigService = $newsletter2goConfigService;
+
+        $auth = $this->getNewsletter2goAuth();
+        $this->apiService = new ApiService($auth->getAuthKey(), $auth->getAccessToken(), $auth->getRefreshToken());
+    }
+
     /**
      * @Route(path="/api/{version}/n2g/backend", name="api.action.n2g.backend", methods={"GET"})
      * @param Request $request
      * @param Context $context
-     * @return Newsletter2goConfigCollection
-     * @throws InconsistentCriteriaIdsException
      */
-    public function getNewsletter2goConfig(Request $request, Context $context): Newsletter2goConfigCollection
+    public function getNewsletter2goConfig(Request $request, Context $context)
     {
-        $this->createIntegration($context);
-        $dd = $this->getConnectorUrlParams($request);
-
-        $repository = $this->container->get('newsletter2go_config.repository');
-        $result = $repository->search(new Criteria(), Context::createDefaultContext());
-
-        return $result->getElements();
+        //
     }
 
-    private function getConnectorUrlParams(Request $request)
+    private function getNewsletter2goAuth() : Auth
     {
+        $auth = new Auth();
+        try {
+            $configs = $this->newsletter2goConfigService->getConfigByFieldNames(['auth_key', 'access_token', 'refresh_token']);
+            /** @var Newsletter2goConfig $config */
+            foreach ($configs as $config) {
+                switch ($config->getName()) {
+                    case Newsletter2goConfig::NAME_VALUE_AUTH_KEY:
+                        $auth->setAuthKey($config->getValue());
+                        break;
+                    case Newsletter2goConfig::NAME_VALUE_ACCESS_TOKEN:
+                        $auth->setAccessToken($config->getValue());
+                        break;
+                    case Newsletter2goConfig::NAME_VALUE_REFRESH_TOKEN:
+                        $auth->setRefreshToken($config->getValue());
+                        break;
+                }
+            }
+        } catch (\Exception $exception) {
+            //
+        }
+
+        return $auth;
+    }
+
+    public function getConnectUrl()
+    {
+        return self::CONNECTOR_URL . http_build_query($this->getConnectorUrlParams());
+    }
+
+    private function getConnectorUrlParams()
+    {
+        $apiVersion = 'v' . PlatformRequest::API_VERSION;
         $params = [];
-        $params['version'] = $this->getPluginVersion();
-        $params['apiVersion'] = 'v' . PlatformRequest::API_VERSION;
-        $params['url'] = $request->getSchemeAndHttpHost();
-        $params['callback'] = $request->getSchemeAndHttpHost() . '/admin';
+        $params['url'] = getenv('APP_URL');
+        $params['callback'] = getenv('APP_URL') . "/api/{$apiVersion}/n2g/callback";
 
         try {
-            /** @var EntityRepositoryInterface $n2gConfigRepository */
-            $n2gConfigRepository = $this->container->get('newsletter2go_config.repository');
-            $n2gConfigElements = $n2gConfigRepository->search((new Criteria())->addFilter(new EqualsAnyFilter('name', ['accessKey', 'secretAccessKey'])), Context::createDefaultContext())->getElements();
+            $n2gConfigs = $this->newsletter2goConfigService->getConfigByFieldNames(['accessKey', 'secretAccessKey']);
 
-            /** @var Newsletter2goConfig $n2gConfigElement */
-            foreach ($n2gConfigElements as $n2gConfigElement) {
-                if ($n2gConfigElement->getName() === 'accessKey') {
-                    $params['accessKey'] = $n2gConfigElement->getValue();
-                } elseif ($n2gConfigElement->getName() === 'secretAccessKey') {
-                    $params['secretAccessKey'] = $n2gConfigElement->getValue();;
+            /** @var Newsletter2goConfig $n2gConfig */
+            foreach ($n2gConfigs as $n2gConfig) {
+                if ($n2gConfig->getName() === Newsletter2goConfig::NAME_VALUE_ACCESS_KEY) {
+                    $params['accessKey'] = $n2gConfig->getValue();
+                }
+
+                if ($n2gConfig->getName() === Newsletter2goConfig::NAME_VALUE_SECRET_ACCESS_KEY) {
+                    $params['secretAccessKey'] = $n2gConfig->getValue();
                 }
             }
 
@@ -69,72 +101,8 @@ class BackendController extends AbstractController
         return $params;
     }
 
-    private function getPluginVersion(): string
+    public function updateConversionTracking(Request $request, Context $context)
     {
-        /** @var EntityRepositoryInterface $pluginRepository */
-        $pluginRepository = $this->container->get('plugin.repository');
-        $plugins = $pluginRepository->search(new Criteria(), Context::createDefaultContext());
-
-        /** @var PluginEntity $plugin */
-        foreach ($plugins->getElements() as $plugin) {
-            if ($plugin->get('name') === 'Newsletter2go\Newsletter2go') {
-
-                return $plugin->get('version');
-            }
-        }
-
-        return false;
-    }
-
-
-    private function createIntegration(Context $context)
-    {
-        try {
-            /** @var EntityRepositoryInterface $integrationRepository */
-            $integrationRepository = $this->container->get('integration.repository');
-
-            $accessKey = AccessKeyHelper::generateAccessKey('integration');
-            $secretAccessKey = AccessKeyHelper::generateSecretAccessKey();
-            $integrationLabel = 'Newsletter2Go';
-
-            $data = [
-                'label' => $integrationLabel,
-                'accessKey' => $accessKey,
-                'secretAccessKey' => $secretAccessKey,
-                'writeAccess' => true
-            ];
-
-            /** @var IntegrationEntity $integrationEntity */
-            $integrationEntity = $integrationRepository->create([$data], $context);
-
-            /** @var EntityRepositoryInterface $n2gConfigRepository */
-            $n2gConfigRepository = $this->container->get('newsletter2go_config.repository');
-            $criteria = new Criteria();
-            $criteria->addFilter(new EqualsAnyFilter(Newsletter2goConfig::FIELD_NAME,
-                [
-                    Newsletter2goConfig::NAME_VALUE_ACCESS_KEY,
-                    Newsletter2goConfig::NAME_VALUE_SECRET_ACCESS_KEY,
-                ]
-            ));
-            /** @var EntitySearchResult $n2gElements */
-            $n2gElements = $n2gConfigRepository->search($criteria, $context);
-
-            if (count($n2gElements->getIds()) > 0) {
-                $elementIds = [];
-                foreach ($n2gElements->getIds() as $id) {
-                    $elementIds[] = ['id' => $id];
-                }
-
-                $n2gConfigRepository->delete($elementIds, $context);
-            }
-
-            $n2gConfigRepository->create([
-                ['name' => Newsletter2goConfig::NAME_VALUE_ACCESS_KEY, 'value' => $accessKey],
-                ['name' => Newsletter2goConfig::NAME_VALUE_SECRET_ACCESS_KEY, 'value' => $secretAccessKey],
-            ],$context);
-
-        } catch (\Exception $exception) {
-            //
-        }
+        //
     }
 }
