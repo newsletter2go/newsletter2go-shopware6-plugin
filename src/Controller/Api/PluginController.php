@@ -6,6 +6,7 @@ namespace Newsletter2go\Controller\Api;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -50,18 +51,20 @@ class PluginController extends AbstractController
 
     private function getPluginVersion() : string
     {
-        /** @var EntityRepositoryInterface $pluginRepository */
-        $pluginRepository = $this->container->get('plugin.repository');
-        $plugins = $pluginRepository->search(new Criteria(), Context::createDefaultContext());
+        try {
+            /** @var EntityRepositoryInterface $pluginRepository */
+            $pluginRepository = $this->container->get('plugin.repository');
+            $criteria = new Criteria();
+            $criteria->addFilter(new ContainsFilter('name', 'Newsletter2go'));
+            $plugins = $pluginRepository->search($criteria, Context::createDefaultContext());
 
-        /** @var PluginEntity $plugin */
-        foreach ($plugins->getElements() as $plugin) {
-            if ($plugin->get('name') === 'Newsletter2go\Newsletter2go') {
+            /** @var PluginEntity $plugin */
+            $plugin = $plugins->first();
 
-                return $plugin->get('version');
-            }
+            return $plugin->get('version');
+
+        } catch (\Exception $e) {
+            return $e->getMessage();
         }
-
-        return false;
     }
 }
