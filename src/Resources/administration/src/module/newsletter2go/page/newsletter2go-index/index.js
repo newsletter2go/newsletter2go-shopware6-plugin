@@ -11,8 +11,6 @@ export default {
     ],
 
     data() {
-        console.log('data');
-
         return {
             setting: {},
             isLoading: true,
@@ -22,16 +20,15 @@ export default {
     },
 
     created() {
-        console.log('created');
         this.createdComponent();
     },
 
     computed: {
         settingStore() {
-            console.log('settingStore');
+            return null;
         },
         clientCredentialsFilled() {
-            console.log('clientCredentialsFilled');
+            return null;
         }
     },
 
@@ -41,11 +38,15 @@ export default {
         },
 
         onSave() {
+            this.isLoading = true;
             console.log('onSave');
+            this.isLoading = false;
         },
 
         onTest() {
-            console.log('onTest');
+            this.isLoading = true;
+            console.log('loading ...');
+            this.isLoading = false;
         }
     }
 };

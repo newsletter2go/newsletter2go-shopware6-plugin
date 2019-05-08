@@ -4,7 +4,7 @@ import './extension/sw-settings-index';
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
 
-Module.register('newsletter2go', {
+Module.register('newsletter2go-app', {
     type: 'plugin',
     name: 'Newsletter2go',
     description: 'newsletter2go.general.descriptionTextModule',
