@@ -42,6 +42,11 @@ class BackendController extends AbstractController
     public function testConnection(Request $request, Context $context) : JsonResponse
     {
         $result = $this->apiService->testConnection();
+        // prevent to be blocked
+        if ($this->apiService->getLastStatusCode() === 400) {
+            $this->newsletter2goConfigService->deleteConfigByName(Newsletter2goConfig::NAME_VALUE_ACCESS_TOKEN);
+            $this->newsletter2goConfigService->deleteConfigByName(Newsletter2goConfig::NAME_VALUE_REFRESH_TOKEN);
+        }
 
         return new JsonResponse($result);
     }
