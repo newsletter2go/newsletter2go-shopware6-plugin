@@ -34,13 +34,16 @@ class BackendController extends AbstractController
     }
 
     /**
-     * @Route(path="/api/{version}/n2g/backend", name="api.action.n2g.backend", methods={"GET"})
+     * @Route(path="/api/{version}/n2g/connection", name="api.action.n2g.connection", methods={"GET"})
      * @param Request $request
      * @param Context $context
+     * @return JsonResponse
      */
-    public function getNewsletter2goConfig(Request $request, Context $context)
+    public function testConnection(Request $request, Context $context) : JsonResponse
     {
-        //
+        $result = $this->apiService->testConnection();
+
+        return new JsonResponse($result);
     }
 
     private function getNewsletter2goAuth() : Auth
@@ -69,9 +72,13 @@ class BackendController extends AbstractController
         return $auth;
     }
 
-    public function getConnectUrl()
+    /**
+     * @Route(path="/api/{version}/n2g/integration", name="api.action.n2g.integration", methods={"GET"})
+     * @return JsonResponse
+     */
+    public function getConnectUrl() :JsonResponse
     {
-        return self::CONNECTOR_URL . http_build_query($this->getConnectorUrlParams());
+        return new JsonResponse(['integration' => self::CONNECTOR_URL . '?' .http_build_query($this->getConnectorUrlParams())]);
     }
 
     private function getConnectorUrlParams()
@@ -82,16 +89,16 @@ class BackendController extends AbstractController
         $params['callback'] = getenv('APP_URL') . "/api/{$apiVersion}/n2g/callback";
 
         try {
-            $n2gConfigs = $this->newsletter2goConfigService->getConfigByFieldNames(['accessKey', 'secretAccessKey']);
+            $n2gConfigs = $this->newsletter2goConfigService->getConfigByFieldNames([Newsletter2goConfig::NAME_VALUE_ACCESS_KEY, Newsletter2goConfig::NAME_VALUE_SECRET_ACCESS_KEY]);
 
             /** @var Newsletter2goConfig $n2gConfig */
             foreach ($n2gConfigs as $n2gConfig) {
                 if ($n2gConfig->getName() === Newsletter2goConfig::NAME_VALUE_ACCESS_KEY) {
-                    $params['accessKey'] = $n2gConfig->getValue();
+                    $params[Newsletter2goConfig::NAME_VALUE_ACCESS_KEY] = $n2gConfig->getValue();
                 }
 
                 if ($n2gConfig->getName() === Newsletter2goConfig::NAME_VALUE_SECRET_ACCESS_KEY) {
-                    $params['secretAccessKey'] = $n2gConfig->getValue();
+                    $params[Newsletter2goConfig::NAME_VALUE_SECRET_ACCESS_KEY] = $n2gConfig->getValue();
                 }
             }
 
@@ -102,13 +109,37 @@ class BackendController extends AbstractController
         return $params;
     }
 
+    /**
+     * @Route(path="/api/{version}/n2g/tracking", name="api.action.n2g.updateTracking", methods={"PUT"})
+     * @param Request $request
+     * @param Context $context
+     * @return JsonResponse
+     */
     public function updateConversionTracking(Request $request, Context $context)
     {
-        //
+        try {
+            $result = $this->newsletter2goConfigService->getConfigByFieldNames(Newsletter2goConfig::NAME_VALUE_CONVERSION_TRACKING);
+            if (empty($result)) {
+                $this->newsletter2goConfigService->addConfig(['conversion_tracking' => 'false']);
+
+                return new JsonResponse([Newsletter2goConfig::NAME_VALUE_CONVERSION_TRACKING => false]);
+
+            } else {
+                $conversionTracking = $request->get('conversion_tracking', false);
+                $conversionTrackingString = ($conversionTracking === true) ? 'true': 'false';
+
+                $this->newsletter2goConfigService->updateConfigs(['conversion_tracking' => $conversionTrackingString]);
+                return new JsonResponse([Newsletter2goConfig::NAME_VALUE_CONVERSION_TRACKING => $conversionTracking]);
+
+            }
+
+        } catch (\Exception $exception) {
+            return new JsonResponse(['conversion_tracking' => false, 'error' => $exception->getMessage()]);
+        }
     }
 
     /**
-     * @Route(path="/api/{version}/n2g/tracking", name="api.action.n2g.tracking", methods={"GET"})
+     * @Route(path="/api/{version}/n2g/tracking", name="api.action.n2g.getTracking", methods={"GET"})
      * @param Request $request
      * @param Context $context
      * @return JsonResponse
@@ -131,7 +162,7 @@ class BackendController extends AbstractController
             }
 
         } catch (\Exception $exception) {
-            return new JsonResponse(['success' => false, 'error' => $exception->getMessage()]);
+            return new JsonResponse(['conversion_tracking' => false, 'error' => $exception->getMessage()]);
         }
     }
 }
