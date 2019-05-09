@@ -31,15 +31,8 @@ class PluginController extends AbstractController
     {
         $response = [];
         try {
-            $pluginVersion = $this->getPluginVersion();
-
-            if ($pluginVersion) {
-                $response['success'] = true;
-                $response['version'] = $pluginVersion;
-            } else {
-                $response['success'] = false;
-                $response['error'] = 'plugin not found';
-            }
+            $response['success'] = true;
+            $response['version'] = $this->getPluginVersion();
 
         } catch (\Exception $exception) {
             $response['success'] = false;
