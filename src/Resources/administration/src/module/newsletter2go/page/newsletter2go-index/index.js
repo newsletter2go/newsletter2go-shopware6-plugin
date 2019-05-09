@@ -15,7 +15,9 @@ export default {
     data() {
         return {
             setting: {},
-            isLoading: true
+            isConnected: true,
+            isLoading: true,
+            isAccountConfigLoading: true
         };
     },
 
@@ -78,14 +80,14 @@ export default {
         },
 
         testConnection() {
+            this.isAccountConfigLoading = true;
             this.ConnectionService.testConnection().then((response) => {
                 if (response.status === 200) {
-                    this.setting.isConnected = true;
                     this.setting.connectionIcon = 'default-basic-checkmark-circle';
                     this.setting.connectionIconColor = '#65c765';
                     this.setting.connectionText = `Connected successfully with account ID: ${response.accountId}`;
                 } else {
-                    this.setting.isConnected = false;
+                    this.isConnected = false;
                     this.setting.connectionIcon = 'default-badge-error';
                     this.setting.connectionIconColor = '#f76363';
                     this.setting.connectionText = 'Not connected';
@@ -96,6 +98,7 @@ export default {
                         });
                     }
                 }
+                this.isAccountConfigLoading = false;
             });
         }
     }
