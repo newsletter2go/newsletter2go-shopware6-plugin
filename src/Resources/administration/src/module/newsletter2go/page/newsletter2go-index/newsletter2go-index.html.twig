@@ -17,8 +17,8 @@
         {% block newsletter2go_index_actions %}
             <template slot="smart-bar-actions">
                 {% block newsletter2go_connect_button %}
-                    <sw-button :disabled="setting.isConnected" variant="primary" :square="false" :block="false" :link="setting.connectLink" :isLoading="isLoading">
-                        Connect to Newsletter2Go
+                    <sw-button :disabled="isConnected" variant="primary" :square="false" :block="false" :link="setting.connectLink" :isLoading="isAccountConfigLoading">
+                        {{ $tc('newsletter2go.settingForm.connectButton') }}
                     </sw-button>
                 {% endblock %}
 
@@ -37,7 +37,7 @@
             <sw-card-view slot="content">
 
                 {% block newsletter2go_account_configuration %}
-                    <sw-card title="Account Configuration" :isLoading="false" :large="false">
+                    <sw-card title="Account Configuration" :isLoading="isAccountConfigLoading" :large="false">
                         <sw-icon :name="setting.connectionIcon" :color="setting.connectionIconColor"></sw-icon> {{ setting.connectionText }}
                     </sw-card>
                 {% endblock %}
