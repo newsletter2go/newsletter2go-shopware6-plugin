@@ -7,6 +7,10 @@
     <services>
         <service class="Newsletter2go\Service\Crypto" id="Newsletter2go\Service\Crypto"/>
 
+        <service class="Newsletter2go\Service\ApiService" id="Newsletter2go\Service\ApiService">
+            <argument type="service" id="Newsletter2go\Service\Newsletter2goConfigService"/>
+        </service>
+
         <service id="Newsletter2go\Entity\Newsletter2goConfigDefinition">
             <tag name="shopware.entity.definition" entity="newsletter2go_config"/>
         </service>
@@ -17,6 +21,10 @@
         </service>
 
         <service id="Newsletter2go\Controller\Api\CallbackController" public="true">
+            <argument type="service" id="Newsletter2go\Service\Newsletter2goConfigService"/>
+        </service>
+
+        <service id="Newsletter2go\Controller\BackendController" public="true">
             <argument type="service" id="Newsletter2go\Service\Newsletter2goConfigService"/>
         </service>
     </services>
