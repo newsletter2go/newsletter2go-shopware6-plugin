@@ -13,12 +13,8 @@
             "save": "save",
             "test": "API Zugangsdaten testen",
             "titleSaveSuccess": "Einstellungen",
-            "titleTestSuccess": "API Zugangsdaten",
-            "titleTestError": "API Zugangsdaten Fehler",
             "titleSaveError": "Einstellungen Fehler",
             "messageSaveSuccess": "Die Einstellungen wurden erfolgreich gespeichert.",
-            "messageTestSuccess": "Die Zugangsdaten wurden erfolgreich validiert.",
-            "messageTestError": "Die Zugangsdaten konnten nicht validiert werden.",
             "messageWebhookCreated": "Der Webhook wurde erfolgreich registriert.",
             "messageWebhookUpdated": "Der Webhook wurde erfolgreich aktualisiert.",
             "messageWebhookError": "Der Webhook konnte nicht gespeichert werden. Folgende Fehler sind aufgetreten:"

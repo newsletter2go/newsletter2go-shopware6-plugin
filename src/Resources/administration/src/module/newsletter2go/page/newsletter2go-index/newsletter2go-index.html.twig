@@ -17,10 +17,17 @@
         {% block newsletter2go_index_actions %}
             <template slot="smart-bar-actions">
                 {% block newsletter2go_connect_button %}
-                    <sw-button :disabled="false" variant="primary" :square="false" :block="false" link="https://ui.newsletter2go.com/" :isLoading="false">
+                    <sw-button :disabled="setting.isConnected" variant="primary" :square="false" :block="false" :link="setting.connectLink" :isLoading="isLoading">
                         Connect to Newsletter2Go
                     </sw-button>
                 {% endblock %}
+
+                {% block newsletter2go_save_button %}
+                <sw-button variant="primary" @click="onSave" :disabled="isLoading">
+                    {{ $tc('newsletter2go.settingForm.save') }}
+                </sw-button>
+                {% endblock %}
+
             </template>
         {% endblock %}
         {# buttons bar end#}
@@ -31,14 +38,12 @@
 
                 {% block newsletter2go_account_configuration %}
                     <sw-card title="Account Configuration" :isLoading="false" :large="false">
-                        <sw-icon name="default-basic-checkmark-circle" color="#65c765"></sw-icon> connected to account max@exampe.com
-                        <sw-icon name="default-badge-error" color="#f76363"></sw-icon> error
+                        <sw-icon :name="setting.connectionIcon" :color="setting.connectionIconColor"></sw-icon> {{ setting.connectionText }}
                     </sw-card>
                 {% endblock %}
 
-                <sw-card title="Conversion-Tracking" :isLoading="false" :large="false">
-                    <sw-switch-field label="Enable">
-
+                <sw-card title="Conversion-Tracking" :isLoading="isLoading" :large="false">
+                    <sw-switch-field label="Enable" v-model="setting.conversionTracking">
                     </sw-switch-field>
                 </sw-card>
             </sw-card-view>
