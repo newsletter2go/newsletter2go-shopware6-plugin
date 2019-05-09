@@ -58,7 +58,13 @@ class Newsletter2goConfigService
 
     public function addConfig(array $config)
     {
-        $config = $this->updateConfig($config);
+        $updateConfigs = $this->updateConfigs($config);
+        /** @var Newsletter2goConfig $updateConfig */
+        foreach ($updateConfigs as $updateConfig) {
+            if (isset($config[$updateConfig['name']])) {
+                unset($config[$updateConfig['name']]);
+            }
+        }
 
         if ($config) {
             $newData = [];
@@ -71,9 +77,9 @@ class Newsletter2goConfigService
         }
     }
 
-    private function updateConfig(array $config) : array
+    public function updateConfigs(array $config) : array
     {
-        $data = [];
+        $existingConfig = [];
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('name', array_keys($config)));
         $result = $this->n2gConfigRepository->search($criteria, $this->context);
@@ -81,15 +87,13 @@ class Newsletter2goConfigService
         if ($result->count()) {
             /** @var Newsletter2goConfig $configItem */
             foreach ($result->getElements() as $configItem) {
-                $data[] = [ 'id' => $configItem->getId(), 'name' => $configItem->getName(), 'value' =>  $config[$configItem->getName()]];
-                unset($config[$configItem->getName()]);
+                $existingConfig[] = [ 'id' => $configItem->getId(), 'name' => $configItem->getName(), 'value' =>  $config[$configItem->getName()]];
             }
 
-            $event = $this->n2gConfigRepository->update($data ,$this->context);
-            $count = $event->getEvents()->count();
+            $event = $this->n2gConfigRepository->update($existingConfig ,$this->context);
         }
 
-        return $config;
+        return $existingConfig;
     }
 
     public function deleteConfigByName(String $name): bool
