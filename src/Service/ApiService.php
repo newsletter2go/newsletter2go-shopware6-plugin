@@ -49,7 +49,7 @@ class ApiService
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
             if ($authorize) {
-                // this is needed to refreshing token
+                // this is needed for refresh token
                 curl_setopt($ch, CURLOPT_USERPWD, $this->apiKey);
             }
 
@@ -89,23 +89,25 @@ class ApiService
 
     private function refreshToken() : ?array
     {
-        $headers = ['Content-Type' => 'application/json'];
+        if ($this->getRefreshToken()) {
 
-        $data = [
-            'refresh_token' => $this->getRefreshToken(),
-            'grant_type' => self::REFRESH_GRANT_TYPE
-        ];
+            $data = [
+                'refresh_token' => $this->getRefreshToken(),
+                'grant_type' => self::REFRESH_GRANT_TYPE
+            ];
 
-        $result = $this->httpRequest('POST', '/oauth/v2/token', $data, $headers, true);
+            $result = $this->httpRequest('POST', '/oauth/v2/token', $data, [], true);
 
-        if (isset($result['access_token'])) {
-            $this->setAccessToken($result['access_token']);
-            $this->setRefreshToken($result['refresh_token']);
-
-            return $result;
+            if (isset($result['access_token'])) {
+                $this->setAccessToken($result['access_token']);
+                $this->setRefreshToken($result['refresh_token']);
+            }
+        } else {
+            $this->setLastStatusCode(203);
+            $result = ['status' => 203, 'error' => 'no refresh token found'];
         }
 
-        return null;
+        return $result;
     }
 
     /**
@@ -163,17 +165,21 @@ class ApiService
 
     public function testConnection()
     {
-        $response = $this->refreshToken();
+        $refreshResult = $this->refreshToken();
 
         if ($this->getLastStatusCode() === 200) {
             $headers = ['Content-Type: application/json', 'Authorization: Bearer ' . $this->getAccessToken()];
 
-            $response =  $this->httpRequest('GET', '/companies', [], $headers);
+            $companyResult =  $this->httpRequest('GET', '/companies', [], $headers);
 
-            return ['status' => $response['status']];
+            return ['status' => $companyResult['status'], 'accountId' => $refreshResult['account_id']];
+        } else {
+            $response['error'] = $refreshResult['error'];
         }
 
-        return ['status' => $this->getLastStatusCode(), 'error' => $response];
+        $response['status'] = $this->getLastStatusCode();
+
+        return $response;
     }
 
     /**
