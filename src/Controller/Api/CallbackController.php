@@ -34,7 +34,7 @@ class CallbackController extends AbstractController
     {
         $response = [];
         $config = [];
-        $config['api_key'] = $request->get('api_key', null);
+        $config['auth_key'] = $request->get('auth_key', null);
         $config['access_token'] = $request->get('access_token', null);
         $config['refresh_token'] = $request->get('refresh_token', null);
         $config['company_id'] = $request->get('company_id', null);
