@@ -161,11 +161,4 @@ class Newsletter2go extends Plugin
     {
         return 'Newsletter2go\Migration';
     }
-
-    public function getAdministrationEntryPath(): string
-    {
-        return 'Administration';
-    }
-
-
 }
