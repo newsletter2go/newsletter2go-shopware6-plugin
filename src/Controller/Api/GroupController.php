@@ -53,7 +53,7 @@ class GroupController extends AbstractController
         foreach ($entityCollection->getElements() as $key => $entity) {
             $attributes[$key]['id'] = $entity->getId();
             $attributes[$key]['name'] = $entity->getName();
-            $attributes[$key]['displayGross'] = $entity->getDisplayGross();
+            $attributes[$key]['description'] = $entity->getDisplayGross();
         }
 
         return $attributes;
