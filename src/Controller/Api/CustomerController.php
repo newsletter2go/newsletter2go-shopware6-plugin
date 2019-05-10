@@ -104,8 +104,8 @@ class CustomerController extends AbstractController
 
         /** @var Field $defaultCustomerField */
         foreach ($defaultCustomerFields as $defaultCustomerField) {
-            //email must always be included
-            if ($defaultCustomerField->getId() === 'email') {
+            //email and id must always be included
+            if ($defaultCustomerField->getId() === 'email' || $defaultCustomerField->getId() === 'id') {
                 $fields[] = $defaultCustomerField;
                 continue;
             }
