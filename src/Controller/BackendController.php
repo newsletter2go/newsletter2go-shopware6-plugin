@@ -170,4 +170,29 @@ class BackendController extends AbstractController
             return new JsonResponse(['conversion_tracking' => false, 'error' => $exception->getMessage()]);
         }
     }
+
+    /**
+     * @Route(path="/api/{version}/n2g/company", name="api.action.n2g.company", methods={"GET"})
+     * @param Request $request
+     * @param Context $context
+     * @return JsonResponse
+     */
+    public function getCompany(Request $request, Context $context) : JsonResponse
+    {
+        $companyId = '';
+        try {
+            $result = $this->newsletter2goConfigService->getConfigByFieldNames(Newsletter2goConfig::NAME_VALUE_COMPANY_ID);
+
+            if (!empty($result)) {
+                /** @var Newsletter2goConfig $companyIdConfig */
+                $companyIdConfig = reset($result);
+                $companyId = $companyIdConfig->getValue();
+            }
+
+        } catch (\Exception $exception) {
+
+        }
+
+        return new JsonResponse([Newsletter2goConfig::NAME_VALUE_COMPANY_ID => $companyId]);
+    }
 }
