@@ -5,10 +5,13 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
+        <service id="Newsletter2go\Subscriber\ConversionTracking">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service class="Newsletter2go\Service\Crypto" id="Newsletter2go\Service\Crypto"/>
 
         <service class="Newsletter2go\Service\ApiService" id="Newsletter2go\Service\ApiService">
-            <argument type="service" id="Newsletter2go\Service\Newsletter2goConfigService"/>
         </service>
 
         <service id="Newsletter2go\Entity\Newsletter2goConfigDefinition">
