@@ -157,6 +157,7 @@ class CustomerController extends AbstractController
             new Field('updatedAt', Field::DATATYPE_DATE),
             new Field('salesChannel', Field::DATATYPE_ARRAY),
             new Field('promotions', Field::DATATYPE_ARRAY),
+            new Field('customFields', Field::DATATYPE_ARRAY)
         ];
 
         return $defaultFields;
