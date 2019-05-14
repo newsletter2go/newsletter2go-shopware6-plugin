@@ -14,6 +14,11 @@ class Field
     const DATATYPE_BINARY = 'binary';
     const DATATYPE_FLOAT = 'float';
 
+    const FIELD_ID = 'id';
+    const FIELD_NAME = 'name';
+    const FIELD_DESCRIPTION = 'description';
+    const FIELD_TYPE = 'type';
+
     private $id;
     private $name;
     private $description;
@@ -23,19 +28,17 @@ class Field
      * Field constructor.
      * @param $id
      * @param string $type
-     * @param null $name
-     * @param null $description
+     * @param string $name
+     * @param string $description
      */
-    public function __construct($id, $type = Field::DATATYPE_STRING, $name = null, $description = null)
+    public function __construct($id, $type = Field::DATATYPE_STRING, $name = null, $description = '')
     {
         $this->id = $id;
         $this->type = $type;
         if (is_null($name)) {
             $this->setName($id);
         }
-        if (is_string($this->description)) {
-            $this->description = $description;
-        }
+        $this->description = $description;
     }
 
 

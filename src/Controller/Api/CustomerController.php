@@ -7,6 +7,7 @@ use Newsletter2go\Model\Field;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
+use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -237,6 +238,10 @@ class CustomerController extends AbstractController
         $promotions = [];
 
         if ($promotionCollection->count() > 0) {
+            /**
+             * @var string $promotionKey
+             * @var PromotionEntity $promotionEntity
+             */
             foreach ($promotionCollection->getElements() as $promotionKey => $promotionEntity) {
                 $promotions[$promotionKey]['id'] = $promotionEntity->getId();
                 $promotions[$promotionKey]['name'] = $promotionEntity->getName();
@@ -326,4 +331,25 @@ class CustomerController extends AbstractController
         return new JsonResponse($response);
     }
 
+    /**
+     * @Route("/api/{version}/n2g/customers/fields", name="api.action.n2g.getCustomerFields", methods={"GET"})
+     * @param Request $request
+     * @param Context $context
+     * @return JsonResponse
+     */
+    public function getCustomerFields(Request $request, Context $context): JsonResponse
+    {
+        $data = [];
+        /** @var Field $field */
+        foreach ($this->getCustomerDefaultFields() as $field) {
+            $data[] = [
+                Field::FIELD_ID => $field->getId(),
+                Field::FIELD_NAME => $field->getName(),
+                Field::FIELD_TYPE => $field->getType(),
+                Field::FIELD_DESCRIPTION => $field->getDescription()
+            ];
+        }
+
+        return new JsonResponse(['success' => true, 'data' => $data]);
+    }
 }
