@@ -85,12 +85,12 @@ export default {
                 if (response.status === 200) {
                     this.setting.connectionIcon = 'default-basic-checkmark-circle';
                     this.setting.connectionIconColor = '#65c765';
-                    this.setting.connectionText = `Connected successfully with account ID: ${response.accountId}`;
+                    this.setting.connectionText = this.$tc('newsletter2go.settingForm.messageConnectedSuccess') + response.company_id;
                 } else {
                     this.isConnected = false;
                     this.setting.connectionIcon = 'default-badge-error';
                     this.setting.connectionIconColor = '#f76363';
-                    this.setting.connectionText = 'Not connected';
+                    this.setting.connectionText = this.$tc('newsletter2go.settingForm.messageConnectedError');
                     if (response.status !== 203) {
                         this.createNotificationError({
                             title: this.$tc('newsletter2go.settingForm.titleSaveError'),

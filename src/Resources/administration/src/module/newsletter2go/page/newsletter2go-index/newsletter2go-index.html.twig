@@ -23,7 +23,7 @@
                 {% endblock %}
 
                 {% block newsletter2go_save_button %}
-                <sw-button variant="primary" @click="onSave" :disabled="isLoading">
+                <sw-button variant="primary" @click="onSave" :disabled="isLoading" :disabled="!isConnected">
                     {{ $tc('newsletter2go.settingForm.save') }}
                 </sw-button>
                 {% endblock %}
@@ -43,7 +43,7 @@
                 {% endblock %}
 
                 <sw-card title="Conversion-Tracking" :isLoading="isLoading" :large="false">
-                    <sw-switch-field label="Enable" v-model="setting.conversionTracking">
+                    <sw-switch-field label="Enable" v-model="setting.conversionTracking" :disabled="!isConnected">
                     </sw-switch-field>
                 </sw-card>
             </sw-card-view>

@@ -17,7 +17,9 @@
             "messageSaveSuccess": "Die Einstellungen wurden erfolgreich gespeichert.",
             "messageWebhookCreated": "Der Webhook wurde erfolgreich registriert.",
             "messageWebhookUpdated": "Der Webhook wurde erfolgreich aktualisiert.",
-            "messageWebhookError": "Der Webhook konnte nicht gespeichert werden. Folgende Fehler sind aufgetreten:"
+            "messageWebhookError": "Der Webhook konnte nicht gespeichert werden. Folgende Fehler sind aufgetreten:",
+            "messageConnectedSuccess": "Successfully connected to company ID: ",
+            "messageConnectedError": "Not connected"
         }
     }
 }
