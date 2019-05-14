@@ -25,15 +25,7 @@ export default {
         this.testConnection();
         this.createdComponent();
     },
-
-    computed: {
-        settingStore() {
-            return null;
-        },
-        clientCredentialsFilled() {
-            return null;
-        }
-    },
+    computed: {},
 
     methods: {
         createdComponent() {
@@ -85,7 +77,8 @@ export default {
                 if (response.status === 200) {
                     this.setting.connectionIcon = 'default-basic-checkmark-circle';
                     this.setting.connectionIconColor = '#65c765';
-                    this.setting.connectionText = this.$tc('newsletter2go.settingForm.messageConnectedSuccess') + response.company_id;
+                    const messageConnectedSuccess = this.$tc('newsletter2go.settingForm.messageConnectedSuccess');
+                    this.setting.connectionText = messageConnectedSuccess + response.company_id;
                 } else {
                     this.isConnected = false;
                     this.setting.connectionIcon = 'default-badge-error';
