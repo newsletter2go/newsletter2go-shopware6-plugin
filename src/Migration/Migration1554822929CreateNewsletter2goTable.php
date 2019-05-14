@@ -3,7 +3,6 @@
 namespace Newsletter2go\Migration;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 class Migration1554822929CreateNewsletter2goTable extends MigrationStep
