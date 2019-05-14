@@ -158,11 +158,6 @@ class ApiService
         $this->refreshToken = $refreshToken;
     }
 
-    private function _verifyResponse($response) : array
-    {
-        // TODO
-    }
-
     public function testConnection()
     {
         $refreshResult = $this->refreshToken();
@@ -172,7 +167,12 @@ class ApiService
 
             $companyResult =  $this->httpRequest('GET', '/companies', [], $headers);
 
-            return ['status' => $companyResult['status'], 'accountId' => $refreshResult['account_id']];
+            return [
+                'status' => $companyResult['status'],
+                'account_id' => $refreshResult['account_id'],
+                'company_id' => $companyResult['value'][0]['id']
+            ];
+
         } else {
             $response['error'] = $refreshResult['error'];
         }
