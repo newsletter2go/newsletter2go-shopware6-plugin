@@ -41,6 +41,12 @@ class CallbackController extends AbstractController
         $config['account_id'] = $request->get('account_id', null);
         $config['email'] = $request->get('email');
 
+        foreach ($config as $key => $value) {
+            if (empty($value)) {
+                unset($config[$key]);
+            }
+        }
+
         try {
             $this->newsletter2goConfigService->addConfig($config);
             $response['success'] = true;

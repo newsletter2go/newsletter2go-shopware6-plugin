@@ -58,7 +58,13 @@ class Newsletter2goConfigService
 
     public function addConfig(array $config)
     {
+        if (count($config) === 0) {
+            return;
+        }
+
         $updateConfigs = $this->updateConfigs($config);
+
+        //remove updated configs
         /** @var Newsletter2goConfig $updateConfig */
         foreach ($updateConfigs as $updateConfig) {
             if (isset($config[$updateConfig['name']])) {
@@ -66,6 +72,7 @@ class Newsletter2goConfigService
             }
         }
 
+        //insert not existing configs
         if ($config) {
             $newData = [];
 
