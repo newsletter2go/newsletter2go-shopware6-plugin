@@ -17,6 +17,18 @@ class ConnectionService extends ApiService {
         });
     }
 
+    disconnect() {
+        const apiRoute = `${this.getApiBasePath()}/connection`;
+        return this.httpClient.delete(
+            apiRoute,
+            {
+                headers: this.getBasicHeaders()
+            }
+        ).then((response) => {
+            return ApiService.handleResponse(response);
+        });
+    }
+
     getIntegrationLink() {
         const apiRoute = `${this.getApiBasePath()}/integration`;
         return this.httpClient.get(
