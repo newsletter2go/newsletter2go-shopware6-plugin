@@ -37,6 +37,8 @@ class Field
         $this->type = $type;
         if (is_null($name)) {
             $this->setName($id);
+        } else {
+            $this->name = $name;
         }
         $this->description = $description;
     }
