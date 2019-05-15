@@ -13,12 +13,12 @@
         "shopware-plugin-class": "Newsletter2go\\Newsletter2go",
         "plugin-icon": "src/Resources/public/static/img/plugin.png",
         "label": {
-            "de-DE": "Newsletter2go Plugin für die Base Class",
-            "en-GB": "Newsletter2go plugin for the base class"
+            "de-DE": "Newsletter2Go Plugin für Shopware",
+            "en-GB": "Newsletter2Go plugin for Shopware"
         },
         "description": {
-            "de-DE": "Newsletter2go Plugin für die Base Class",
-            "en-GB": "Newsletter2go plugin for the base class"
+            "de-DE": "Newsletter2Go Plugin für Shopware",
+            "en-GB": "Newsletter2Go plugin for Shopware"
         }
     },
     "autoload": {

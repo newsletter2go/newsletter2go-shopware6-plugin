@@ -14,7 +14,11 @@ export default {
 
     data() {
         return {
-            setting: {},
+            setting: {
+                connectionMessage: '',
+                connectionIconName: '',
+                connectionIconColor: ''
+            },
             companyId: '',
             isConnected: false,
             isLoading: true,
@@ -48,26 +52,29 @@ export default {
         },
 
         onSave() {
-            this.isLoading = true;
-            this.ConversionTrackingService.updateValue(this.setting.conversionTracking).then((response) => {
-                let title = '';
-                let message = '';
+            if (this.isConnected) {
+                this.isLoading = true;
 
-                if (response.error !== 'undefined') {
-                    title = this.$tc('newsletter2go.settingForm.titleSaveError');
-                    message = response.error;
-                } else {
-                    title = this.$tc('newsletter2go.settingForm.titleSaveSuccess');
-                    message = this.$tc('newsletter2go.settingForm.messageWebhookUpdated');
-                }
+                this.ConversionTrackingService.updateValue(this.setting.conversionTracking).then((response) => {
+                    let title = '';
+                    let message = '';
 
-                this.createNotificationSuccess({
-                    title: title,
-                    message: message
+                    if (response.error !== 'undefined') {
+                        title = this.$tc('newsletter2go.settingForm.titleSaveError');
+                        message = response.error;
+                    } else {
+                        title = this.$tc('newsletter2go.settingForm.titleSaveSuccess');
+                        message = this.$tc('newsletter2go.settingForm.messageSaveSuccess');
+                    }
+
+                    this.createNotificationSuccess({
+                        title: title,
+                        message: message
+                    });
+
+                    this.isLoading = false;
                 });
-
-                this.isLoading = false;
-            });
+            }
         },
 
         testConnection() {
@@ -75,9 +82,11 @@ export default {
                 if (response.status === 200) {
                     this.isConnected = true;
                     this.companyId = response.company_id;
+                    this._setConnectionViewSuccessful();
                 } else {
                     this.isConnected = false;
                     this.displayConnectButton = true;
+                    this._setConnectionViewNotConnected();
 
                     if (response.status !== 203) {
                         this.createNotificationError({
@@ -88,6 +97,18 @@ export default {
                 }
                 this.isLoading = false;
             });
+        },
+
+        _setConnectionViewSuccessful() {
+            this.setting.connectionIconName = 'default-basic-checkmark-circle';
+            this.setting.connectionIconColor = '#65c765';
+            this.setting.connectionMessage = this.$tc('newsletter2go.settingForm.messageConnectedSuccess') + this.companyId;
+        },
+
+        _setConnectionViewNotConnected() {
+            this.setting.connectionIconName = 'default-badge-error';
+            this.setting.connectionIconColor = '#f76363';
+            this.setting.connectionMessage = this.$tc('newsletter2go.settingForm.messageConnectedError');
         },
 
         viewDisconnectDialog() {
@@ -101,12 +122,19 @@ export default {
 
         disconnect() {
             this.isLoading = true;
+            this.isConnected = false;
+            this.isDisconnectDialogVisible = false;
+            this.displayConnectButton = true;
+            this._setConnectionViewNotConnected();
             this.ConnectionService.disconnect().then((response) => {
-                if (response.status === 200) {
-                    this.isConnected = false;
+                if (response.status !== 200) {
+                    this.createNotificationSuccess({
+                        title: `Code ${response.status}`,
+                        message: this.$tc('newsletter2go.settingForm.titleSaveError')
+                    });
                 }
+
                 this.isLoading = false;
-                this.isDisconnectDialogVisible = false;
             });
         }
     }

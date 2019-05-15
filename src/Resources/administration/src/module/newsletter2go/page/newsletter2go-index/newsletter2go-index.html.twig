@@ -63,7 +63,7 @@
                         <div>{{ $tc('newsletter2go.settingForm.messageDisconnectDialog') }}</div>
 
                         <div>
-                            <sw-container columns="1fr 1fr" justify="center center">
+                            <sw-container columns="1fr 1fr" align="center center" justify="center">
                                 <div>
                                     <sw-button variant="danger" @click="disconnect">
                                         {{ $tc('newsletter2go.settingForm.buttonLabelConfirm') }}
@@ -84,14 +84,17 @@
                 {% block newsletter2go_account_configuration %}
                     <sw-card :title="$tc('newsletter2go.general.accountConfigurationTitle')" :isLoading="isLoading">
 
-                        {% if isConnected %}
-                            <sw-icon name="default-basic-checkmark-circle" color="#65c765"></sw-icon>
-                            {{ $tc('newsletter2go.settingForm.messageConnectedSuccess') }}
-                            <span style="padding: 5px 12px;border-radius: 4px;flex-shrink: 0;font-weight: 600;font-size: 14px;">{{ companyId }}</span>
-                        {% else %}
-                            <sw-icon name="default-badge-error" color="#f76363"></sw-icon>
-                            {{ $tc('newsletter2go.settingForm.messageConnectedError') }}
-                        {% endif %}
+                        <sw-icon :name="setting.connectionIconName" :color="setting.connectionIconColor"></sw-icon>
+                        {{ setting.connectionMessage }}
+
+{#                        {% if isConnected %}#}
+{#                            <sw-icon name="default-basic-checkmark-circle" color="#65c765"></sw-icon>#}
+{#                            {{ $tc('newsletter2go.settingForm.messageConnectedSuccess') }}#}
+{#                            <span style="padding: 5px 12px;border-radius: 4px;flex-shrink: 0;font-weight: 600;font-size: 14px;">{{ companyId }}</span>#}
+{#                        {% else %}#}
+{#                            <sw-icon name="default-badge-error" color="#f76363"></sw-icon>#}
+{#                            {{ $tc('newsletter2go.settingForm.messageConnectedError') }}#}
+{#                        {% endif %}#}
 
                     </sw-card>
                 {% endblock %}

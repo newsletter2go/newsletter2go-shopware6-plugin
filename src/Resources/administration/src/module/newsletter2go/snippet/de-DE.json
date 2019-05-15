@@ -3,21 +3,25 @@
         "header": "Newsletter2Go",
         "general": {
             "mainMenuItemGeneral": "Newsletter2Go",
-            "descriptionTextModule": "Einstellungen für Newsletter2Go"
+            "mainHeader": "Einstellungen für Newsletter2Go",
+            "accountConfigurationTitle" : "Account Einstellungen",
+            "conversionTrackingTitle" : "Conversion-Tracking"
         },
         "settingForm": {
-            "connectButton" : "mit Newsletter2Go verbinden",
-            "accountConfigurationTitle" : "Account Einstellungen",
-            "conversionTrackingTitle" : "Conversion-Tracking",
+            "connectButton" : "Mit Newsletter2Go verbinden",
+            "disconnectButton" : "Verbindung trennen",
             "conversionTrackingSwitch" : "Aktivieren",
-            "save": "Speichern",
-            "test": "API Zugangsdaten testen",
+            "buttonLabelSave": "Speichern",
+            "buttonLabelConfirm" : "Bestätigen",
+            "buttonLabelCancel" : "Abbrechen",
             "titleSaveSuccess": "Einstellungen",
             "titleSaveError": "Einstellungen Fehler",
-            "messageSaveSuccess": "Die Einstellungen wurden erfolgreich gespeichert.",
-            "messageWebhookCreated": "Der Webhook wurde erfolgreich registriert.",
-            "messageWebhookUpdated": "Der Webhook wurde erfolgreich aktualisiert.",
-            "messageWebhookError": "Der Webhook konnte nicht gespeichert werden. Folgende Fehler sind aufgetreten:"
+            "titleDisconnectDialog": "Verbindung Trennenung",
+            "messageDisconnectDialog": "Wollen Sie wirklich die Verbindunf trennen?",
+            "messageSaveSuccess": "Die Einstellungen wurden erfolgreich gespeichert",
+            "messageSaveError": "Die Einstellungen konnten nicht gespeichert werden",
+            "messageConnectedSuccess": "Successfully connected to company ID: ",
+            "messageConnectedError": "Nicht verbunden"
         }
     }
 }
