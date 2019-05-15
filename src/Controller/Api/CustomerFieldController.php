@@ -4,8 +4,10 @@ namespace Newsletter2go\Controller\Api;
 
 
 use Newsletter2go\Model\Field;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
+use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\Framework\CustomField\Aggregate\CustomFieldSet\CustomFieldSetEntity;
@@ -15,6 +17,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\System\Country\CountryEntity;
+use Shopware\Core\System\Salutation\SalutationEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -215,5 +219,69 @@ class CustomerFieldController extends AbstractController
         }
 
         return $preparedCustomerList;
+    }
+
+    private function prepareEntity(Entity $entity): ?array
+    {
+        $preparedEntity = [];
+        if ($entity instanceof CustomerAddressEntity) {
+            $preparedEntity = $this->prepareCustomerAddressEntity($entity);
+        }
+        if ($entity instanceof SalutationEntity) {
+            $preparedEntity['displayName'] = $entity->getDisplayName();
+            $preparedEntity['letterName'] = $entity->getLetterName();
+        } else {
+
+            if (property_exists($entity, 'id')) {
+                $preparedCustomerList['id'] = $entity->getUniqueIdentifier();
+            }
+            if (property_exists($entity, 'name')) {
+                $preparedCustomerList['name'] = $entity->get('name');
+            }
+        }
+
+        return $preparedEntity;
+    }
+
+    private function prepareCustomerAddressEntity(CustomerAddressEntity $customerAddressEntity): ?array
+    {
+        $addressEntity = [];
+        /** @var CountryEntity $country */
+        $country = $customerAddressEntity->getCountry();
+        $addressEntity['countryIso'] = $country->getIso();
+        $addressEntity['countryName'] = $country->getName();
+        $addressEntity['city'] = $customerAddressEntity->getCity();
+
+        return $addressEntity;
+    }
+
+    private function preparePromotionCollection(PromotionCollection $promotionCollection): ?array
+    {
+        $promotions = [];
+
+        if ($promotionCollection->count() > 0) {
+            /**
+             * @var string $promotionKey
+             * @var PromotionEntity $promotionEntity
+             */
+            foreach ($promotionCollection->getElements() as $promotionKey => $promotionEntity) {
+                $promotions[$promotionKey]['id'] = $promotionEntity->getId();
+                $promotions[$promotionKey]['name'] = $promotionEntity->getName();
+                $promotions[$promotionKey]['name'] = $promotionEntity->getName();
+                $promotions[$promotionKey]['percental'] = $promotionEntity->isPercental();
+                $promotions[$promotionKey]['validFrom'] = $promotionEntity->getValidFrom()->format('Y-m-d H:i:s');
+                $promotions[$promotionKey]['validUntil'] = $promotionEntity->getValidUntil()->format('Y-m-d H:i:s');
+                $promotions[$promotionKey]['redeemable'] = $promotionEntity->getRedeemable();
+                $promotions[$promotionKey]['exclusive'] = $promotionEntity->isExclusive();
+                $promotions[$promotionKey]['priority'] = $promotionEntity->getPriority();
+                $promotions[$promotionKey]['codeType'] = $promotionEntity->getCodeType();
+                $promotions[$promotionKey]['code'] = $promotionEntity->getCode();
+                $promotions[$promotionKey]['discounts'] = $promotionEntity->getDiscounts() ?: null;
+            }
+        } else {
+            $promotions = null;
+        }
+
+        return $promotions;
     }
 }
