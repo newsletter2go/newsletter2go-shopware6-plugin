@@ -4,11 +4,7 @@
         {# header start #}
         {% block newsletter2go_index_header %}
             <template slot="smart-bar-header">
-                <h2>
-                    Newsletter2Go
-                    <sw-icon name="small-arrow-medium-right" small></sw-icon>
-                    Plugin
-                </h2>
+                <h2> {{ $tc('newsletter2go.general.mainHeader') }}</h2>
             </template>
         {% endblock %}
         {# header start #}
@@ -16,17 +12,36 @@
         {# buttons bar start#}
         {% block newsletter2go_index_actions %}
             <template slot="smart-bar-actions">
+
+                {# connect button start#}
                 {% block newsletter2go_connect_button %}
-                    <sw-button :disabled="isConnected" variant="primary" :square="false" :block="false" :link="setting.connectLink" :isLoading="isAccountConfigLoading">
+                    <sw-button v-if="displayConnectButton"
+                               variant="primary"
+                               :link="setting.connectLink">
                         {{ $tc('newsletter2go.settingForm.connectButton') }}
                     </sw-button>
                 {% endblock %}
+                {# connect button end #}
 
-                {% block newsletter2go_save_button %}
-                <sw-button variant="primary" @click="onSave" :disabled="isLoading" :disabled="!isConnected">
-                    {{ $tc('newsletter2go.settingForm.save') }}
-                </sw-button>
+                {# disconnect button start#}
+                {% block newsletter2go_disconnect_button %}
+                    <sw-button v-if="isConnected"
+                               variant="danger"
+                               @click="viewDisconnectDialog">
+                        {{ $tc('newsletter2go.settingForm.disconnectButton') }}
+                    </sw-button>
                 {% endblock %}
+                {# disconnect button end#}
+
+                {# save button start#}
+                {% block newsletter2go_save_button %}
+                    <sw-button variant="primary"
+                               @click="onSave"
+                               :disabled="!isConnected">
+                        {{ $tc('newsletter2go.settingForm.buttonLabelSave') }}
+                    </sw-button>
+                {% endblock %}
+                {# save button end#}
 
             </template>
         {% endblock %}
@@ -36,16 +51,60 @@
         {% block newsletter2go_index_content %}
             <sw-card-view slot="content">
 
+                {# deletation dialog start #}
+                <sw-modal :title="$tc('newsletter2go.settingForm.titleDisconnectDialog')"
+                          v-if="isDisconnectDialogVisible"
+                          selector=".panel--content"
+                          @mousedown="closeDisconnectDialog"
+                          @keyup.esc="closeDisconnectDialog"
+                          @modal-close="closeDisconnectDialog">
+
+                    <sw-container rows="1fr 1fr">
+                        <div>{{ $tc('newsletter2go.settingForm.messageDisconnectDialog') }}</div>
+
+                        <div>
+                            <sw-container columns="1fr 1fr" justify="center center">
+                                <div>
+                                    <sw-button variant="danger" @click="disconnect">
+                                        {{ $tc('newsletter2go.settingForm.buttonLabelConfirm') }}
+                                    </sw-button>
+                                </div>
+
+                                <div><sw-button @click="closeDisconnectDialog">
+                                        {{ $tc('newsletter2go.settingForm.buttonLabelCancel') }}
+                                    </sw-button>
+                                </div>
+                            </sw-container>
+                        </div>
+                    </sw-container>
+
+                </sw-modal>
+                {# deletation dialog end #}
+
                 {% block newsletter2go_account_configuration %}
-                    <sw-card title="Account Configuration" :isLoading="isAccountConfigLoading" :large="false">
-                        <sw-icon :name="setting.connectionIcon" :color="setting.connectionIconColor"></sw-icon> {{ setting.connectionText }}
+                    <sw-card :title="$tc('newsletter2go.general.accountConfigurationTitle')" :isLoading="isLoading">
+
+                        {% if isConnected %}
+                            <sw-icon name="default-basic-checkmark-circle" color="#65c765"></sw-icon>
+                            {{ $tc('newsletter2go.settingForm.messageConnectedSuccess') }}
+                            <span style="padding: 5px 12px;border-radius: 4px;flex-shrink: 0;font-weight: 600;font-size: 14px;">{{ companyId }}</span>
+                        {% else %}
+                            <sw-icon name="default-badge-error" color="#f76363"></sw-icon>
+                            {{ $tc('newsletter2go.settingForm.messageConnectedError') }}
+                        {% endif %}
+
                     </sw-card>
                 {% endblock %}
 
-                <sw-card title="Conversion-Tracking" :isLoading="isLoading" :large="false">
-                    <sw-switch-field :label="$tc('newsletter2go.settingForm.conversionTrackingSwitch')" v-model="setting.conversionTracking" :disabled="!isConnected">
-                    </sw-switch-field>
-                </sw-card>
+                {% block newsletter2go_conversion_tracking %}
+                    <sw-card :title="$tc('newsletter2go.general.conversionTrackingTitle')" >
+                        <sw-switch-field :label="$tc('newsletter2go.settingForm.conversionTrackingSwitch')"
+                                         v-model="setting.conversionTracking"
+                                         :disabled="!isConnected">
+                        </sw-switch-field>
+                    </sw-card>
+                {% endblock %}
+
             </sw-card-view>
 
         {% endblock %}

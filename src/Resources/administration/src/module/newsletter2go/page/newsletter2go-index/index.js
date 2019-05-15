@@ -15,9 +15,12 @@ export default {
     data() {
         return {
             setting: {},
-            isConnected: true,
+            companyId: '',
+            isConnected: false,
             isLoading: true,
-            isAccountConfigLoading: true
+            isAccountConfigLoading: true,
+            isDisconnectDialogVisible: false,
+            displayConnectButton: false
         };
     },
 
@@ -29,8 +32,6 @@ export default {
 
     methods: {
         createdComponent() {
-            this.isLoading = true;
-
             this.ConnectionService.getIntegrationLink().then((response) => {
                 this.setting.connectLink = response.integration;
             });
@@ -43,8 +44,6 @@ export default {
                         message: response.error
                     });
                 }
-
-                this.isLoading = false;
             });
         },
 
@@ -72,18 +71,14 @@ export default {
         },
 
         testConnection() {
-            this.isAccountConfigLoading = true;
             this.ConnectionService.testConnection().then((response) => {
                 if (response.status === 200) {
-                    this.setting.connectionIcon = 'default-basic-checkmark-circle';
-                    this.setting.connectionIconColor = '#65c765';
-                    const messageConnectedSuccess = this.$tc('newsletter2go.settingForm.messageConnectedSuccess');
-                    this.setting.connectionText = messageConnectedSuccess + response.company_id;
+                    this.isConnected = true;
+                    this.companyId = response.company_id;
                 } else {
                     this.isConnected = false;
-                    this.setting.connectionIcon = 'default-badge-error';
-                    this.setting.connectionIconColor = '#f76363';
-                    this.setting.connectionText = this.$tc('newsletter2go.settingForm.messageConnectedError');
+                    this.displayConnectButton = true;
+
                     if (response.status !== 203) {
                         this.createNotificationError({
                             title: this.$tc('newsletter2go.settingForm.titleSaveError'),
@@ -91,7 +86,27 @@ export default {
                         });
                     }
                 }
-                this.isAccountConfigLoading = false;
+                this.isLoading = false;
+            });
+        },
+
+        viewDisconnectDialog() {
+            console.log('clicked');
+            this.isDisconnectDialogVisible = true;
+        },
+
+        closeDisconnectDialog() {
+            this.isDisconnectDialogVisible = false;
+        },
+
+        disconnect() {
+            this.isLoading = true;
+            this.ConnectionService.disconnect().then((response) => {
+                if (response.status === 200) {
+                    this.isConnected = false;
+                }
+                this.isLoading = false;
+                this.isDisconnectDialogVisible = false;
             });
         }
     }
