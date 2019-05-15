@@ -3,17 +3,11 @@
 namespace Newsletter2go\Controller\Api;
 
 
-use Newsletter2go\Model\Field;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\CustomField\Aggregate\CustomFieldSet\CustomFieldSetEntity;
-use Shopware\Core\Framework\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationEntity;
-use Shopware\Core\Framework\CustomField\CustomFieldEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
@@ -27,6 +21,17 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class CustomerController extends AbstractController
 {
+    private $customerFieldController;
+
+    /**
+     * CustomerController constructor.
+     * @param CustomerFieldController $customerFieldController
+     */
+    public function __construct(CustomerFieldController $customerFieldController)
+    {
+        $this->customerFieldController = $customerFieldController;
+    }
+
     /**
      * @Route("/api/{version}/n2g/customers", name="api.action.n2g.getCustomers", methods={"GET"})
      * @param Request $request
@@ -40,7 +45,7 @@ class CustomerController extends AbstractController
         $limit = $request->get('limit', 500);
         $group = $request->get('group', false);
         $emails = $this->prepareEmails($request->get('emails', null));
-        $fields = $this->getCustomerEntityFields($request->get('fields', ''));
+        $fields = $this->customerFieldController->getCustomerEntityFields($request->get('fields', ''));
         //TODO check if available in SW6
         $subShopId = $request->get('subShopId', 0);
 
@@ -83,7 +88,7 @@ class CustomerController extends AbstractController
             $criteria->addAssociation('promotions', $promotionAssociationCriteria);
 
             $result = $customerRepository->search($criteria, $context)->getEntities();
-            $preparedList = $this->prepareCustomerAttributes($result, $fields);
+            $preparedList = $this->customerFieldController->prepareCustomerAttributes($result, $fields);
             $response['success'] = true;
             $response['data'] = $preparedList;
 
@@ -112,128 +117,7 @@ class CustomerController extends AbstractController
         return $preparedEmails;
     }
 
-    /**
-     * @param String $customFields.
-     * @return array
-     * @example customFields should be a string with a comma separated values e.g. 'firstName,lastName,phone'
-     */
-    private function getCustomerEntityFields(String $customFields): array
-    {
-        $fields = [];
 
-        $customFields = $this->prepareCustomFields($customFields);
-
-        $defaultCustomerFields = $this->getCustomerDefaultFields();
-        if (count($customFields) === 0) {
-            return $defaultCustomerFields;
-        }
-
-        /** @var Field $defaultCustomerField */
-        foreach ($defaultCustomerFields as $defaultCustomerField) {
-            //email and id must always be included
-            if ($defaultCustomerField->getId() === 'email' || $defaultCustomerField->getId() === 'id') {
-                $fields[] = $defaultCustomerField;
-                continue;
-            }
-            if (in_array($defaultCustomerField->getId(), $customFields)) {
-                $fields[] = $defaultCustomerField;
-            }
-        }
-
-        return $fields;
-    }
-
-    /**
-     * @param $customFields
-     * @return array
-     * @example $customFields should be a string with a comma separated values e.g. 'firstName,lastName,phone'
-     */
-    private function prepareCustomFields($customFields): array
-    {
-        $customFields = preg_replace('/\s+/', '', $customFields);
-        if (empty($customFields)) {
-            $customFields = [];
-        } else {
-            $customFields = explode(',', $customFields);
-        }
-
-        return $customFields;
-    }
-
-    private function getCustomerDefaultFields(): array
-    {
-        $defaultFields = [
-            new Field('id'),
-            new Field('salesChannelId'),
-            new Field('languageId'),
-            new Field('customerNumber', Field::DATATYPE_INTEGER),
-            new Field('group', Field::DATATYPE_ARRAY),
-            new Field('salutation', Field::DATATYPE_STRING, 'Title'),
-            new Field('searchKeywords', Field::DATATYPE_ARRAY),
-            new Field('tags', Field::DATATYPE_ARRAY),
-            new Field('attributes', Field::DATATYPE_ARRAY),
-            new Field('orderCustomers'),
-            new Field('email'),
-            new Field('language'),
-            new Field('firstName'),
-            new Field('lastName'),
-            new Field('company'),
-            new Field('isGuest', Field::DATATYPE_BOOLEAN),
-            new Field('newsletter', Field::DATATYPE_INTEGER),
-            new Field('birthday', Field::DATATYPE_DATE),
-            new Field('defaultBillingAddress'),
-            new Field('defaultShippingAddress'),
-            new Field('defaultPaymentMethod', Field::DATATYPE_DATE),
-            new Field('createdAt', Field::DATATYPE_DATE),
-            new Field('updatedAt', Field::DATATYPE_DATE),
-            new Field('salesChannel', Field::DATATYPE_ARRAY),
-            new Field('promotions', Field::DATATYPE_ARRAY),
-            new Field('customFields', Field::DATATYPE_ARRAY)
-        ];
-        $defaultFields = array_merge($defaultFields, $this->_getCustomerCustomFields());
-
-        return $defaultFields;
-    }
-
-    private function prepareCustomerAttributes(EntityCollection $customerList, array $fields): array
-    {
-        $preparedCustomerList = [];
-        /**
-         * @var String $key
-         * @var CustomerEntity $customerEntity
-         */
-        foreach ($customerList as $key => $customerEntity) {
-            /** @var Field $field */
-            foreach ($fields as $field) {
-                if ($customerEntity->has($field->getId())) {
-                    $attribute = $customerEntity->get($field->getId());
-
-                    if ($attribute instanceof Entity) {
-                        $preparedCustomerList[$key][$field->getId()] = $this->prepareEntity($attribute);
-                    } else {
-                        if ($attribute instanceof EntityCollection) {
-                            if ($attribute instanceof PromotionCollection) {
-                                $preparedCustomerList[$key][$field->getId()] = $this->preparePromotionCollection($attribute);
-                            }
-                        } else {
-                            if ($attribute instanceof \DateTimeImmutable) {
-                                $preparedCustomerList[$key][$field->getId()] = $attribute->format('Y-m-d H:i:s');
-                            } else { //is string
-                                $preparedCustomerList[$key][$field->getId()] = $attribute;
-                            }
-                        }
-                    }
-                } elseif (!empty($customerEntity->getCustomFields())) {
-                    $customFields = $customerEntity->getCustomFields();
-                    if (isset($customFields[$field->getId()])) {
-                        $preparedCustomerList[$key][$field->getId()] = $customFields[$field->getId()];
-                    }
-                }
-            }
-        }
-
-        return $preparedCustomerList;
-    }
 
     private function prepareEntity(Entity $entity): ?array
     {
@@ -365,66 +249,5 @@ class CustomerController extends AbstractController
         }
 
         return new JsonResponse($response);
-    }
-
-    /**
-     * @Route("/api/{version}/n2g/customers/fields", name="api.action.n2g.getCustomerFields", methods={"GET"})
-     * @param Request $request
-     * @param Context $context
-     * @return JsonResponse
-     */
-    public function getCustomerFields(Request $request, Context $context): JsonResponse
-    {
-        $data = [];
-        $allFields = array_merge($this->getCustomerDefaultFields(), $this->_getCustomerCustomFields());
-        /** @var Field $field */
-        foreach ($allFields as $field) {
-            if ($field->getId() === 'customFields') {
-                continue;
-            }
-
-            $data[] = [
-                Field::FIELD_ID => $field->getId(),
-                Field::FIELD_NAME => $field->getName(),
-                Field::FIELD_TYPE => $field->getType(),
-                Field::FIELD_DESCRIPTION => $field->getDescription()
-            ];
-        }
-
-        return new JsonResponse(['success' => true, 'data' => $data]);
-    }
-
-    private function _getCustomerCustomFields()
-    {
-        $fields = [];
-        try {
-            //get customer custom fields
-            $repo = $this->container->get('custom_field_set.repository');
-            $criteria = new Criteria();
-            $criteria->addAssociation('customFields');
-            $criteria->addAssociation('relations');
-            $result = $repo->search($criteria, Context::createDefaultContext());
-
-            /** @var CustomFieldSetEntity $customFieldSetEntity */
-            foreach ($result->getElements() as $customFieldSetEntity) {
-                /** @var CustomFieldSetRelationEntity $relation */
-                foreach ($customFieldSetEntity->getRelations()->getElements() as $relation) {
-                    if ($relation->getEntityName() === 'customer') {
-                        /** @var CustomFieldEntity $customField */
-                        foreach ($customFieldSetEntity->getCustomFields() as $customField) {
-                            $fieldName = $customFieldSetEntity->getName() . '__' . $customField->getName();
-                            $fieldDescription = !empty($customField->getTranslated()) ? reset($customField->getTranslated()) : '';
-                            $fields[] = new Field($customField->getName(), $customField->getType(), $fieldName, $fieldDescription);
-                        }
-                    }
-
-                }
-            }
-
-        } catch (\Exception $exception) {
-            //
-        }
-
-        return $fields;
     }
 }

@@ -14,6 +14,8 @@
             <argument type="string"/>
         </service>
 
+        <service class="Newsletter2go\Controller\Api\CustomerFieldController" id="Newsletter2go\Controller\Api\CustomerFieldController"/>
+
         <service id="Newsletter2go\Entity\Newsletter2goConfigDefinition">
             <tag name="shopware.entity.definition" entity="newsletter2go_config"/>
         </service>
@@ -25,6 +27,15 @@
 
         <service id="Newsletter2go\Controller\Api\CallbackController" public="true">
             <argument type="service" id="Newsletter2go\Service\Newsletter2goConfigService"/>
+        </service>
+
+        <service id="Newsletter2go\Controller\Api\CustomerFieldController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition"/>
+        </service>
+
+        <service id="Newsletter2go\Controller\Api\CustomerController" public="true">
+            <argument type="service" id="Newsletter2go\Controller\Api\CustomerFieldController"/>
         </service>
 
         <service id="Newsletter2go\Controller\BackendController" public="true">
