@@ -51,6 +51,31 @@ class BackendController extends AbstractController
         return new JsonResponse($result);
     }
 
+    /**
+     * @Route(path="/api/{version}/n2g/connection", name="api.action.n2g.disconnection", methods={"DELETE"})
+     * @param Request $request
+     * @param Context $context
+     * @return JsonResponse
+     */
+    public function disconnect(Request $request, Context $context) : JsonResponse
+    {
+        try {
+            $this->newsletter2goConfigService->updateConfigs([Newsletter2goConfig::NAME_VALUE_CONVERSION_TRACKING => 'false']);
+
+            if ($this->newsletter2goConfigService->deleteConfigByName(Newsletter2goConfig::NAME_VALUE_REFRESH_TOKEN) &&
+                $this->newsletter2goConfigService->deleteConfigByName(Newsletter2goConfig::NAME_VALUE_ACCESS_TOKEN) &&
+                $this->newsletter2goConfigService->deleteConfigByName(Newsletter2goConfig::NAME_VALUE_COMPANY_ID) ) {
+
+                return new JsonResponse(['status' => 200]);
+            }
+
+        } catch (\Exception $exception) {
+
+        }
+
+        return new JsonResponse(['status' => 400]);
+    }
+
     private function getNewsletter2goAuth() : Auth
     {
         $auth = new Auth();
