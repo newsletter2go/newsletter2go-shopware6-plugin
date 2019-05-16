@@ -3,17 +3,12 @@
 namespace Newsletter2go\Controller\Api;
 
 
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
-use Shopware\Core\Checkout\Promotion\PromotionCollection;
-use Shopware\Core\Checkout\Promotion\PromotionEntity;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\System\Country\CountryEntity;
-use Shopware\Core\System\Salutation\SalutationEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -71,7 +66,7 @@ class CustomerController extends AbstractController
                 if ($group === 'guest') {
                     $groupFilter = new EqualsFilter('customer.guest', 1);
                 } else {
-                    $groupFilter = new EqualsFilter('customer.customer_group_id', $group);
+                    $groupFilter = new EqualsFilter('customer.groupId', $group);
                 }
                 $criteria->addFilter($groupFilter);
             }
@@ -118,39 +113,87 @@ class CustomerController extends AbstractController
     }
 
     /**
-     * @Route("/api/{version}/n2g/customers", name="api.action.n2g.updateCustomer", methods={"PUT"})
+     * @Route("/api/{version}/n2g/customers/subscribe", name="api.action.n2g.subscribeCustomer", methods={"POST"})
      * @param Request $request
      * @param Context $context
      * @return JsonResponse
      */
-    public function updateCustomerAction(Request $request, Context $context): JsonResponse
+    public function subscribeCustomerAction(Request $request, Context $context): JsonResponse
     {
-        $id = $request->get('id');
-        $subscribed = $request->get('subscribed');
+        $code = 400;
+        $response = [];
+
+        $email = $request->get('email');
+        if ($email && $request->get('Subscribe')) {
+            $updateResponse = $this->_updateCustomer($email, 1, $context);
+            $response = $updateResponse['response'];
+            $code = $updateResponse['code'];
+        }
+
+        return new JsonResponse($response, $code);
+    }
+
+    /**
+     * @Route("/api/{version}/n2g/customers/unsubscribe", name="api.action.n2g.unsubscribeCustomer", methods={"POST"})
+     * @param Request $request
+     * @param Context $context
+     * @return JsonResponse
+     */
+    public function unsubscribeCustomerAction(Request $request, Context $context): JsonResponse
+    {
+        $code = 400;
+        $response = [];
+
+        $email = $request->get('email');
+        if ($email && $request->get('Unsubscribe')) {
+            $updateResponse = $this->_updateCustomer($email, 1, $context);
+            $response = $updateResponse['response'];
+            $code = $updateResponse['code'];
+        }
+
+        return new JsonResponse($response, $code);
+    }
+
+    /**
+     * @param $email
+     * @param $newsletter
+     * @param Context $context
+     * @return array
+     */
+    private function _updateCustomer($email, $newsletter, Context $context): array
+    {
         $statusCode = 400;
         $response = [];
-        if ($id && $subscribed) {
-            try {
-                /** @var EntityRepositoryInterface $customerRepository */
-                $customerRepository = $this->container->get('customer.repository');
-                $updateResponse = $customerRepository->update([ //TODO make it possible to add new fields
+        $response['success'] = false;
+
+        try {
+            /** @var EntityRepositoryInterface $customerRepository */
+            $customerRepository = $this->container->get('customer.repository');
+            $criteria = new Criteria();
+            $criteria->addFilter(new EqualsFilter('email', $email));
+            /** @var CustomerEntity $customer */
+            $customer = $customerRepository->search($criteria, $context)->first();
+
+            if ($customer) {
+                $updateResponse = $customerRepository->update([
                     [
-                        'id' => $id,
-                        'newsletter' => $subscribed
+                        'id' => $customer->getId(),
+                        'newsletter' => $newsletter
                     ]
                 ],
                     $context
                 );
+
                 $statusCode = 200;
                 $response['success'] = true;
                 $response['data'] = $updateResponse->getEvents()->getElements();
-            } catch (\Exception $exception) {
-                $response['success'] = false;
-                $response['error'] = $exception->getMessage();
             }
+        } catch (\Exception $exception) {
+
+            $response['error'] = $exception->getMessage();
         }
 
-        return new JsonResponse($response, $statusCode);
+        return ['response' => $response, 'code' => $statusCode];
     }
 
 
@@ -164,6 +207,7 @@ class CustomerController extends AbstractController
     {
         $response = [];
         $onlySubscribed = $request->get('subscribed');
+        $groupId = $request->get('group');
         /** @var EntityRepositoryInterface $customerRepository */
         $customerRepository = $this->container->get('customer.repository');
 
@@ -173,6 +217,10 @@ class CustomerController extends AbstractController
 
             if ($onlySubscribed) {
                 $criteria->addFilter(new EqualsFilter('customer.newsletter', 1));
+            }
+
+            if ($groupId) {
+                $criteria->addFilter(new EqualsFilter('customer.groupId', $groupId));
             }
 
             $response['success'] = true;
