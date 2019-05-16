@@ -25,7 +25,7 @@ class GroupController extends AbstractController
 
             $groups = $this->getCustomerGroups();
 
-            $response['success'] = false;
+            $response['success'] = true;
             $response['data'] = $this->prepareEntityAttributes($groups);
 
         } catch (\Exception $exception) {
