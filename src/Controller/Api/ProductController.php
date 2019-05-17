@@ -17,6 +17,16 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ProductController extends AbstractController
 {
+    private $productFieldController;
+
+    /**
+     * ProductController constructor.
+     * @param ProductFieldController $productFieldController
+     */
+    public function __construct(ProductFieldController $productFieldController)
+    {
+        $this->productFieldController = $productFieldController;
+    }
 
     /**
      * @Route("/api/{version}/n2g/products", name="api.action.n2g.getProducts", methods={"GET"})
@@ -39,18 +49,20 @@ class ProductController extends AbstractController
 
         try {
             $criteria = new Criteria();
+            $criteria->addAssociation('media');
             $criteria->addFilter(new EqualsFilter('active', 1));
             $criteria->addFilter(new EqualsFilter('productNumber', $productNumber));
 
             /** @var EntityRepositoryInterface $repository */
             $repository = $this->container->get('product.repository');
-            $searchResponse = $repository->search($criteria,
+            /** @var ProductEntity $product */
+            $product = $repository->search($criteria,
                 $context
-            );
+            )->first();
 
-            // TODO prepare product fields
-            $response['success'] = false;
-            $response['data'] = $searchResponse->getElements();
+            $product = $this->productFieldController->prepareProductAttributes($product);
+            $response['success'] = true;
+            $response['data'] = $product;
 
         } catch (\Exception $exception) {
             $response['success'] = false;

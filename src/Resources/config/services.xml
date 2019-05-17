@@ -6,15 +6,11 @@
 
     <services>
 
-        <service class="Newsletter2go\Service\Crypto" id="Newsletter2go\Service\Crypto"/>
-
         <service class="Newsletter2go\Service\ApiService" id="Newsletter2go\Service\ApiService">
             <argument type="string"/>
             <argument type="string"/>
             <argument type="string"/>
         </service>
-
-        <service class="Newsletter2go\Controller\Api\CustomerFieldController" id="Newsletter2go\Controller\Api\CustomerFieldController"/>
 
         <service id="Newsletter2go\Entity\Newsletter2goConfigDefinition">
             <tag name="shopware.entity.definition" entity="newsletter2go_config"/>
@@ -34,6 +30,15 @@
             <argument type="service" id="Shopware\Core\Framework\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition"/>
         </service>
 
+        <service id="Newsletter2go\Controller\Api\ProductFieldController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition"/>
+        </service>
+
+        <service id="Newsletter2go\Controller\Api\ProductController" public="true">
+            <argument type="service" id="Newsletter2go\Controller\Api\ProductFieldController"/>
+        </service>
+
         <service id="Newsletter2go\Controller\Api\CustomerController" public="true">
             <argument type="service" id="Newsletter2go\Controller\Api\CustomerFieldController"/>
         </service>
@@ -42,10 +47,13 @@
             <argument type="service" id="Newsletter2go\Service\Newsletter2goConfigService"/>
         </service>
 
+        <service id="Newsletter2go\Controller\Api\ConversionTrackingController" public="true">
+            <argument type="service" id="Newsletter2go\Service\Newsletter2goConfigService"/>
+        </service>
+
         <service id="Newsletter2go\Subscriber\ConversionTracking">
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="Newsletter2go\Service\Newsletter2goConfigService"/>
-
         </service>
 
     </services>

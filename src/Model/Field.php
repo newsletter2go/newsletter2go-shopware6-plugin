@@ -5,14 +5,14 @@ namespace Newsletter2go\Model;
 
 class Field
 {
-    const DATATYPE_INTEGER = 'integer';
-    const DATATYPE_BOOLEAN = 'boolean';
-    const DATATYPE_STRING = 'string';
-    const DATATYPE_DATE = 'date';
-    const DATATYPE_ARRAY = 'array';
-    const DATATYPE_OBJECT = 'object';
-    const DATATYPE_BINARY = 'binary';
-    const DATATYPE_FLOAT = 'float';
+    const DATATYPE_INTEGER = 'Integer';
+    const DATATYPE_BOOLEAN = 'Boolean';
+    const DATATYPE_STRING = 'String';
+    const DATATYPE_DATE = 'Date';
+    const DATATYPE_ARRAY = 'Array';
+    const DATATYPE_OBJECT = 'Object';
+    const DATATYPE_BINARY = 'Binary';
+    const DATATYPE_FLOAT = 'Float';
 
     const FIELD_ID = 'id';
     const FIELD_NAME = 'name';
