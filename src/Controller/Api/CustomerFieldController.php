@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\Country\CountryEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Salutation\SalutationEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -234,12 +235,16 @@ class CustomerFieldController extends AbstractController
         $preparedEntity = [];
         if ($entity instanceof CustomerAddressEntity) {
             $preparedEntity = $this->prepareCustomerAddressEntity($entity);
-        }
-        if ($entity instanceof SalutationEntity) {
+
+        } elseif ($entity instanceof SalesChannelEntity) {
+            $preparedEntity['letterName'] = $entity->getId();
+            $preparedEntity['displayName'] = $entity->getName();
+
+        } else if ($entity instanceof SalutationEntity) {
             $preparedEntity['displayName'] = $entity->getDisplayName();
             $preparedEntity['letterName'] = $entity->getLetterName();
-        } else {
 
+        } else {
 //            if (property_exists($entity, 'id')) {
 //                $preparedCustomerList['id'] = $entity->getUniqueIdentifier();
 //            }
