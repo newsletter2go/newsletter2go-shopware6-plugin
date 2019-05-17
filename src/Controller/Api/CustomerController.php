@@ -41,8 +41,7 @@ class CustomerController extends AbstractController
         $group = $request->get('group', false);
         $emails = $this->prepareEmails($request->get('emails', null));
         $fields = $this->customerFieldController->getCustomerEntityFields($request->get('fields', ''));
-        //TODO check if available in SW6
-        $subShopId = $request->get('subShopId', 0);
+        $subShopId = $request->get('subShopId', null);
 
         try {
 
@@ -52,6 +51,10 @@ class CustomerController extends AbstractController
 
             if ($onlySubscribed) {
                 $criteria->addFilter(new EqualsFilter('customer.newsletter', 1));
+            }
+
+            if ($subShopId) {
+                $criteria->addFilter(new EqualsFilter('customer.salesChannelId', $subShopId));
             }
 
             if ($offset && is_numeric($offset)) {
@@ -125,7 +128,7 @@ class CustomerController extends AbstractController
 
         $email = $request->get('email');
         if ($email && $request->get('Subscribe')) {
-            $updateResponse = $this->_updateCustomer($email, 1, $context);
+            $updateResponse = $this->_updateCustomer($email, true, $context);
             $response = $updateResponse['response'];
             $code = $updateResponse['code'];
         }
@@ -146,7 +149,7 @@ class CustomerController extends AbstractController
 
         $email = $request->get('email');
         if ($email && $request->get('Unsubscribe')) {
-            $updateResponse = $this->_updateCustomer($email, 1, $context);
+            $updateResponse = $this->_updateCustomer($email, false, $context);
             $response = $updateResponse['response'];
             $code = $updateResponse['code'];
         }
@@ -175,7 +178,7 @@ class CustomerController extends AbstractController
             $customer = $customerRepository->search($criteria, $context)->first();
 
             if ($customer) {
-                $updateResponse = $customerRepository->update([
+                $updateResponse = $customerRepository->upsert([
                     [
                         'id' => $customer->getId(),
                         'newsletter' => $newsletter
