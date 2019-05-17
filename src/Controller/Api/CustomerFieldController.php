@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEnt
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
+use Shopware\Core\Content\NewsletterReceiver\NewsletterReceiverEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\Framework\CustomField\Aggregate\CustomFieldSet\CustomFieldSetEntity;
@@ -237,8 +238,8 @@ class CustomerFieldController extends AbstractController
             $preparedEntity = $this->prepareCustomerAddressEntity($entity);
 
         } elseif ($entity instanceof SalesChannelEntity) {
-            $preparedEntity['letterName'] = $entity->getId();
-            $preparedEntity['displayName'] = $entity->getName();
+            $preparedEntity['id'] = $entity->getId();
+            $preparedEntity['name'] = $entity->getName();
 
         } else if ($entity instanceof SalutationEntity) {
             $preparedEntity['displayName'] = $entity->getDisplayName();
@@ -287,5 +288,36 @@ class CustomerFieldController extends AbstractController
         }
 
         return $promotions;
+    }
+
+    public function prepareNewsletterReceiver(array $newsletterReceiverList)
+    {
+        $preparedList = [];
+        /** @var NewsletterReceiverEntity $newsletterReceiver */
+        foreach ($newsletterReceiverList as $newsletterReceiver) {
+            $preparedList[$newsletterReceiver->getId()] = [
+                'email' => $newsletterReceiver->getEmail(),
+                'firstName' => $newsletterReceiver->getFirstName() ?: '',
+                'lastName' => $newsletterReceiver->getLastName() ?: '',
+                'group' => [
+                    'name' => GroupController::GROUP_NEWSLETTER_RECEIVER
+                    ],
+                'status' => $newsletterReceiver->getStatus() ?: '',
+                'defaultBillingAddress' => [
+                    'city' => $newsletterReceiver->getCity() ?: ''
+                ],
+                'salesChannel' => [
+                    'id' => $newsletterReceiver->getSalesChannel()->getId() ?: '',
+                    'name' => $newsletterReceiver->getLastName() ?: ''
+                ],
+                'language' => [
+                    'name' => $newsletterReceiver->getLanguage()->getName() ?: ''
+                ],
+                'updatedAt' => $newsletterReceiver->getUpdatedAt() ?: '',
+                'customFields' => $newsletterReceiver->getCustomFields() ?: []
+            ];
+        }
+
+        return $preparedList;
     }
 }
