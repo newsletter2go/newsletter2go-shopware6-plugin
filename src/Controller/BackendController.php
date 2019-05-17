@@ -140,63 +140,6 @@ class BackendController extends AbstractController
     }
 
     /**
-     * @Route(path="/api/{version}/n2g/tracking", name="api.action.n2g.updateTracking", methods={"PUT"})
-     * @param Request $request
-     * @param Context $context
-     * @return JsonResponse
-     */
-    public function updateConversionTracking(Request $request, Context $context)
-    {
-        try {
-            $result = $this->newsletter2goConfigService->getConfigByFieldNames(Newsletter2goConfig::NAME_VALUE_CONVERSION_TRACKING);
-            if (empty($result)) {
-                $this->newsletter2goConfigService->addConfig(['conversion_tracking' => 'false']);
-
-                return new JsonResponse([Newsletter2goConfig::NAME_VALUE_CONVERSION_TRACKING => false]);
-
-            } else {
-                $conversionTracking = $request->get('conversion_tracking', false);
-                $conversionTrackingString = ($conversionTracking === true) ? 'true': 'false';
-
-                $this->newsletter2goConfigService->updateConfigs(['conversion_tracking' => $conversionTrackingString]);
-                return new JsonResponse([Newsletter2goConfig::NAME_VALUE_CONVERSION_TRACKING => $conversionTracking]);
-
-            }
-
-        } catch (\Exception $exception) {
-            return new JsonResponse(['conversion_tracking' => false, 'error' => $exception->getMessage()]);
-        }
-    }
-
-    /**
-     * @Route(path="/api/{version}/n2g/tracking", name="api.action.n2g.getTracking", methods={"GET"})
-     * @param Request $request
-     * @param Context $context
-     * @return JsonResponse
-     */
-    public function getConversionTracking(Request $request, Context $context) : JsonResponse
-    {
-        try {
-            $result = $this->newsletter2goConfigService->getConfigByFieldNames(Newsletter2goConfig::NAME_VALUE_CONVERSION_TRACKING);
-            if (count($result) > 0) {
-                /** @var Newsletter2goConfig $conversionTracking */
-                $conversionTracking = reset($result);
-                $booleanConversionTracking = ($conversionTracking->getValue() === 'true');
-
-                return new JsonResponse([Newsletter2goConfig::NAME_VALUE_CONVERSION_TRACKING => $booleanConversionTracking]);
-
-            } else {
-               $this->newsletter2goConfigService->addConfig(['conversion_tracking' => 'false']);
-
-               return new JsonResponse([Newsletter2goConfig::NAME_VALUE_CONVERSION_TRACKING => false]);
-            }
-
-        } catch (\Exception $exception) {
-            return new JsonResponse(['conversion_tracking' => false, 'error' => $exception->getMessage()]);
-        }
-    }
-
-    /**
      * @Route(path="/api/{version}/n2g/company", name="api.action.n2g.company", methods={"GET"})
      * @param Request $request
      * @param Context $context

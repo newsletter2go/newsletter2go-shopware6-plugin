@@ -85,7 +85,7 @@ class CustomerFieldController extends AbstractController
                             $fieldDescription = !empty($customField->getTranslated()) ? reset($customField->getTranslated()) : '';
                             $fields[] = new Field(
                                 'customField_' . $customField->getName(),
-                                $this->convertToN2gDatatype($customField->getType()),
+                                DatatypeHelper::convertToN2gDatatype($customField->getType()),
                                 $fieldName,
                                 $fieldDescription
                             );
@@ -208,12 +208,11 @@ class CustomerFieldController extends AbstractController
 
                             if ($attribute instanceof \DateTimeImmutable) {
                                 $preparedCustomerList[$key][$fieldId] = $attribute->format('Y-m-d');
-                            } else { //is string
-                                $preparedCustomerList[$key][$fieldId] = $attribute;
                             }
 
                         }
                     }
+
                 } elseif ($isCustomField && !empty($customerEntity->getCustomFields())) {
 
                     $customFields = $customerEntity->getCustomFields();
@@ -274,36 +273,14 @@ class CustomerFieldController extends AbstractController
              * @var PromotionEntity $promotionEntity
              */
             foreach ($promotionCollection->getElements() as $promotionKey => $promotionEntity) {
-                $promotions[$promotionKey]['name'] = $promotionEntity->getName() || '';
-                $promotions[$promotionKey]['validFrom'] = $promotionEntity->getValidFrom()->format('Y-m-d H:i:s') || '';
-                $promotions[$promotionKey]['validUntil'] = $promotionEntity->getValidUntil()->format('Y-m-d H:i:s') || '';
-                $promotions[$promotionKey]['exclusive'] = $promotionEntity->isExclusive() || '';
-                $promotions[$promotionKey]['code'] = $promotionEntity->getCode() || '';
+                $promotions[$promotionKey]['name'] = $promotionEntity->getName() ?: '';
+                $promotions[$promotionKey]['validFrom'] = $promotionEntity->getValidFrom()->format('Y-m-d H:i:s') ?: '';
+                $promotions[$promotionKey]['validUntil'] = $promotionEntity->getValidUntil()->format('Y-m-d H:i:s') ?: '';
+                $promotions[$promotionKey]['exclusive'] = $promotionEntity->isExclusive() ?: '';
+                $promotions[$promotionKey]['code'] = $promotionEntity->getCode() ?: '';
             }
         }
 
         return $promotions;
-    }
-
-    private function convertToN2gDatatype($datatype)
-    {
-        switch ($datatype) {
-            case 'bool':
-                $correctDataType = Field::DATATYPE_BOOLEAN;
-                break;
-            case 'float':
-                $correctDataType = Field::DATATYPE_FLOAT;
-                break;
-            case 'int':
-                $correctDataType = Field::DATATYPE_INTEGER;
-                break;
-            case 'datetime':
-                $correctDataType = Field::DATATYPE_DATE;
-                break;
-            default:
-                $correctDataType = Field::DATATYPE_STRING;
-        }
-
-        return $correctDataType;
     }
 }
