@@ -11,7 +11,7 @@
 
             // create transaction
             var transaction = {
-                'id': '{{ page.order.id }}',
+                'id': 'SW{{ page.order.orderNumber }}',
                 'affiliation': '',
                 'revenue': '{{ page.order.price.totalPrice }}',
                 'shipping': '{{ page.order.shippingCosts.totalPrice }}',
@@ -30,9 +30,9 @@
             {% for lineItem in page.order.lineItems.elements %}
 
                 var item = {
-                    'id': '{{ lineItem.orderId }}',
+                    'id': 'SW{{ page.order.orderNumber }}',
                     'name': '{{ lineItem.label }}',
-                    'sku': '{{ lineItem.orderId }}',
+                    'sku': '{{ lineItem.id }}',
                     'category': '',
                     'price': '{{ lineItem.totalPrice }}',
                     'quantity': '{{ lineItem.quantity }}'
@@ -51,7 +51,6 @@
         </script>
 
     {% endif %}
-{#{{ dump(page) }}#}
 
 {% endblock %}
 
