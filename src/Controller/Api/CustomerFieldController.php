@@ -167,13 +167,11 @@ class CustomerFieldController extends AbstractController
             new Field('newsletter', Field::DATATYPE_INTEGER),
             new Field('birthday', Field::DATATYPE_DATE),
             new Field('defaultBillingAddress'),
-            new Field('defaultShippingAddress'),
             new Field('defaultPaymentMethod', Field::DATATYPE_DATE),
             new Field('createdAt', Field::DATATYPE_DATE),
             new Field('updatedAt', Field::DATATYPE_DATE),
             new Field('salesChannel', Field::DATATYPE_ARRAY),
             new Field('promotions', Field::DATATYPE_ARRAY),
-            new Field('customFields', Field::DATATYPE_ARRAY)
         ];
 
         return $defaultFields;
@@ -192,6 +190,7 @@ class CustomerFieldController extends AbstractController
                 $newAttribute = null;
                 $fieldId = $field->getId();
                 $isCustomField = strpos($fieldId, 'customField_') === 0 ;
+
                 if ($customerEntity->has($fieldId)) {
                     $attribute = $customerEntity->get($fieldId);
 
@@ -208,23 +207,22 @@ class CustomerFieldController extends AbstractController
                             }
                         } else {
                             if ($attribute instanceof \DateTimeImmutable) {
-                                $newAttribute = [$attribute->format('Y-m-d H:i:s')];
+                                $newAttribute = [$fieldId => $attribute->format('Y-m-d H:i:s')];
                             }
                         }
                     }
                 } elseif ($isCustomField && !empty($customerEntity->getCustomFields())) {
                     $customFields = $customerEntity->getCustomFields();
-                    $customFieldOriginalName = substr($fieldId, 12);
-                    if (isset($customFields[$customFieldOriginalName])) {
-                        $newAttribute = $customFields[$customFieldOriginalName];
+                    $customFieldWithoutPrefix = substr($fieldId, 12);
+                    if (isset($customFields[$customFieldWithoutPrefix])) {
+                        $newAttribute = $customFields[$customFieldWithoutPrefix];
                     }
                 }
 
                 if (!empty($newAttribute) && !$isCustomField) {
-                    if (!is_array($newAttribute)) {
-                        var_dump($newAttribute);
+                    if (is_array($newAttribute)) {
+                        $preparedCustomerList[$key] = array_merge($preparedCustomerList[$key], $newAttribute);
                     }
-                    $preparedCustomerList[$key] = array_merge($preparedCustomerList[$key], $newAttribute);
                 } else {
                     $preparedCustomerList[$key][$fieldId] = null;
                 }
@@ -269,26 +267,31 @@ class CustomerFieldController extends AbstractController
 
     private function preparePromotionCollection($fieldId, PromotionCollection $promotionCollection): ?array
     {
-        $promotions = [];
+        $promotions = [
+            $fieldId . ucfirst('id') => null,
+            $fieldId . ucfirst('name') => null,
+            $fieldId . ucfirst('validFrom') => null,
+            $fieldId . ucfirst('validUntil') => null,
+            $fieldId . ucfirst('code') => null,
+        ];
 
         if ($promotionCollection->count() > 0) {
             /**
              * @var string $promotionKey
              * @var PromotionEntity $promotionEntity
              */
-            foreach ($promotionCollection->getElements() as $promotionKey => $promotionEntity) {
-                $promotions[$promotionKey][$fieldId . ucfirst('id')] = $promotionEntity->getId();
-                $promotions[$promotionKey][$fieldId . ucfirst('name')] = $promotionEntity->getName();
-                $promotions[$promotionKey][$fieldId . ucfirst('name')] = $promotionEntity->getName();
-                $promotions[$promotionKey][$fieldId . ucfirst('percental')] = $promotionEntity->isPercental();
-                $promotions[$promotionKey][$fieldId . ucfirst('validFrom')] = $promotionEntity->getValidFrom()->format('Y-m-d H:i:s');
-                $promotions[$promotionKey][$fieldId . ucfirst('validUntil')] = $promotionEntity->getValidUntil()->format('Y-m-d H:i:s');
-                $promotions[$promotionKey][$fieldId . ucfirst('redeemable')] = $promotionEntity->getRedeemable();
-                $promotions[$promotionKey][$fieldId . ucfirst('exclusive')] = $promotionEntity->isExclusive();
-                $promotions[$promotionKey][$fieldId . ucfirst('priority')] = $promotionEntity->getPriority();
-                $promotions[$promotionKey][$fieldId . ucfirst('codeType')] = $promotionEntity->getCodeType();
-                $promotions[$promotionKey][$fieldId . ucfirst('code')] = $promotionEntity->getCode();
-                $promotions[$promotionKey][$fieldId . ucfirst('discounts')] = $promotionEntity->getDiscounts() ?: null;
+            foreach ($promotionCollection->getElements() as $promotionEntity) {
+                // only first active promotion will be added
+                // ask for this
+                if ($promotionEntity->isActive()) {
+                    $promotions[$fieldId . ucfirst('id')] = $promotionEntity->getId();
+                    $promotions[$fieldId . ucfirst('name')] = $promotionEntity->getName();
+                    $promotions[$fieldId . ucfirst('validFrom')] = $promotionEntity->getValidFrom()->format('Y-m-d H:i:s');
+                    $promotions[$fieldId . ucfirst('validUntil')] = $promotionEntity->getValidUntil()->format('Y-m-d H:i:s');
+                    $promotions[$fieldId . ucfirst('code')] = $promotionEntity->getCode();
+
+                    break;
+                }
             }
         }
 
