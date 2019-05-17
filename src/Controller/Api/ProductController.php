@@ -3,11 +3,12 @@
 namespace Newsletter2go\Controller\Api;
 
 
+use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -26,25 +27,20 @@ class ProductController extends AbstractController
     public function getProductsAction(Request $request, Context $context): JsonResponse
     {
         $response = [];
-        $identifier = $request->get('identifier');
-        $productTile = $request->get('title');
+        $productNumber = $request->get('productNumber');
+
+        if (empty($productNumber)) {
+
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'missing "productNumber" parameter'
+            ]);
+        }
 
         try {
             $criteria = new Criteria();
             $criteria->addFilter(new EqualsFilter('active', 1));
-
-            if ($identifier) {
-                $criteria->setIds([$identifier]);
-            } elseif ($productTile) {
-                $criteria->addFilter([
-                    'title' => $productTile
-                ]);
-            } else {
-                return new JsonResponse([
-                    'success' => false,
-                    'error' => 'missing "identifier" parameter'
-                ]);
-            }
+            $criteria->addFilter(new EqualsFilter('productNumber', $productNumber));
 
             /** @var EntityRepositoryInterface $repository */
             $repository = $this->container->get('product.repository');
@@ -52,6 +48,7 @@ class ProductController extends AbstractController
                 $context
             );
 
+            // TODO prepare product fields
             $response['success'] = false;
             $response['data'] = $searchResponse->getElements();
 
@@ -72,37 +69,36 @@ class ProductController extends AbstractController
     public function getProductMediaAction(Request $request, Context $context): JsonResponse
     {
         $response = [];
-        $identifier = $request->get('identifier');
-        $productName = $request->get('name');
+        $productNumber = $request->get('productNumber');
 
-        try {
-            $criteria = new Criteria();
-
-            if ($identifier) {
-                $criteria->addFilter(new EqualsFilter('productId', $identifier));
-            } elseif ($productName) {
-                $products = $this->findProductsByProductName($context, $productName);
-                if ($products && $productIds = $this->getProductIdsFromProductArray($products)) {
-                    $criteria->addFilter(new EqualsAnyFilter('productId', $productIds));
-                } else {
-                    return new JsonResponse([
-                        'success' => false,
-                        'error' => 'product not found'
-                    ]);
-                }
-            } else {
+        if (empty($productNumber)) {
+            {
                 return new JsonResponse([
                     'success' => false,
-                    'error' => 'missing "identifier" parameter'
+                    'error' => 'missing "productNumber" parameter'
                 ]);
             }
+        }
 
+        try {
+            $repository = $this->container->get('product.repository');
+            $criteria = new Criteria();
+            $criteria->addAssociation('media');
+            $criteria->addFilter(new EqualsFilter('active', 1));
+            $criteria->addFilter(new EqualsFilter('productNumber', $productNumber));
+            /** @var ProductEntity $result */
+            $result = $repository->search($criteria, $context)->first();
+            /** @var MediaCollection $media */
+            $media = $result->getMedia();
 
-            $repository = $this->container->get('product_media.repository');
-            $result = $repository->search($criteria, $context);
+            $data = [];
+            /** @var ProductMediaEntity $mediaEntity */
+            foreach ($media->getElements() as $mediaEntity) {
+                $data[] = $mediaEntity->getMedia()->getUrl();
+            }
 
             $response['success'] = true;
-            $response['data'] = $result->getElements();
+            $response['data'] = $data;
 
         } catch (\Exception $exception) {
             $response['success'] = false;
@@ -111,26 +107,4 @@ class ProductController extends AbstractController
 
         return new JsonResponse($response);
     }
-
-    private function findProductsByProductName(Context $context, string $productName)
-    {
-        $repository = $this->container->get('product.repository');
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('active', 1));
-        $criteria->addFilter(new EqualsFilter('name', $productName));
-        $result = $repository->search($criteria, $context);
-        return $result->getElements();
-    }
-
-    private function getProductIdsFromProductArray($products) :array
-    {
-        $productIds = [];
-        /** @var ProductEntity $product */
-        foreach ($products as $product) {
-            $productIds[] = $product->getId();
-        }
-
-        return $productIds;
-    }
-
 }
