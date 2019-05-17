@@ -14,6 +14,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class GroupController extends AbstractController
 {
+    const GROUP_NEWSLETTER_RECEIVER = 'newsletter_receiver';
+
     /**
      * @Route("/api/{version}/n2g/groups", name="api.action.n2g.getGroups", methods={"GET"})
      * @return JsonResponse
@@ -24,9 +26,15 @@ class GroupController extends AbstractController
         try {
 
             $groups = $this->getCustomerGroups();
+            $preparedGroups = $this->prepareEntityAttributes($groups);
+
+            $preparedGroups[] = [
+                'id' => 0,
+                'name' => self::GROUP_NEWSLETTER_RECEIVER
+            ];
 
             $response['success'] = true;
-            $response['data'] = $this->prepareEntityAttributes($groups);
+            $response['data'] = $preparedGroups;
 
         } catch (\Exception $exception) {
             $response['success'] = false;
