@@ -251,12 +251,20 @@ class CustomerFieldController extends AbstractController
 
     private function prepareCustomerAddressEntity($fieldId, CustomerAddressEntity $customerAddressEntity): ?array
     {
-        $addressEntity = [];
+        $addressEntity = [
+            $fieldId . ucfirst('countryIso') => null,
+            $fieldId . ucfirst('countryName') => null,
+            $fieldId . ucfirst('city') => null,
+        ];
+
         /** @var CountryEntity $country */
         $country = $customerAddressEntity->getCountry();
-        $addressEntity[$fieldId . ucfirst('countryIso')] = $country->getIso();
-        $addressEntity[$fieldId . ucfirst('countryName')] = $country->getName();
-        $addressEntity[$fieldId . ucfirst('city')] = $customerAddressEntity->getCity();
+
+        if ($country instanceof CountryEntity) {
+            $addressEntity[$fieldId . ucfirst('countryIso')] = $country->getIso();
+            $addressEntity[$fieldId . ucfirst('countryName')] = $country->getName();
+            $addressEntity[$fieldId . ucfirst('city')] = $customerAddressEntity->getCity();
+        }
 
         return $addressEntity;
     }
