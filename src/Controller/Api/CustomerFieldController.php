@@ -149,20 +149,14 @@ class CustomerFieldController extends AbstractController
     {
         $defaultFields = [
             new Field('id'),
-            new Field('salesChannelId'),
-            new Field('languageId'),
             new Field('customerNumber', Field::DATATYPE_INTEGER),
             new Field('group', Field::DATATYPE_ARRAY),
             new Field('salutation', Field::DATATYPE_STRING, 'Title'),
-            new Field('searchKeywords', Field::DATATYPE_ARRAY),
-            new Field('tags', Field::DATATYPE_ARRAY),
-            new Field('attributes', Field::DATATYPE_ARRAY),
-            new Field('orderCustomers'),
+            new Field('orderCount'),
             new Field('email'),
             new Field('language'),
             new Field('firstName'),
             new Field('lastName'),
-            new Field('company'),
             new Field('guest', Field::DATATYPE_BOOLEAN),
             new Field('newsletter', Field::DATATYPE_INTEGER),
             new Field('birthday', Field::DATATYPE_DATE),
@@ -194,11 +188,11 @@ class CustomerFieldController extends AbstractController
                 if ($customerEntity->has($fieldId)) {
                     $attribute = $customerEntity->get($fieldId);
 
-                    if (is_string($attribute) || is_numeric($attribute)) {
+                    if (is_string($attribute) || is_numeric($attribute) || is_bool($attribute)) {
                         $preparedCustomerList[$key][$fieldId] = $attribute;
                         continue;
 
-                    }else if ($attribute instanceof Entity) {
+                    } else if ($attribute instanceof Entity) {
                         $newAttribute = $this->prepareEntity($fieldId, $attribute);
                     } else {
                         if ($attribute instanceof EntityCollection) {
@@ -207,7 +201,7 @@ class CustomerFieldController extends AbstractController
                             }
                         } else {
                             if ($attribute instanceof \DateTimeImmutable) {
-                                $newAttribute = [$fieldId => $attribute->format('Y-m-d H:i:s')];
+                                $newAttribute = [$fieldId => $attribute->format('Y-m-d')];
                             }
                         }
                     }
@@ -235,6 +229,7 @@ class CustomerFieldController extends AbstractController
     private function prepareEntity($fieldId, Entity $entity): ?array
     {
         $preparedEntity = [];
+
         if ($entity instanceof CustomerAddressEntity) {
             $preparedEntity = $this->prepareCustomerAddressEntity($fieldId, $entity);
         } elseif ($entity instanceof SalutationEntity) {
@@ -242,9 +237,10 @@ class CustomerFieldController extends AbstractController
             $preparedEntity[$fieldId . ucfirst('letterName')] = $entity->getLetterName();
         } else {
 
-            if (property_exists($entity, 'id')) {
-                $preparedEntity[$fieldId . ucfirst('id')] = $entity->getUniqueIdentifier();
-            }
+//            if (property_exists($entity, 'id')) {
+//                $preparedEntity[$fieldId . ucfirst('id')] = $entity->getUniqueIdentifier();
+//            }
+
             if (property_exists($entity, 'name')) {
                 $preparedEntity[$fieldId . ucfirst('name')] = $entity->get('name');
             }
@@ -282,7 +278,6 @@ class CustomerFieldController extends AbstractController
              */
             foreach ($promotionCollection->getElements() as $promotionEntity) {
                 // only first active promotion will be added
-                // ask for this
                 if ($promotionEntity->isActive()) {
                     $promotions[$fieldId . ucfirst('id')] = $promotionEntity->getId();
                     $promotions[$fieldId . ucfirst('name')] = $promotionEntity->getName();

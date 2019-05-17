@@ -84,6 +84,7 @@ class CustomerController extends AbstractController
             $promotionAssociationCriteria->addFilter(new EqualsFilter('active', 1));
             $promotionAssociationCriteria->addAssociation('discounts');
             $criteria->addAssociation('promotions', $promotionAssociationCriteria);
+            $criteria->addAssociation('language');
 
             $result = $customerRepository->search($criteria, $context)->getEntities();
             $preparedList = $this->customerFieldController->prepareCustomerAttributes($result, $fields);
