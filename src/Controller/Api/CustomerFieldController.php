@@ -28,6 +28,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class CustomerFieldController extends AbstractController
 {
+    const NEWSLETTER_RECEIVER_STATUS_SUBSCRIBED = 'subscribed';
+
     private $customFieldSetRepository;
     /**
      * CustomerFieldController constructor.
@@ -302,7 +304,7 @@ class CustomerFieldController extends AbstractController
                 'group' => [
                     'name' => GroupController::GROUP_NEWSLETTER_RECEIVER
                     ],
-                'newsletter' => $newsletterReceiver->getStatus() === 'subscribed',
+                'newsletter' => $newsletterReceiver->getStatus() === self::NEWSLETTER_RECEIVER_STATUS_SUBSCRIBED,
                 'defaultBillingAddress' => [
                     'city' => $newsletterReceiver->getCity() ?: ''
                 ],

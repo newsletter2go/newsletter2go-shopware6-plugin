@@ -122,7 +122,7 @@ class CustomerController extends AbstractController
         }
 
         if ($onlySubscribed) {
-            $criteria->addFilter(new EqualsFilter('status', $onlySubscribed));
+            $criteria->addFilter(new EqualsFilter('status', CustomerFieldController::NEWSLETTER_RECEIVER_STATUS_SUBSCRIBED));
         }
 
         if (!empty($emails)) {
