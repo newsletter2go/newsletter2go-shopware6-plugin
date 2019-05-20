@@ -28,7 +28,7 @@ class GroupController extends AbstractController
             $groups = $this->getCustomerGroups();
             $preparedGroups = $this->prepareEntityAttributes($groups);
 
-            $preparedGroups[] = [
+            $preparedGroups[self::GROUP_NEWSLETTER_RECEIVER] = [
                 'id' => self::GROUP_NEWSLETTER_RECEIVER,
                 'name' => self::GROUP_NEWSLETTER_RECEIVER
             ];
