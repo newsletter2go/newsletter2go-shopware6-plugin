@@ -302,7 +302,7 @@ class CustomerFieldController extends AbstractController
                 'group' => [
                     'name' => GroupController::GROUP_NEWSLETTER_RECEIVER
                     ],
-                'status' => $newsletterReceiver->getStatus() ?: '',
+                'newsletter' => $newsletterReceiver->getStatus() === 'subscribed',
                 'defaultBillingAddress' => [
                     'city' => $newsletterReceiver->getCity() ?: ''
                 ],
