@@ -38,8 +38,6 @@ class CallbackController extends AbstractController
         $config['access_token'] = $request->get('access_token', null);
         $config['refresh_token'] = $request->get('refresh_token', null);
         $config['company_id'] = $request->get('company_id', null);
-        $config['account_id'] = $request->get('account_id', null);
-        $config['email'] = $request->get('email');
 
         foreach ($config as $key => $value) {
             if (empty($value)) {
