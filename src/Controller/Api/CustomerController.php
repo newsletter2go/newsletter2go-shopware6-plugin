@@ -42,7 +42,6 @@ class CustomerController extends AbstractController
         $emails = $this->prepareEmails($request->get('emails', null));
         $fields = $this->customerFieldController->getCustomerEntityFields($request->get('fields', ''));
         $subShopId = $request->get('subShopId', null);
-        $newsletterReceiver = [];
 
         try {
 
@@ -54,7 +53,7 @@ class CustomerController extends AbstractController
                 $criteria->addFilter(new EqualsFilter('customer.newsletter', 1));
             }
 
-            if ($subShopId) {
+            if ($subShopId && $subShopId !== 0) {
                 $criteria->addFilter(new EqualsFilter('customer.salesChannelId', $subShopId));
             }
 
@@ -67,18 +66,26 @@ class CustomerController extends AbstractController
             }
 
             if ($group) {
+
                 if ($group === GroupController::GROUP_NEWSLETTER_RECEIVER) {
-                    $newsletterReceiver = $this->getNewsletterReceiver($onlySubscribed, $offset, $limit, $emails, $subShopId);
+                    $preparedNewsletterReceiver = $this->getPreparedNewsletterReceiver($onlySubscribed, $offset, $limit, $emails, $subShopId);
+
+                    $response['success'] = true;
+                    $response['data'] = $preparedNewsletterReceiver;
+
+                    return new JsonResponse($response);
+
                 } else {
-                    $groupFilter = new EqualsFilter('customer.group.name', $group);
+                    $groupFilter = new EqualsFilter('customer.groupId', $group);
                     $criteria->addFilter($groupFilter);
                 }
             }
+
             /** @var EntityRepositoryInterface $customerRepository */
             $customerRepository = $this->container->get('customer.repository');
+
             if (!empty($emails)) {
-                $criteria->addFilter(new EqualsAnyFilter('customer.email',
-                    $emails));
+                $criteria->addFilter(new EqualsAnyFilter('customer.email', $emails));
             }
 
             $promotionAssociationCriteria = new Criteria();
@@ -90,7 +97,7 @@ class CustomerController extends AbstractController
             $result = $customerRepository->search($criteria, $context)->getEntities();
             $preparedList = $this->customerFieldController->prepareCustomerAttributes($result, $fields);
             $response['success'] = true;
-            $response['data'] = array_merge($preparedList, $newsletterReceiver);
+            $response['data'] = $preparedList;
 
         } catch (\Exception $exception) {
             $response['success'] = false;
@@ -100,7 +107,7 @@ class CustomerController extends AbstractController
         return new JsonResponse($response);
     }
 
-    private function getNewsletterReceiver($onlySubscribed, $offset, $limit, $emails, $subShopId)
+    private function getPreparedNewsletterReceiver($onlySubscribed, $offset, $limit, $emails, $subShopId)
     {
         /** @var EntityRepositoryInterface $newsletterReceiverRepository */
         $newsletterReceiverRepository = $this->container->get('newsletter_receiver.repository');
