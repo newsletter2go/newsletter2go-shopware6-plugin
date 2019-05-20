@@ -115,7 +115,11 @@ class CustomerFieldController extends AbstractController
     {
         $fields = [];
 
-        $customFields = $this->prepareCustomFields($customFields);
+        if (empty($customFields)) {
+            $customFields = '[]';
+        }
+
+        $customFields = json_decode($customFields, true);
 
         $allCustomerFields = array_merge($this->getCustomerDefaultFields(), $this->_getCustomerCustomFields());
         if (count($customFields) === 0) {
@@ -125,7 +129,7 @@ class CustomerFieldController extends AbstractController
         /** @var Field $customerField */
         foreach ($allCustomerFields as $customerField) {
             //email and id must always be included
-            if ($customerField->getId() === 'email' || $customerField->getId() === 'id') {
+            if ($customerField->getId() === 'email' || $customerField->getId() === 'id' || $customerField->getId() === 'newsletter') {
                 $fields[] = $customerField;
             } elseif (in_array($customerField->getId(), $customFields)) {
                 $fields[] = $customerField;
@@ -135,30 +139,14 @@ class CustomerFieldController extends AbstractController
         return $fields;
     }
 
-    /**
-     * @param $customFields
-     * @return array
-     * @example $customFields should be a string with a comma separated values e.g. 'firstName,lastName,phone'
-     */
-    private function prepareCustomFields($customFields): array
-    {
-        $customFields = preg_replace('/\s+/', '', $customFields);
-        if (empty($customFields)) {
-            $customFields = [];
-        } else {
-            $customFields = explode(',', $customFields);
-        }
-
-        return $customFields;
-    }
-
     private function getCustomerDefaultFields(): array
     {
         $defaultFields = [
             new Field('id'),
             new Field('orderCount', Field::DATATYPE_INTEGER),
-            new Field('group', Field::DATATYPE_ARRAY),
-            new Field('salutation', Field::DATATYPE_ARRAY, 'Title'),
+            new Field('groupId', Field::DATATYPE_STRING),
+//            new Field('groupName', Field::DATATYPE_STRING),
+            new Field('salutation', Field::DATATYPE_STRING, 'Title'),
             new Field('email'),
             new Field('language'),
             new Field('firstName'),
@@ -166,12 +154,14 @@ class CustomerFieldController extends AbstractController
             new Field('guest', Field::DATATYPE_BOOLEAN),
             new Field('newsletter', Field::DATATYPE_BOOLEAN),
             new Field('birthday', Field::DATATYPE_DATE),
-            new Field('defaultBillingAddress', Field::DATATYPE_ARRAY),
+            new Field('billingCountry', Field::DATATYPE_STRING),
+            new Field('billingCity', Field::DATATYPE_STRING),
             new Field('defaultPaymentMethod', Field::DATATYPE_DATE),
             new Field('createdAt', Field::DATATYPE_DATE),
             new Field('updatedAt', Field::DATATYPE_DATE),
-            new Field('salesChannel', Field::DATATYPE_ARRAY),
-            new Field('promotions', Field::DATATYPE_ARRAY),
+            new Field('salesChannelId', Field::DATATYPE_STRING),
+            new Field('salesChannelName', Field::DATATYPE_STRING),
+//            new Field('promotions', Field::DATATYPE_ARRAY),
         ];
 
         return $defaultFields;
@@ -198,8 +188,8 @@ class CustomerFieldController extends AbstractController
                         $preparedCustomerList[$key][$fieldId] = $attribute;
                     } elseif (is_null($attribute)) {
                         $preparedCustomerList[$key][$fieldId] = '';
-                    } elseif ($attribute instanceof Entity) {
-                        $preparedCustomerList[$key][$fieldId] = $this->prepareEntity($attribute);
+                    } elseif ($attribute instanceof SalutationEntity) {
+                        $preparedCustomerList[$key][$fieldId] = $attribute->getDisplayName();
                     } else {
 
                         if ($attribute instanceof EntityCollection) {
@@ -225,6 +215,16 @@ class CustomerFieldController extends AbstractController
                     if (isset($customFields[$customFieldOriginalName])) {
                         $preparedCustomerList[$key][$fieldId] = $customFields[$customFieldOriginalName];
                     }
+                } elseif ($field->getId() === 'billingCountry') {
+                        $preparedCustomerList[$key][$fieldId] = $customerEntity->getDefaultBillingAddress()->getCountry()->getName();
+                } elseif($field->getId() === 'billingCity') {
+                    $preparedCustomerList[$key][$fieldId] = $customerEntity->getDefaultBillingAddress()->getCity();
+                } elseif($field->getId() === 'defaultPaymentMethod') {
+                    $preparedCustomerList[$key][$fieldId] = $customerEntity->getDefaultPaymentMethod()->getName();
+                } elseif($field->getId() === 'salesChannelName') {
+                    $preparedCustomerList[$key][$fieldId] = $customerEntity->getSalesChannel()->getName();
+                } else {
+                    $preparedCustomerList[$key][$fieldId] = '';
                 }
 
             }
@@ -298,20 +298,14 @@ class CustomerFieldController extends AbstractController
                 'email' => $newsletterReceiver->getEmail(),
                 'firstName' => $newsletterReceiver->getFirstName() ?: '',
                 'lastName' => $newsletterReceiver->getLastName() ?: '',
-                'group' => [
-                    'name' => GroupController::GROUP_NEWSLETTER_RECEIVER
-                    ],
+                'groupId' => GroupController::GROUP_NEWSLETTER_RECEIVER,
                 'newsletter' => $newsletterReceiver->getStatus() === self::NEWSLETTER_RECEIVER_STATUS_SUBSCRIBED,
-                'defaultBillingAddress' => [
-                    'city' => $newsletterReceiver->getCity() ?: ''
-                ],
-                'salesChannel' => [
-                    'id' => $newsletterReceiver->getSalesChannel()->getId() ?: '',
-                    'name' => $newsletterReceiver->getLastName() ?: ''
-                ],
-                'language' => [
-                    'name' => $newsletterReceiver->getLanguage()->getName() ?: ''
-                ],
+                'billingCountry' => '',
+                'billingCity' => $newsletterReceiver->getCity() ?: '',
+                'defaultPaymentMethod' => '',
+                'salesChannelId' => $newsletterReceiver->getSalesChannel()->getId() ?: '',
+                'salesChannelName' => $newsletterReceiver->getLastName() ?: '',
+                'language' => $newsletterReceiver->getLanguage()->getName() ?: '',
                 'updatedAt' => $newsletterReceiver->getUpdatedAt() ?: '',
                 'customFields' => $newsletterReceiver->getCustomFields() ?: []
             ];

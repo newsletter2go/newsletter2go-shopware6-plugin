@@ -37,10 +37,10 @@ class CustomerController extends AbstractController
     {
         $onlySubscribed = $request->get('subscribed', false);
         $offset = $request->get('offset', false);
-        $limit = $request->get('limit', 1000);
+        $limit = $request->get('limit', null);
         $groupId = $request->get('group', false);
         $emails = json_decode($request->get('emails', '[]'), true);
-        $fields = $this->customerFieldController->getCustomerEntityFields($request->get('fields', ''));
+        $fields = $this->customerFieldController->getCustomerEntityFields($request->get('fields', '[]'));
         $subShopId = $request->get('subShopId', null);
 
         try {
@@ -68,7 +68,7 @@ class CustomerController extends AbstractController
             if ($groupId) {
 
                 if ($groupId === GroupController::GROUP_NEWSLETTER_RECEIVER) {
-                    $preparedNewsletterReceiver = $this->getPreparedNewsletterReceiver($onlySubscribed, $offset, $limit, $emails, $subShopId);
+                    $preparedNewsletterReceiver = $this->getPreparedNewsletterReceiver($onlySubscribed, $offset, $limit, $emails, $subShopId, $fields); //TODO fields
 
                     $response['success'] = true;
                     $response['data'] = $preparedNewsletterReceiver;
