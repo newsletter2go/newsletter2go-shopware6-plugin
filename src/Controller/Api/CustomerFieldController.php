@@ -220,7 +220,7 @@ class CustomerFieldController extends AbstractController
                 } elseif ($isCustomField && !empty($customerEntity->getCustomFields())) {
 
                     $customFields = $customerEntity->getCustomFields();
-                    $customFieldOriginalName = substr($fieldId, 12);
+                    $customFieldOriginalName = substr($fieldId, 12); //remove prefix "customField_"
 
                     if (isset($customFields[$customFieldOriginalName])) {
                         $preparedCustomerList[$key][$fieldId] = $customFields[$customFieldOriginalName];
@@ -233,7 +233,7 @@ class CustomerFieldController extends AbstractController
         return $preparedCustomerList;
     }
 
-    private function prepareEntity(Entity $entity): ?array
+    private function prepareEntity(Entity $entity)
     {
         $preparedEntity = [];
         if ($entity instanceof CustomerAddressEntity) {
@@ -244,13 +244,10 @@ class CustomerFieldController extends AbstractController
             $preparedEntity['name'] = $entity->getName();
 
         } else if ($entity instanceof SalutationEntity) {
-            $preparedEntity['displayName'] = $entity->getDisplayName();
-            $preparedEntity['letterName'] = $entity->getLetterName();
+            $preparedEntity = $entity->getDisplayName();
 
         } else {
-//            if (property_exists($entity, 'id')) {
-//                $preparedCustomerList['id'] = $entity->getUniqueIdentifier();
-//            }
+
             if (property_exists($entity, 'name')) {
                 $preparedEntity['name'] = $entity->get('name');
             }
