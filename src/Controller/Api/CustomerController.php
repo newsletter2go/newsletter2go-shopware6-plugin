@@ -70,7 +70,7 @@ class CustomerController extends AbstractController
                 if ($group === GroupController::GROUP_NEWSLETTER_RECEIVER) {
                     $newsletterReceiver = $this->getNewsletterReceiver($onlySubscribed, $offset, $limit, $emails, $subShopId);
                 } else {
-                    $groupFilter = new EqualsFilter('customer.groupId', $group);
+                    $groupFilter = new EqualsFilter('customer.group.name', $group);
                     $criteria->addFilter($groupFilter);
                 }
             }
