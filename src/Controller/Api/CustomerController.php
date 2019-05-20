@@ -38,8 +38,8 @@ class CustomerController extends AbstractController
         $onlySubscribed = $request->get('subscribed', false);
         $offset = $request->get('offset', false);
         $limit = $request->get('limit', 1000);
-        $group = $request->get('group', false);
-        $emails = $this->prepareEmails($request->get('emails', null));
+        $groupId = $request->get('group', false);
+        $emails = json_decode($request->get('emails', '[]'), true);
         $fields = $this->customerFieldController->getCustomerEntityFields($request->get('fields', ''));
         $subShopId = $request->get('subShopId', null);
 
@@ -65,9 +65,9 @@ class CustomerController extends AbstractController
                 $criteria->setLimit($limit);
             }
 
-            if ($group) {
+            if ($groupId) {
 
-                if ($group === GroupController::GROUP_NEWSLETTER_RECEIVER) {
+                if ($groupId === GroupController::GROUP_NEWSLETTER_RECEIVER) {
                     $preparedNewsletterReceiver = $this->getPreparedNewsletterReceiver($onlySubscribed, $offset, $limit, $emails, $subShopId);
 
                     $response['success'] = true;
@@ -76,7 +76,7 @@ class CustomerController extends AbstractController
                     return new JsonResponse($response);
 
                 } else {
-                    $groupFilter = new EqualsFilter('customer.groupId', $group);
+                    $groupFilter = new EqualsFilter('customer.groupId', $groupId);
                     $criteria->addFilter($groupFilter);
                 }
             }
@@ -107,7 +107,7 @@ class CustomerController extends AbstractController
         return new JsonResponse($response);
     }
 
-    private function getPreparedNewsletterReceiver($onlySubscribed, $offset, $limit, $emails, $subShopId)
+    private function getPreparedNewsletterReceiver($onlySubscribed, $offset = null, $limit = null, $emails = [], $subShopId = null)
     {
         /** @var EntityRepositoryInterface $newsletterReceiverRepository */
         $newsletterReceiverRepository = $this->container->get('newsletter_receiver.repository');
@@ -262,6 +262,14 @@ class CustomerController extends AbstractController
             }
 
             if ($groupId) {
+
+                if ($groupId === GroupController::GROUP_NEWSLETTER_RECEIVER) {
+                    $response['success'] = true;
+                    $response['count'] = count($this->getPreparedNewsletterReceiver($onlySubscribed));
+
+                    return new JsonResponse($response);
+                }
+
                 $criteria->addFilter(new EqualsFilter('customer.groupId', $groupId));
             }
 
