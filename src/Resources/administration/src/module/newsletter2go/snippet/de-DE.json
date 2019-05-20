@@ -17,10 +17,10 @@
             "titleSaveSuccess": "Einstellungen",
             "titleSaveError": "Einstellungen Fehler",
             "titleDisconnectDialog": "Verbindung Trennenung",
-            "messageDisconnectDialog": "Wollen Sie wirklich die Verbindunf trennen?",
+            "messageDisconnectDialog": "Wollen Sie wirklich die Verbindung trennen?",
             "messageSaveSuccess": "Die Einstellungen wurden erfolgreich gespeichert",
             "messageSaveError": "Die Einstellungen konnten nicht gespeichert werden",
-            "messageConnectedSuccess": "Successfully connected to company ID: ",
+            "messageConnectedSuccess": "Erfolgreich verbunden. Company ID: ",
             "messageConnectedError": "Nicht verbunden"
         }
     }

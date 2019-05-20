@@ -3,25 +3,25 @@
         "header": "Newsletter2Go",
         "general": {
             "mainMenuItemGeneral": "Newsletter2Go",
-            "mainHeader": "Einstellungen für Newsletter2Go",
-            "accountConfigurationTitle" : "Account Einstellungen",
+            "mainHeader": "Newsletter2Go Settings",
+            "accountConfigurationTitle" : "Account Settings",
             "conversionTrackingTitle" : "Conversion-Tracking"
         },
         "settingForm": {
-            "connectButton" : "Mit Newsletter2Go verbinden",
-            "disconnectButton" : "Verbindung trennen",
-            "conversionTrackingSwitch" : "Aktivieren",
-            "buttonLabelSave": "Speichern",
-            "buttonLabelConfirm" : "Bestätigen",
-            "buttonLabelCancel" : "Abbrechen",
-            "titleSaveSuccess": "Einstellungen",
-            "titleSaveError": "Einstellungen Fehler",
-            "titleDisconnectDialog": "Verbindung Trennenung",
-            "messageDisconnectDialog": "Wollen Sie wirklich die Verbindunf trennen?",
-            "messageSaveSuccess": "Die Einstellungen wurden erfolgreich gespeichert",
-            "messageSaveError": "Die Einstellungen konnten nicht gespeichert werden",
-            "messageConnectedSuccess": "Successfully connected to company ID: ",
-            "messageConnectedError": "Nicht verbunden"
+            "connectButton" : "Connect to Newsletter2Go",
+            "disconnectButton" : "Disconnect",
+            "conversionTrackingSwitch" : "Activate",
+            "buttonLabelSave": "Save",
+            "buttonLabelConfirm" : "Confirm",
+            "buttonLabelCancel" : "Cancel",
+            "titleSaveSuccess": "Settings",
+            "titleSaveError": "Settings Error",
+            "titleDisconnectDialog": "Disconnect",
+            "messageDisconnectDialog": "Do you really want to disconnect?",
+            "messageSaveSuccess": "Settings saved successfully",
+            "messageSaveError": "Settings are not saved",
+            "messageConnectedSuccess": "Connected successfully with company ID: ",
+            "messageConnectedError": "Not connected"
         }
     }
 }
