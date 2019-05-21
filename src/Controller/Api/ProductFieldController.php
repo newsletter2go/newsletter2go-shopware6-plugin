@@ -7,6 +7,7 @@ use Newsletter2go\Model\Field;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
@@ -119,7 +120,9 @@ class ProductFieldController extends AbstractController
             new Field('id'),
             new Field('name'),
             new Field('description'),
+            new Field('additionalText'),
             new Field('link'),
+            new Field('productNumber'),
             new Field('price', Field::DATATYPE_ARRAY),
             new Field('shippingFree', Field::DATATYPE_BOOLEAN),
             new Field('tax', Field::DATATYPE_ARRAY),
@@ -173,6 +176,11 @@ class ProductFieldController extends AbstractController
         $preparedCustomerList = [];
         $fields = array_merge($this->getProductDefaultFields(), $this->_getProductCustomFields());
 
+        //translations are set if correct language id is set
+        if (!empty($productEntity->getTranslations())) {
+            $productEntity = $this->translateProduct($productEntity);
+        }
+
         /** @var Field $field */
         foreach ($fields as $field) {
 
@@ -216,6 +224,29 @@ class ProductFieldController extends AbstractController
         }
 
         return $preparedCustomerList;
+    }
+
+    private function translateProduct(ProductEntity $productEntity)
+    {
+        /** @var ProductTranslationEntity $translation */
+        $translation = $productEntity->getTranslations()->first();
+        $TranslatedCustomFields = $translation->getCustomFields();
+        $productEntity->setAdditionalText($translation->getAdditionalText());
+        $productEntity->setName($translation->getName());
+        $productEntity->setDescription($translation->getDescription());
+        $productEntityCustomFields = $productEntity->getCustomFields();
+
+        if (is_array($productEntityCustomFields) && is_array($TranslatedCustomFields)) {
+            foreach ($productEntityCustomFields as $key => $value) {
+                if (!isset($TranslatedCustomFields)) {
+                    $TranslatedCustomFields[] = $productEntityCustomFields[$key];
+                }
+            }
+
+            $productEntity->setCustomFields($TranslatedCustomFields);
+        }
+
+        return $productEntity;
     }
 
     private function preparePriceEntity(Price $price)

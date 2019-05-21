@@ -38,20 +38,28 @@ class ProductController extends AbstractController
     {
         $response = [];
         $productNumber = $request->get('productNumber');
-
-        if (empty($productNumber)) {
-
-            return new JsonResponse([
-                'success' => false,
-                'error' => 'missing "productNumber" parameter'
-            ]);
-        }
+        $id = $request->get('id');
+        $languageId = $request->get('languageId');
 
         try {
+
+            if (empty($productNumber) && empty($id)) {
+                throw new \Exception('no parameter used: productNumber, id');
+            }
+
             $criteria = new Criteria();
             $criteria->addAssociation('media');
+            if ($languageId) {
+                $translationCriteria = new Criteria();
+                $translationCriteria->addFilter(new EqualsFilter('languageId', $languageId));
+                $criteria->addAssociation('translations', $translationCriteria);
+            }
             $criteria->addFilter(new EqualsFilter('active', 1));
-            $criteria->addFilter(new EqualsFilter('productNumber', $productNumber));
+            if ($productNumber) {
+                $criteria->addFilter(new EqualsFilter('productNumber', $productNumber));
+            } else {
+                $criteria->addFilter(new EqualsFilter('id', $id));
+            }
 
             /** @var EntityRepositoryInterface $repository */
             $repository = $this->container->get('product.repository');
@@ -59,6 +67,10 @@ class ProductController extends AbstractController
             $product = $repository->search($criteria,
                 $context
             )->first();
+
+            if (empty($product)) {
+                throw new \Exception("Product with product number ${productNumber} not found");
+            }
 
             $product = $this->productFieldController->prepareProductAttributes($product);
             $response['success'] = true;
