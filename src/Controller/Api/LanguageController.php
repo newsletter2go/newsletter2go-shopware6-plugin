@@ -45,9 +45,9 @@ class LanguageController extends AbstractController
         foreach ($entityCollection->getElements() as $key => $entity) {
             $attributes[$key]['id'] = $entity->getId();
             $attributes[$key]['name'] = $entity->getName();
-            $attributes[$key]['locale']['code'] = $entity->getLocale()->getCode();
-            $attributes[$key]['locale']['name'] = $entity->getLocale()->getName();
-            $attributes[$key]['locale']['territory'] = $entity->getLocale()->getTerritory();
+            $attributes[$key]['localeCode'] = $entity->getLocale()->getCode();
+            $attributes[$key]['localeName'] = $entity->getLocale()->getName();
+            $attributes[$key]['default'] = false;
         }
 
         return $attributes;
