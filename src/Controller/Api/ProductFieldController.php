@@ -5,6 +5,7 @@ namespace Newsletter2go\Controller\Api;
 
 use Newsletter2go\Model\Field;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationEntity;
@@ -119,14 +120,18 @@ class ProductFieldController extends AbstractController
         $defaultFields = [
             new Field('id'),
             new Field('name'),
+            new Field('productNumber'),
             new Field('description'),
             new Field('additionalText'),
+            new Field('url'),
             new Field('link'),
-            new Field('productNumber'),
+            new Field('stock', Field::DATATYPE_INTEGER),
+            new Field('packUnit'),
             new Field('price', Field::DATATYPE_ARRAY),
             new Field('shippingFree', Field::DATATYPE_BOOLEAN),
             new Field('tax', Field::DATATYPE_ARRAY),
             new Field('media', Field::DATATYPE_ARRAY),
+            new Field('manufacturer', Field::DATATYPE_ARRAY),
         ];
 
         return $defaultFields;
@@ -218,7 +223,8 @@ class ProductFieldController extends AbstractController
                     $preparedCustomerList[$fieldId] = $customFields[$customFieldOriginalName];
                 }
             } elseif ($fieldId === 'link') {
-                $preparedCustomerList[$fieldId] =  rtrim(getenv('APP_URL'), '/') . '/detail/' .$productEntity->getId();
+                $preparedCustomerList['url'] =  rtrim(getenv('APP_URL'), '/') . '/' ;
+                $preparedCustomerList[$fieldId] = 'detail/' .$productEntity->getId();
             }
 
         }
@@ -252,8 +258,8 @@ class ProductFieldController extends AbstractController
     private function preparePriceEntity(Price $price)
     {
         return [
-            'net' => $price->getNet() ?: '',
-            'gross' => $price->getGross() ?: ''
+            'net' => $price->getNet() ?: 0,
+            'gross' => $price->getGross() ?: 0
         ];
     }
 
@@ -263,6 +269,8 @@ class ProductFieldController extends AbstractController
 
         if ($attribute instanceof TaxEntity) {
             $entityAttributes['taxRate'] = $attribute->getTaxRate() ;
+        } elseif ($attribute instanceof ProductManufacturerEntity) {
+            $entityAttributes['name'] = $attribute->getName() ?: '';
         }
 
         return $entityAttributes;
