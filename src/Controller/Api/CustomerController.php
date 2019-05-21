@@ -68,7 +68,7 @@ class CustomerController extends AbstractController
             if ($groupId) {
 
                 if ($groupId === GroupController::GROUP_NEWSLETTER_RECEIVER) {
-                    $preparedNewsletterReceiver = $this->getPreparedNewsletterReceiver($onlySubscribed, $offset, $limit, $emails, $subShopId, $fields); //TODO fields
+                    $preparedNewsletterReceiver = $this->getPreparedNewsletterReceiver($onlySubscribed, $offset, $limit, $emails, $subShopId, $fields);
 
                     $response['success'] = true;
                     $response['data'] = $preparedNewsletterReceiver;
@@ -107,7 +107,7 @@ class CustomerController extends AbstractController
         return new JsonResponse($response);
     }
 
-    private function getPreparedNewsletterReceiver($onlySubscribed, $offset = null, $limit = null, $emails = [], $subShopId = null)
+    private function getPreparedNewsletterReceiver($onlySubscribed, $offset = null, $limit = null, $emails = [], $subShopId = null, $fields = null)
     {
         /** @var EntityRepositoryInterface $newsletterReceiverRepository */
         $newsletterReceiverRepository = $this->container->get('newsletter_receiver.repository');
@@ -134,7 +134,7 @@ class CustomerController extends AbstractController
         }
 
         $list = $newsletterReceiverRepository->search($criteria, Context::createDefaultContext())->getElements();
-        return $this->customerFieldController->prepareNewsletterReceiver($list);
+        return $this->customerFieldController->prepareNewsletterReceiver($list, $fields);
     }
 
     private function prepareEmails($emails) : array

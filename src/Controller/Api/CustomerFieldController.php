@@ -289,28 +289,83 @@ class CustomerFieldController extends AbstractController
         return $promotions;
     }
 
-    public function prepareNewsletterReceiver(array $newsletterReceiverList)
+    public function prepareNewsletterReceiver(array $newsletterReceiverList, $fields = [])
     {
         $preparedList = [];
+
         /** @var NewsletterReceiverEntity $newsletterReceiver */
         foreach ($newsletterReceiverList as $newsletterReceiver) {
             $preparedList[$newsletterReceiver->getId()] = [
-                'email' => $newsletterReceiver->getEmail(),
-                'firstName' => $newsletterReceiver->getFirstName() ?: '',
-                'lastName' => $newsletterReceiver->getLastName() ?: '',
-                'groupId' => GroupController::GROUP_NEWSLETTER_RECEIVER,
-                'newsletter' => $newsletterReceiver->getStatus() === self::NEWSLETTER_RECEIVER_STATUS_SUBSCRIBED,
-                'billingCountry' => '',
-                'billingCity' => $newsletterReceiver->getCity() ?: '',
-                'defaultPaymentMethod' => '',
-                'salesChannelId' => $newsletterReceiver->getSalesChannel()->getId() ?: '',
-                'salesChannelName' => $newsletterReceiver->getLastName() ?: '',
-                'language' => $newsletterReceiver->getLanguage()->getName() ?: '',
-                'updatedAt' => $newsletterReceiver->getUpdatedAt() ?: '',
-                'customFields' => $newsletterReceiver->getCustomFields() ?: []
+                'id' => $newsletterReceiver->getId(),
+                'email' => $newsletterReceiver->getEmail()
             ];
+
+            if (!empty($fields)) {
+                /** @var Field $field */
+                foreach ($fields as $field) {
+                    $fieldId = $field->getId();
+                    if ($fieldId =='email' || $fieldId === 'id') {
+                        continue;
+                    }
+
+                    switch ($fieldId) {
+                        case 'firstName':
+                            $preparedList[$newsletterReceiver->getId()][$fieldId] = $newsletterReceiver->getFirstName() ?: '';
+                            break;
+                        case 'lastName':
+                            $preparedList[$newsletterReceiver->getId()][$fieldId] =$newsletterReceiver->getLastName() ?: '';
+                            break;
+                        case 'groupId':
+                            $preparedList[$newsletterReceiver->getId()][$fieldId] = GroupController::GROUP_NEWSLETTER_RECEIVER;
+                            break;
+                        case 'newsletter':
+                            $preparedList[$newsletterReceiver->getId()][$fieldId] = $newsletterReceiver->getStatus() === self::NEWSLETTER_RECEIVER_STATUS_SUBSCRIBED;
+                            break;
+                        case 'billingCountry':
+                            $preparedList[$newsletterReceiver->getId()][$fieldId] = '';
+                            break;
+                        case 'billingCity':
+                            $preparedList[$newsletterReceiver->getId()][$fieldId] = $newsletterReceiver->getCity() ?: '';
+                            break;
+                        case 'defaultPaymentMethod':
+                            $preparedList[$newsletterReceiver->getId()][$fieldId] = '';
+                            break;
+                        case 'salesChannelId':
+                            $preparedList[$newsletterReceiver->getId()][$fieldId] = $newsletterReceiver->getSalesChannel()->getId() ?: '';
+                            break;
+                        case 'salesChannelName':
+                            $preparedList[$newsletterReceiver->getId()][$fieldId] = $newsletterReceiver->getLastName() ?: '';
+                            break;
+                        case 'language':
+                            $preparedList[$newsletterReceiver->getId()][$fieldId] = $newsletterReceiver->getLanguage()->getName() ?: '';
+                            break;
+                        case 'updatedAt':
+                            $preparedList[$newsletterReceiver->getId()][$fieldId] = $newsletterReceiver->getUpdatedAt() ?: '';
+                            break;
+                        case strpos($fieldId, 'customField_') === 0:
+                            $preparedList[$newsletterReceiver->getId()][$fieldId] = $this->prepareCustomFields($newsletterReceiver, $fieldId);
+                            break;
+                        default:
+                            $preparedList[$newsletterReceiver->getId()][$fieldId] = '';
+                    }
+                }
+            }
         }
 
         return $preparedList;
+    }
+
+    private function prepareCustomFields(NewsletterReceiverEntity $newsletterReceiver, $fieldId)
+    {
+        $result = '';
+        $fieldWithoutPrefix = substr($fieldId, 12);
+        $customFields = $newsletterReceiver->getCustomFields();
+        if (!empty($customFields)) {
+            if (isset($customFields[$fieldWithoutPrefix])) {
+                $result = $customFields[$fieldWithoutPrefix];
+            }
+        }
+
+        return $result;
     }
 }
