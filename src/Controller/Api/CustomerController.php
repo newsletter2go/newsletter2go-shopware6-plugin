@@ -37,7 +37,7 @@ class CustomerController extends AbstractController
     {
         $onlySubscribed = $request->get('subscribed', false);
         $offset = $request->get('offset', false);
-        $limit = $request->get('limit', null);
+        $limit = $request->get('limit', 1000);
         $groupId = $request->get('group', false);
         $emails = json_decode($request->get('emails', '[]'), true);
         $fields = $this->customerFieldController->getCustomerEntityFields($request->get('fields', '[]'));
@@ -57,13 +57,18 @@ class CustomerController extends AbstractController
                 $criteria->addFilter(new EqualsFilter('customer.salesChannelId', $subShopId));
             }
 
-            if ($offset && is_numeric($offset)) {
+            if ($offset) {
+                if (!is_numeric($offset)) {
+                    $offset = (int) $offset;
+                }
                 $criteria->setOffset($offset);
             }
 
-            if ($limit && is_numeric($limit)) {
-                $criteria->setLimit($limit);
+            if (!is_numeric($limit)) {
+                $limit = (int) $limit;
             }
+
+            $criteria->setLimit($limit);
 
             if ($groupId) {
 

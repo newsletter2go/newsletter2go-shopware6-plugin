@@ -131,7 +131,7 @@ class CustomerFieldController extends AbstractController
         /** @var Field $customerField */
         foreach ($allCustomerFields as $customerField) {
             //email and id must always be included
-            if ($customerField->getId() === 'email' || $customerField->getId() === 'id' || $customerField->getId() === 'newsletter') {
+            if ($customerField->getId() === 'id' || $customerField->getId() === 'newsletter') {
                 $fields[] = $customerField;
             } elseif (in_array($customerField->getId(), $customFields)) {
                 $fields[] = $customerField;
@@ -147,7 +147,6 @@ class CustomerFieldController extends AbstractController
             new Field('id'),
             new Field('orderCount', Field::DATATYPE_INTEGER),
             new Field('groupId', Field::DATATYPE_STRING),
-//            new Field('groupName', Field::DATATYPE_STRING),
             new Field('salutation', Field::DATATYPE_STRING, 'Title'),
             new Field('email'),
             new Field('language'),
@@ -302,19 +301,21 @@ class CustomerFieldController extends AbstractController
         /** @var NewsletterReceiverEntity $newsletterReceiver */
         foreach ($newsletterReceiverList as $newsletterReceiver) {
             $preparedList[$newsletterReceiver->getId()] = [
-                'id' => $newsletterReceiver->getId(),
-                'email' => $newsletterReceiver->getEmail()
+                'id' => $newsletterReceiver->getId()
             ];
 
             if (!empty($fields)) {
                 /** @var Field $field */
                 foreach ($fields as $field) {
                     $fieldId = $field->getId();
-                    if ($fieldId =='email' || $fieldId === 'id') {
+                    if ($fieldId === 'id') {
                         continue;
                     }
 
                     switch ($fieldId) {
+                        case 'email':
+                            $preparedList[$newsletterReceiver->getId()][$fieldId] = $newsletterReceiver->getEmail() ?: '';
+                            break;
                         case 'firstName':
                             $preparedList[$newsletterReceiver->getId()][$fieldId] = $newsletterReceiver->getFirstName() ?: '';
                             break;
