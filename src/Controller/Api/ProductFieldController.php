@@ -158,7 +158,7 @@ class ProductFieldController extends AbstractController
                             $fieldName = $customFieldSetEntity->getName() . '__' . $customField->getName();
                             $fieldDescription = !empty($customField->getTranslated()) ? reset($customField->getTranslated()) : '';
                             $fields[] = new Field(
-                                'customField_' . $customField->getName(),
+                                'n2g_' . $customField->getName(),
                                 DatatypeHelper::convertToN2gDatatype($customField->getType()),
                                 $fieldName,
                                 $fieldDescription
@@ -190,7 +190,7 @@ class ProductFieldController extends AbstractController
         foreach ($fields as $field) {
 
             $fieldId = $field->getId();
-            $isCustomField = strpos($fieldId, 'customField_') === 0;
+            $isCustomField = strpos($fieldId, 'n2g_') === 0;
 
             if ($productEntity->has($fieldId)) {
                 $attribute = $productEntity->get($fieldId);

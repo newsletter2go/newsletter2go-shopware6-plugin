@@ -6,6 +6,7 @@ namespace Newsletter2go\Controller\Api;
 use Newsletter2go\Model\Field;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\NewsletterReceiver\NewsletterReceiverEntity;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Language\LanguageEntity;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Salutation\SalutationEntity;
@@ -88,7 +90,7 @@ class CustomerFieldController extends AbstractController
                             $fieldName = $customFieldSetEntity->getName() . '__' . $customField->getName();
                             $fieldDescription = !empty($customField->getTranslated()) ? reset($customField->getTranslated()) : '';
                             $fields[] = new Field(
-                                'customField_' . $customField->getName(),
+                                'n2g_' . $customField->getName(),
                                 DatatypeHelper::convertToN2gDatatype($customField->getType()),
                                 $fieldName,
                                 $fieldDescription
@@ -179,7 +181,7 @@ class CustomerFieldController extends AbstractController
             foreach ($fields as $field) {
 
                 $fieldId = $field->getId();
-                $isCustomField = strpos($fieldId, 'customField_') === 0 ;
+                $isCustomField = strpos($fieldId, 'n2g_') === 0 ;
 
                 if ($customerEntity->has($fieldId)) {
                     $attribute = $customerEntity->get($fieldId);
@@ -190,6 +192,10 @@ class CustomerFieldController extends AbstractController
                         $preparedCustomerList[$key][$fieldId] = '';
                     } elseif ($attribute instanceof SalutationEntity) {
                         $preparedCustomerList[$key][$fieldId] = $attribute->getDisplayName();
+                    } elseif ($attribute instanceof PaymentMethodEntity) {
+                        $preparedCustomerList[$key][$fieldId] = $attribute->getName();
+                    } elseif ($attribute instanceof LanguageEntity) {
+                        $preparedCustomerList[$key][$fieldId] = $attribute->getName();
                     } else {
 
                         if ($attribute instanceof EntityCollection) {
@@ -210,7 +216,7 @@ class CustomerFieldController extends AbstractController
                 } elseif ($isCustomField && !empty($customerEntity->getCustomFields())) {
 
                     $customFields = $customerEntity->getCustomFields();
-                    $customFieldOriginalName = substr($fieldId, 12); //remove prefix "customField_"
+                    $customFieldOriginalName = substr($fieldId, 4); //remove prefix "n2g_"
 
                     if (isset($customFields[$customFieldOriginalName])) {
                         $preparedCustomerList[$key][$fieldId] = $customFields[$customFieldOriginalName];
@@ -342,7 +348,7 @@ class CustomerFieldController extends AbstractController
                         case 'updatedAt':
                             $preparedList[$newsletterReceiver->getId()][$fieldId] = $newsletterReceiver->getUpdatedAt() ?: '';
                             break;
-                        case strpos($fieldId, 'customField_') === 0:
+                        case strpos($fieldId, 'n2g_') === 0:
                             $preparedList[$newsletterReceiver->getId()][$fieldId] = $this->prepareCustomFields($newsletterReceiver, $fieldId);
                             break;
                         default:
@@ -358,7 +364,7 @@ class CustomerFieldController extends AbstractController
     private function prepareCustomFields(NewsletterReceiverEntity $newsletterReceiver, $fieldId)
     {
         $result = '';
-        $fieldWithoutPrefix = substr($fieldId, 12);
+        $fieldWithoutPrefix = substr($fieldId, 4);
         $customFields = $newsletterReceiver->getCustomFields();
         if (!empty($customFields)) {
             if (isset($customFields[$fieldWithoutPrefix])) {
