@@ -4,7 +4,7 @@ namespace Newsletter2go\Controller\Api;
 
 
 use Newsletter2go\Model\Field;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
@@ -67,52 +67,6 @@ class ProductFieldController extends AbstractController
         }
 
         return new JsonResponse(['success' => true, 'data' => $data]);
-    }
-
-    /**
-     * @param String $customFields .
-     * @return array
-     * @example customFields should be a string with a comma separated values e.g. 'firstName,lastName,phone'
-     */
-    public function getCustomerEntityFields(String $customFields): array
-    {
-        $fields = [];
-
-        $customFields = $this->prepareCustomFields($customFields);
-
-        $allCustomerFields = array_merge($this->getProductDefaultFields(), $this->_getProductCustomFields());
-        if (count($customFields) === 0) {
-            return $allCustomerFields;
-        }
-
-        /** @var Field $customerField */
-        foreach ($allCustomerFields as $customerField) {
-            //email and id must always be included
-            if ($customerField->getId() === 'email' || $customerField->getId() === 'id') {
-                $fields[] = $customerField;
-            } elseif (in_array($customerField->getId(), $customFields)) {
-                $fields[] = $customerField;
-            }
-        }
-
-        return $fields;
-    }
-
-    /**
-     * @param $customFields
-     * @return array
-     * @example $customFields should be a string with a comma separated values e.g. 'firstName,lastName,phone'
-     */
-    private function prepareCustomFields($customFields): array
-    {
-        $customFields = preg_replace('/\s+/', '', $customFields);
-        if (empty($customFields)) {
-            $customFields = [];
-        } else {
-            $customFields = explode(',', $customFields);
-        }
-
-        return $customFields;
     }
 
     private function getProductDefaultFields(): array
