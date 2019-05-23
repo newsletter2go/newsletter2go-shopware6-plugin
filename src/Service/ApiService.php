@@ -9,7 +9,6 @@ class ApiService
     const REFRESH_GRANT_TYPE = 'https://nl2go.com/jwt_refresh';
     const API_BASE_URL = 'https://api.newsletter2go.com';
 
-    private $ref = '936f38795cf8df6ce1e25ce887e8676a';
     private $apiKey;
     private $accessToken;
     private $refreshToken;

@@ -19,22 +19,21 @@ class LanguageController extends AbstractController
     */
     public function getLanguagesAction(): JsonResponse
     {
+        $response = [];
         try {
             /** @var EntityRepository $repository */
             $repository = $this->container->get('language.repository');
             $languages = $repository->search(new Criteria(), Context::createDefaultContext());
 
-            return new JsonResponse([
-                'success' => true,
-                'data' => $this->prepareEntityAttributes($languages)
-            ]);
+            $response['success'] = true;
+            $response['data'] = $this->prepareEntityAttributes($languages);
 
         } catch (\Exception $exception) {
-            return new JsonResponse([
-                'success' => false,
-                'data' => $exception->getMessage()
-            ]);
+            $response['success'] = false;
+            $response['data'] = $exception->getMessage();
         }
+
+        return new JsonResponse($response);
     }
 
     private function prepareEntityAttributes(EntityCollection $entityCollection) : array

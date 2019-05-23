@@ -31,25 +31,27 @@ class ConversionTrackingController
      */
     public function updateConversionTracking(Request $request, Context $context)
     {
+        $response = [];
         try {
             $result = $this->newsletter2goConfigService->getConfigByFieldNames(Newsletter2goConfig::NAME_VALUE_CONVERSION_TRACKING);
             if (empty($result)) {
-                $this->newsletter2goConfigService->addConfig(['conversion_tracking' => 'false']);
+                $this->newsletter2goConfigService->addConfig([Newsletter2goConfig::NAME_VALUE_CONVERSION_TRACKING => 'false']);
 
-                return new JsonResponse([Newsletter2goConfig::NAME_VALUE_CONVERSION_TRACKING => false]);
+                $response[Newsletter2goConfig::NAME_VALUE_CONVERSION_TRACKING] = false;
 
             } else {
-                $conversionTracking = $request->get('conversion_tracking', false);
+                $conversionTracking = $request->get(Newsletter2goConfig::NAME_VALUE_CONVERSION_TRACKING, false);
                 $conversionTrackingString = ($conversionTracking === true) ? 'true': 'false';
-
                 $this->newsletter2goConfigService->updateConfigs(['conversion_tracking' => $conversionTrackingString]);
-                return new JsonResponse([Newsletter2goConfig::NAME_VALUE_CONVERSION_TRACKING => $conversionTracking]);
-
+                $response[Newsletter2goConfig::NAME_VALUE_CONVERSION_TRACKING] = $conversionTracking;
             }
 
         } catch (\Exception $exception) {
-            return new JsonResponse(['conversion_tracking' => false, 'error' => $exception->getMessage()]);
+            $response[Newsletter2goConfig::NAME_VALUE_CONVERSION_TRACKING] = false;
+            $response['error'] = $exception->getMessage();
         }
+
+        return new JsonResponse($response);
     }
 
     /**
@@ -60,23 +62,25 @@ class ConversionTrackingController
      */
     public function getConversionTracking(Request $request, Context $context) : JsonResponse
     {
+        $response = [];
+
         try {
             $result = $this->newsletter2goConfigService->getConfigByFieldNames(Newsletter2goConfig::NAME_VALUE_CONVERSION_TRACKING);
             if (count($result) > 0) {
                 /** @var Newsletter2goConfig $conversionTracking */
                 $conversionTracking = reset($result);
                 $booleanConversionTracking = ($conversionTracking->getValue() === 'true');
-
-                return new JsonResponse([Newsletter2goConfig::NAME_VALUE_CONVERSION_TRACKING => $booleanConversionTracking]);
-
+                $response[Newsletter2goConfig::NAME_VALUE_CONVERSION_TRACKING] = $booleanConversionTracking;
             } else {
-                $this->newsletter2goConfigService->addConfig(['conversion_tracking' => 'false']);
-
-                return new JsonResponse([Newsletter2goConfig::NAME_VALUE_CONVERSION_TRACKING => false]);
+                $this->newsletter2goConfigService->addConfig([Newsletter2goConfig::NAME_VALUE_CONVERSION_TRACKING => 'false']);
+                $response[Newsletter2goConfig::NAME_VALUE_CONVERSION_TRACKING] = false;
             }
 
         } catch (\Exception $exception) {
-            return new JsonResponse(['conversion_tracking' => false, 'error' => $exception->getMessage()]);
+            $response[Newsletter2goConfig::NAME_VALUE_CONVERSION_TRACKING] = false;
+            $response['error'] = $exception->getMessage();
         }
+
+        return new JsonResponse($response);
     }
 }

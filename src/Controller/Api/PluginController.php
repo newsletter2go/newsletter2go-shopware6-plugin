@@ -33,7 +33,6 @@ class PluginController extends AbstractController
         try {
             $response['success'] = true;
             $response['version'] = $this->getPluginVersion();
-
         } catch (\Exception $exception) {
             $response['success'] = false;
             $response['version'] = $exception->getMessage();

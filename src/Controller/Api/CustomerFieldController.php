@@ -67,7 +67,12 @@ class CustomerFieldController extends AbstractController
             ];
         }
 
-        return new JsonResponse(['success' => true, 'data' => $data]);
+        return new JsonResponse(
+            [
+                'success' => true,
+                'data' => $data
+            ]
+        );
     }
 
     private function _getCustomerCustomFields()
@@ -162,7 +167,7 @@ class CustomerFieldController extends AbstractController
             new Field('updatedAt', Field::DATATYPE_DATE),
             new Field('salesChannelId', Field::DATATYPE_STRING),
             new Field('salesChannelName', Field::DATATYPE_STRING),
-//            new Field('promotions', Field::DATATYPE_ARRAY),
+            //new Field('promotions', Field::DATATYPE_ARRAY),
         ];
 
         return $defaultFields;
@@ -236,41 +241,6 @@ class CustomerFieldController extends AbstractController
         }
 
         return $preparedCustomerList;
-    }
-
-    private function prepareEntity(Entity $entity)
-    {
-        $preparedEntity = [];
-        if ($entity instanceof CustomerAddressEntity) {
-            $preparedEntity = $this->prepareCustomerAddressEntity($entity);
-
-        } elseif ($entity instanceof SalesChannelEntity) {
-            $preparedEntity['id'] = $entity->getId();
-            $preparedEntity['name'] = $entity->getName();
-
-        } else if ($entity instanceof SalutationEntity) {
-            $preparedEntity = $entity->getDisplayName();
-
-        } else {
-
-            if (property_exists($entity, 'name')) {
-                $preparedEntity['name'] = $entity->get('name');
-            }
-        }
-
-        return $preparedEntity;
-    }
-
-    private function prepareCustomerAddressEntity(CustomerAddressEntity $customerAddressEntity): ?array
-    {
-        $addressEntity = [];
-        /** @var CountryEntity $country */
-        $country = $customerAddressEntity->getCountry();
-        $addressEntity['countryIso'] = $country->getIso();
-        $addressEntity['countryName'] = $country->getName();
-        $addressEntity['city'] = $customerAddressEntity->getCity();
-
-        return $addressEntity;
     }
 
     private function preparePromotionCollection(PromotionCollection $promotionCollection): ?array
