@@ -3,7 +3,6 @@
 namespace Newsletter2go\Controller\Api;
 
 
-use _HumbugBox01ece8fd5bed\Nette\Neon\Exception;
 use Newsletter2go\Entity\Newsletter2goConfig;
 use Newsletter2go\Service\Newsletter2goConfigService;
 use Shopware\Core\Framework\Context;
@@ -39,6 +38,8 @@ class CallbackController extends AbstractController
         $config['access_token'] = $request->get('access_token');
         $config['refresh_token'] = $request->get('refresh_token');
         $config['company_id'] = $request->get('company_id');
+        $config['environment'] = $request->get('environment');
+        $config['int_id'] = $request->get('int_id');
         $apiKey = $request->get('apiKey');
 
         foreach ($config as $key => $value) {
@@ -52,7 +53,7 @@ class CallbackController extends AbstractController
             $savedApiKey = $this->newsletter2goConfigService->getConfigByFieldNames([Newsletter2goConfig::NAME_VALUE_API_KEY]);
 
             if (empty($savedApiKey = reset($savedApiKey)) || $savedApiKey->getValue() !== $apiKey) {
-                throw new Exception('API key is invalid');
+                throw new \Exception('API key is invalid');
             }
 
 
