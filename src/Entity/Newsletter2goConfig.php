@@ -19,6 +19,7 @@ class Newsletter2goConfig extends Entity
     const NAME_VALUE_ACCESS_TOKEN = 'access_token';
     const NAME_VALUE_REFRESH_TOKEN = 'refresh_token';
     const NAME_VALUE_CONVERSION_TRACKING = 'conversion_tracking';
+    const NAME_VALUE_API_KEY = 'apiKey';
 
     use EntityIdTrait;
 

@@ -116,10 +116,14 @@ class BackendController extends AbstractController
         $apiVersion = 'v' . PlatformRequest::API_VERSION;
         $params = [];
         $params['url'] = getenv('APP_URL');
-        $params['callback'] = getenv('APP_URL') . "/api/{$apiVersion}/n2g/callback";
+        $params['callback'] = getenv('APP_URL') . "/newsletter2go/{$apiVersion}/callback";
 
         try {
-            $n2gConfigs = $this->newsletter2goConfigService->getConfigByFieldNames([Newsletter2goConfig::NAME_VALUE_ACCESS_KEY, Newsletter2goConfig::NAME_VALUE_SECRET_ACCESS_KEY]);
+            $n2gConfigs = $this->newsletter2goConfigService->getConfigByFieldNames([
+                Newsletter2goConfig::NAME_VALUE_ACCESS_KEY,
+                Newsletter2goConfig::NAME_VALUE_SECRET_ACCESS_KEY,
+                Newsletter2goConfig::NAME_VALUE_API_KEY
+            ]);
 
             /** @var Newsletter2goConfig $n2gConfig */
             foreach ($n2gConfigs as $n2gConfig) {
@@ -129,6 +133,10 @@ class BackendController extends AbstractController
 
                 if ($n2gConfig->getName() === Newsletter2goConfig::NAME_VALUE_SECRET_ACCESS_KEY) {
                     $params[Newsletter2goConfig::NAME_VALUE_SECRET_ACCESS_KEY] = $n2gConfig->getValue();
+                }
+
+                if ($n2gConfig->getName() === Newsletter2goConfig::NAME_VALUE_API_KEY) {
+                    $params['callback'] .= '?' . Newsletter2goConfig::NAME_VALUE_API_KEY . '=' .$n2gConfig->getValue();
                 }
             }
 

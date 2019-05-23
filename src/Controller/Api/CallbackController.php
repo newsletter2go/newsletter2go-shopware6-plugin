@@ -3,6 +3,8 @@
 namespace Newsletter2go\Controller\Api;
 
 
+use _HumbugBox01ece8fd5bed\Nette\Neon\Exception;
+use Newsletter2go\Entity\Newsletter2goConfig;
 use Newsletter2go\Service\Newsletter2goConfigService;
 use Shopware\Core\Framework\Context;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -23,9 +25,8 @@ class CallbackController extends AbstractController
         $this->newsletter2goConfigService = $newsletter2goConfigService;
     }
 
-
     /**
-     * @Route("/api/{version}/n2g/callback", name="api.action.n2g.callback", methods={"POST"})
+     * @Route("/newsletter2go/{version}/callback", name="newsletter2go.callback", methods={"POST"})
      * @param Request $request
      * @param Context $context
      * @return JsonResponse
@@ -34,10 +35,11 @@ class CallbackController extends AbstractController
     {
         $response = [];
         $config = [];
-        $config['auth_key'] = $request->get('auth_key', null);
-        $config['access_token'] = $request->get('access_token', null);
-        $config['refresh_token'] = $request->get('refresh_token', null);
-        $config['company_id'] = $request->get('company_id', null);
+        $config['auth_key'] = $request->get('auth_key');
+        $config['access_token'] = $request->get('access_token');
+        $config['refresh_token'] = $request->get('refresh_token');
+        $config['company_id'] = $request->get('company_id');
+        $apiKey = $request->get('apiKey');
 
         foreach ($config as $key => $value) {
             if (empty($value)) {
@@ -46,6 +48,14 @@ class CallbackController extends AbstractController
         }
 
         try {
+            /** @var Newsletter2goConfig $savedApiKey */
+            $savedApiKey = $this->newsletter2goConfigService->getConfigByFieldNames([Newsletter2goConfig::NAME_VALUE_API_KEY]);
+
+            if (empty($savedApiKey = reset($savedApiKey)) || $savedApiKey->getValue() !== $apiKey) {
+                throw new Exception('API key is invalid');
+            }
+
+
             $this->newsletter2goConfigService->addConfig($config);
             $response['success'] = true;
 
