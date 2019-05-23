@@ -35,7 +35,7 @@ class CustomerController extends AbstractController
      */
     public function getCustomersAction(Request $request, Context $context): JsonResponse
     {
-        $onlySubscribed = $request->get('subscribed', false);
+        $onlySubscribed = $request->get('subscribed', 'true');
         $offset = $request->get('offset', false);
         $limit = $request->get('limit', 1000);
         $groupId = $request->get('group', false);
@@ -49,7 +49,7 @@ class CustomerController extends AbstractController
 
             $criteria->addFilter(new EqualsFilter('customer.active', 1));
 
-            if ($onlySubscribed) {
+            if ($onlySubscribed == 'true' || $onlySubscribed == 1) {
                 $criteria->addFilter(new EqualsFilter('customer.newsletter', 1));
             }
 
