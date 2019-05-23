@@ -18,6 +18,7 @@ class BackendController extends AbstractController
 {
     const CONNECTOR_URL = 'https://ui.newsletter2go.com/integrations/connect/SW6/';
 
+    private $ref = '936f38795cf8df6ce1e25ce887e8676a';
     private $newsletter2goConfigService;
     private $apiService;
 
@@ -115,6 +116,7 @@ class BackendController extends AbstractController
     {
         $apiVersion = 'v' . PlatformRequest::API_VERSION;
         $params = [];
+        $params['ref'] = $this->ref;
         $params['url'] = getenv('APP_URL');
         $params['callback'] = getenv('APP_URL') . "/newsletter2go/{$apiVersion}/callback";
 
