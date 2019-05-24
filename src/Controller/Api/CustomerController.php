@@ -6,6 +6,7 @@ namespace Newsletter2go\Controller\Api;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -150,14 +151,15 @@ class CustomerController extends AbstractController
      */
     public function subscribeCustomerAction(Request $request, Context $context): JsonResponse
     {
-        $code = 400;
-        $response = [];
-
         $email = $request->get('email');
+
         if ($email && $request->get('Subscribe')) {
             $updateResponse = $this->_updateCustomer($email, true, $context);
             $response = $updateResponse['response'];
             $code = $updateResponse['code'];
+        } else {
+            $code = 400;
+            $response = ['error' => 'parameter `Subscribed` and `email` can not be empty'];
         }
 
         return new JsonResponse($response, $code);
@@ -171,14 +173,15 @@ class CustomerController extends AbstractController
      */
     public function unsubscribeCustomerAction(Request $request, Context $context): JsonResponse
     {
-        $code = 400;
-        $response = [];
-
         $email = $request->get('email');
+
         if ($email && $request->get('Unsubscribe')) {
             $updateResponse = $this->_updateCustomer($email, false, $context);
             $response = $updateResponse['response'];
             $code = $updateResponse['code'];
+        } else {
+            $code = 400;
+            $response = ['error' => 'parameter `Unsubscribed` and `email` can not be empty'];
         }
 
         return new JsonResponse($response, $code);
@@ -194,7 +197,6 @@ class CustomerController extends AbstractController
     {
         $statusCode = 400;
         $response = [];
-        $response['success'] = false;
 
         try {
             /** @var EntityRepositoryInterface $customerRepository */
@@ -205,7 +207,7 @@ class CustomerController extends AbstractController
             $customer = $customerRepository->search($criteria, $context)->first();
 
             if ($customer) {
-                $updateResponse = $customerRepository->upsert([
+                $customerRepository->upsert([
                     [
                         'id' => $customer->getId(),
                         'newsletter' => $newsletter
@@ -216,15 +218,68 @@ class CustomerController extends AbstractController
 
                 $statusCode = 200;
                 $response['success'] = true;
-                $response['data'] = $updateResponse->getEvents()->getElements();
             }
-        } catch (\Exception $exception) {
 
+            $newsletterUpdateResponse = $this->updateNewsletterReceiver($email, $newsletter, $context);
+
+            if ($newsletterUpdateResponse['code'] !== 200) {
+                $response = $newsletterUpdateResponse['response'];
+                $statusCode = $newsletterUpdateResponse['code'];
+            }
+
+        } catch (\Exception $exception) {
+            $response['success'] = false;
             $response['error'] = $exception->getMessage();
         }
 
         return ['response' => $response, 'code' => $statusCode];
     }
+
+    /**
+     * @param $email
+     * @param $status
+     * @param Context $context
+     * @return array
+     * @throws InconsistentCriteriaIdsException
+     */
+    private function updateNewsletterReceiver($email, $status, Context $context): array
+    {
+        $statusCode = 400;
+        $response = [];
+
+        if ($status) {
+            $status = CustomerFieldController::NEWSLETTER_RECEIVER_STATUS_SUBSCRIBED;
+        } else {
+            $status = CustomerFieldController::NEWSLETTER_RECEIVER_STATUS_UNSUBSCRIBED;
+        }
+
+        /** @var EntityRepositoryInterface $newsletterReceiver */
+        $newsletterReceiver = $this->container->get('newsletter_receiver.repository');
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('email', $email));
+        /** @var CustomerEntity $customer */
+        $customer = $newsletterReceiver->search($criteria, $context)->first();
+
+        if ($customer) {
+            $newsletterReceiver->upsert([
+                [
+                    'id' => $customer->getId(),
+                    'status' => $status
+                ]
+            ],
+                $context
+            );
+
+            $statusCode = 200;
+            $response['success'] = true;
+        } else {
+            $response['success'] = false;
+        }
+
+        return ['response' => $response, 'code' => $statusCode];
+    }
+
+
 
 
     /**

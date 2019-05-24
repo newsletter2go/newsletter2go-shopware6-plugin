@@ -31,6 +31,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class CustomerFieldController extends AbstractController
 {
     const NEWSLETTER_RECEIVER_STATUS_SUBSCRIBED = 'subscribed';
+    const NEWSLETTER_RECEIVER_STATUS_UNSUBSCRIBED = 'unsubscribed';
 
     private $customFieldSetRepository;
     /**
