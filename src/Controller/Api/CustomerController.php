@@ -142,23 +142,6 @@ class CustomerController extends AbstractController
         return $this->customerFieldController->prepareNewsletterReceiver($list, $fields);
     }
 
-    private function prepareEmails($emails) : array
-    {
-        $preparedEmails = [];
-        $emails = preg_replace('/\s+/', '', $emails);
-
-        if (!empty($emails)) {
-
-            try {
-                $preparedEmails = explode(',', $emails);
-            } catch (\Exception $exception) {
-
-            }
-        }
-
-        return $preparedEmails;
-    }
-
     /**
      * @Route("/api/{version}/n2g/customers/subscribe", name="api.action.n2g.subscribeCustomer", methods={"POST"})
      * @param Request $request
