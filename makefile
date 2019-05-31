@@ -1,11 +1,10 @@
-version = $(subst .,_,${shell grep -oP "(?<=VERSION = ').*?(?=')" Core/Newsletter2Go/Bootstrap.php})
-outfile = Shopware_nl2go_$(version).zip
+outfile = shopware6-nl2go-$(VERSION).zip
 
-$(version): $(outfile)
+$(VERSION): $(outfile)
 
 $(outfile):
-	zip -r  build.zip ./Core/*
+	mkdir newsletter2go
+	cp -R LICENSE composer.json src newsletter2go/
+	zip -r  build.zip ./newsletter2go
 	mv build.zip $(outfile)
-
-clean:
-	rm -rf tmp
+	rm -Rf ./newsletter2go

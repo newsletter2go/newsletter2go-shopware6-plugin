@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Finder\Finder;
 
-class UsedClassesAvailableTest extends TestCase
+class TestSuite extends TestCase
 {
     use IntegrationTestBehaviour;
 
