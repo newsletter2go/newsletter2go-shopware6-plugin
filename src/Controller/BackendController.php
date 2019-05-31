@@ -18,7 +18,7 @@ class BackendController extends AbstractController
 {
     const CONNECTOR_URL = 'https://ui.newsletter2go.com/integrations/connect/SW6/';
 
-    private $ref = '936f38795cf8df6ce1e25ce887e8676a';
+    private $ref = '0258fe1ea464530db1028ba01531f151';
     private $newsletter2goConfigService;
     private $apiService;
 
