@@ -29,8 +29,8 @@ export default {
     },
 
     created() {
-        this.testConnection();
         this.createdComponent();
+        this.testConnection();
     },
     computed: {},
 
