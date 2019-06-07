@@ -24,7 +24,7 @@ class ConversionTrackingController
     }
 
     /**
-     * @Route(path="/api/{version}/n2g/tracking", name="api.action.n2g.updateTracking", methods={"PUT"})
+     * @Route(path="/api/v{version}/n2g/tracking", name="api.action.n2g.updateTracking", methods={"PUT"})
      * @param Request $request
      * @param Context $context
      * @return JsonResponse
@@ -55,7 +55,7 @@ class ConversionTrackingController
     }
 
     /**
-     * @Route(path="/api/{version}/n2g/tracking", name="api.action.n2g.getTracking", methods={"GET"})
+     * @Route(path="/api/v{version}/n2g/tracking", name="api.action.n2g.getTracking", methods={"GET"})
      * @param Request $request
      * @param Context $context
      * @return JsonResponse

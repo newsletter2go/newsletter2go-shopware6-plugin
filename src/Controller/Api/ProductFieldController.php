@@ -42,7 +42,7 @@ class ProductFieldController extends AbstractController
     }
 
     /**
-     * @Route("/api/{version}/n2g/products/fields", name="api.action.n2g.getProductFields", methods={"GET"})
+     * @Route("/api/v{version}/n2g/products/fields", name="api.action.n2g.getProductFields", methods={"GET"})
      * @param Request $request
      * @param Context $context
      * @return JsonResponse

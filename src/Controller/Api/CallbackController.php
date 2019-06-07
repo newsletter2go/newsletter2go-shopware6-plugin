@@ -25,7 +25,7 @@ class CallbackController extends AbstractController
     }
 
     /**
-     * @Route("/newsletter2go/{version}/callback", name="newsletter2go.callback", methods={"POST"})
+     * @Route("/newsletter2go/v{version}/callback", name="newsletter2go.callback", methods={"POST"})
      * @param Request $request
      * @param Context $context
      * @return JsonResponse

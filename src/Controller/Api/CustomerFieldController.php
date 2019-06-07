@@ -45,7 +45,7 @@ class CustomerFieldController extends AbstractController
     }
 
     /**
-     * @Route("/api/{version}/n2g/customers/fields", name="api.action.n2g.getCustomerFields", methods={"GET"})
+     * @Route("/api/v{version}/n2g/customers/fields", name="api.action.n2g.getCustomerFields", methods={"GET"})
      * @param Request $request
      * @param Context $context
      * @return JsonResponse
