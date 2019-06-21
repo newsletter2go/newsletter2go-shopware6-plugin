@@ -23,7 +23,9 @@ class LanguageController extends AbstractController
         try {
             /** @var EntityRepository $repository */
             $repository = $this->container->get('language.repository');
-            $languages = $repository->search(new Criteria(), Context::createDefaultContext());
+            $criteria = new Criteria();
+            $criteria->addAssociation('locale');
+            $languages = $repository->search($criteria, Context::createDefaultContext());
 
             $response['success'] = true;
             $response['data'] = $this->prepareEntityAttributes($languages);

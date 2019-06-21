@@ -13,7 +13,6 @@ For installation instructions please check official [help articles](https://help
 In order to build the plugin you can run the following command:
 
     make VERSION=4.0.00
-    make clean
 
 This will create `shopware6-nl2go-v4.0.00.zip` which you can then upload to your shop.
 
