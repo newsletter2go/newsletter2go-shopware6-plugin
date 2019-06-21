@@ -136,7 +136,7 @@ class ProductFieldController extends AbstractController
         $fields = array_merge($this->getProductDefaultFields(), $this->_getProductCustomFields());
 
         //translations are set if correct language id is set
-        if (!empty($productEntity->getTranslations())) {
+        if (!empty($productEntity->getTranslations()) && !empty(!empty($productEntity->getTranslations()->getElements()))) {
             $productEntity = $this->translateProduct($productEntity);
         }
 
