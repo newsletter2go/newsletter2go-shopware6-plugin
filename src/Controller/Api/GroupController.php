@@ -17,7 +17,7 @@ class GroupController extends AbstractController
     const GROUP_NEWSLETTER_RECEIVER = 'newsletter_receiver';
 
     /**
-     * @Route("/api/{version}/n2g/groups", name="api.action.n2g.getGroups", methods={"GET"})
+     * @Route("/api/v{version}/n2g/groups", name="api.action.n2g.getGroups", methods={"GET"})
      * @return JsonResponse
      */
     public function getGroupsAction(): JsonResponse

@@ -42,7 +42,7 @@ class ProductFieldController extends AbstractController
     }
 
     /**
-     * @Route("/api/{version}/n2g/products/fields", name="api.action.n2g.getProductFields", methods={"GET"})
+     * @Route("/api/v{version}/n2g/products/fields", name="api.action.n2g.getProductFields", methods={"GET"})
      * @param Request $request
      * @param Context $context
      * @return JsonResponse
@@ -136,7 +136,7 @@ class ProductFieldController extends AbstractController
         $fields = array_merge($this->getProductDefaultFields(), $this->_getProductCustomFields());
 
         //translations are set if correct language id is set
-        if (!empty($productEntity->getTranslations())) {
+        if (!empty($productEntity->getTranslations()) && !empty(!empty($productEntity->getTranslations()->getElements()))) {
             $productEntity = $this->translateProduct($productEntity);
         }
 

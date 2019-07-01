@@ -15,7 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class LanguageController extends AbstractController
 {
     /**
-    * @Route("/api/{version}/n2g/languages", name="api.action.n2g.getLanguages", methods={"GET"})
+    * @Route("/api/v{version}/n2g/languages", name="api.action.n2g.getLanguages", methods={"GET"})
     */
     public function getLanguagesAction(): JsonResponse
     {
@@ -23,7 +23,9 @@ class LanguageController extends AbstractController
         try {
             /** @var EntityRepository $repository */
             $repository = $this->container->get('language.repository');
-            $languages = $repository->search(new Criteria(), Context::createDefaultContext());
+            $criteria = new Criteria();
+            $criteria->addAssociation('locale');
+            $languages = $repository->search($criteria, Context::createDefaultContext());
 
             $response['success'] = true;
             $response['data'] = $this->prepareEntityAttributes($languages);

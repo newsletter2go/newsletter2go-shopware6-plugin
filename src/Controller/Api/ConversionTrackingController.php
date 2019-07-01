@@ -24,7 +24,7 @@ class ConversionTrackingController
     }
 
     /**
-     * @Route(path="/api/{version}/n2g/tracking", name="api.action.n2g.updateTracking", methods={"PUT"})
+     * @Route(path="/api/v{version}/n2g/tracking", name="api.action.n2g.updateTracking", methods={"PUT"})
      * @param Request $request
      * @param Context $context
      * @return JsonResponse
@@ -33,18 +33,10 @@ class ConversionTrackingController
     {
         $response = [];
         try {
-            $result = $this->newsletter2goConfigService->getConfigByFieldNames(Newsletter2goConfig::NAME_VALUE_CONVERSION_TRACKING);
-            if (empty($result)) {
-                $this->newsletter2goConfigService->addConfig([Newsletter2goConfig::NAME_VALUE_CONVERSION_TRACKING => 'false']);
-
-                $response[Newsletter2goConfig::NAME_VALUE_CONVERSION_TRACKING] = false;
-
-            } else {
-                $conversionTracking = $request->get(Newsletter2goConfig::NAME_VALUE_CONVERSION_TRACKING, false);
-                $conversionTrackingString = ($conversionTracking === true) ? 'true': 'false';
-                $this->newsletter2goConfigService->updateConfigs(['conversion_tracking' => $conversionTrackingString]);
-                $response[Newsletter2goConfig::NAME_VALUE_CONVERSION_TRACKING] = $conversionTracking;
-            }
+            $conversionTracking = $request->get(Newsletter2goConfig::NAME_VALUE_CONVERSION_TRACKING, false);
+            $conversionTrackingString = ($conversionTracking === true) ? 'true': 'false';
+            $this->newsletter2goConfigService->updateConfigs(['conversion_tracking' => $conversionTrackingString]);
+            $response[Newsletter2goConfig::NAME_VALUE_CONVERSION_TRACKING] = $conversionTracking;
 
         } catch (\Exception $exception) {
             $response[Newsletter2goConfig::NAME_VALUE_CONVERSION_TRACKING] = false;
@@ -55,7 +47,7 @@ class ConversionTrackingController
     }
 
     /**
-     * @Route(path="/api/{version}/n2g/tracking", name="api.action.n2g.getTracking", methods={"GET"})
+     * @Route(path="/api/v{version}/n2g/tracking", name="api.action.n2g.getTracking", methods={"GET"})
      * @param Request $request
      * @param Context $context
      * @return JsonResponse

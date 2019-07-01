@@ -29,7 +29,7 @@ class ProductController extends AbstractController
     }
 
     /**
-     * @Route("/api/{version}/n2g/products", name="api.action.n2g.getProducts", methods={"GET"})
+     * @Route("/api/v{version}/n2g/products", name="api.action.n2g.getProducts", methods={"GET"})
      * @param Request $request
      * @param Context $context
      * @return JsonResponse
@@ -85,7 +85,7 @@ class ProductController extends AbstractController
     }
 
     /**
-     * @Route("/api/{version}/n2g/products/media", name="api.action.n2g.getProductMedia", methods={"GET"})
+     * @Route("/api/v{version}/n2g/products/media", name="api.action.n2g.getProductMedia", methods={"GET"})
      * @param Request $request
      * @param Context $context
      * @return JsonResponse

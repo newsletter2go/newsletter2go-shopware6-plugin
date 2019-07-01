@@ -29,7 +29,7 @@ class CustomerController extends AbstractController
     }
 
     /**
-     * @Route("/api/{version}/n2g/customers", name="api.action.n2g.getCustomers", methods={"GET"})
+     * @Route("/api/v{version}/n2g/customers", name="api.action.n2g.getCustomers", methods={"GET"})
      * @param Request $request
      * @param Context $context
      * @return JsonResponse
@@ -144,7 +144,7 @@ class CustomerController extends AbstractController
     }
 
     /**
-     * @Route("/api/{version}/n2g/customers/subscribe", name="api.action.n2g.subscribeCustomer", methods={"POST"})
+     * @Route("/api/v{version}/n2g/customers/subscribe", name="api.action.n2g.subscribeCustomer", methods={"POST"})
      * @param Request $request
      * @param Context $context
      * @return JsonResponse
@@ -166,7 +166,7 @@ class CustomerController extends AbstractController
     }
 
     /**
-     * @Route("/api/{version}/n2g/customers/unsubscribe", name="api.action.n2g.unsubscribeCustomer", methods={"POST"})
+     * @Route("/api/v{version}/n2g/customers/unsubscribe", name="api.action.n2g.unsubscribeCustomer", methods={"POST"})
      * @param Request $request
      * @param Context $context
      * @return JsonResponse
@@ -283,7 +283,7 @@ class CustomerController extends AbstractController
 
 
     /**
-     * @Route("/api/{version}/n2g/customers/count", name="api.action.n2g.getCustomers.count", methods={"GET"})
+     * @Route("/api/v{version}/n2g/customers/count", name="api.action.n2g.getCustomers.count", methods={"GET"})
      * @param Request $request
      * @param Context $context
      * @return JsonResponse

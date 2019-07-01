@@ -111,6 +111,9 @@ class Newsletter2go extends Plugin
             $connection->executeQuery("INSERT INTO `newsletter2go_config` VALUES(:id, :name, :value, :createdAt, NULL) ",
                 ['id' => Uuid::randomBytes(), 'name' => Newsletter2goConfig::NAME_VALUE_API_KEY, 'value' => md5($accessKey . $secretAccessKey), 'createdAt' => $createdAtTimeStampFormat]);
 
+            $connection->executeQuery("INSERT INTO `newsletter2go_config` VALUES(:id, :name, :value, :createdAt, NULL) ",
+                ['id' => Uuid::randomBytes(), 'name' => Newsletter2goConfig::NAME_VALUE_CONVERSION_TRACKING, 'value' => 'false', 'createdAt' => $createdAtTimeStampFormat]);
+
         } catch (\Exception $exception) {
             //
         }
