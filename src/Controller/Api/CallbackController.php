@@ -39,7 +39,7 @@ class CallbackController extends AbstractController
         $config['refresh_token'] = $request->get('refresh_token');
         $config['company_id'] = $request->get('company_id');
         $config['environment'] = $request->get('environment');
-        $config['int_id'] = $request->get('int_id');
+        $config['user_integration_id'] = $request->get('user_integration_id');
         $apiKey = $request->get('apiKey');
 
         foreach ($config as $key => $value) {
