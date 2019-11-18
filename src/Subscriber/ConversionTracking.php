@@ -26,7 +26,7 @@ class ConversionTracking implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            CheckoutFinishPageLoadedEvent::NAME => 'onCheckoutFinishPageLoaded'
+            CheckoutFinishPageLoadedEvent::class => ['onCheckoutFinishPageLoaded', 1]
         ];
     }
 
