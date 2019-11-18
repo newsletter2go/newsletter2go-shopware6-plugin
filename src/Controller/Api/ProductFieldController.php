@@ -4,6 +4,7 @@ namespace Newsletter2go\Controller\Api;
 
 
 use Newsletter2go\Model\Field;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Symfony\Component\Routing\Annotation\Route;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
@@ -42,6 +43,7 @@ class ProductFieldController extends AbstractController
     }
 
     /**
+     * @RouteScope(scopes={"api"})
      * @Route("/api/v{version}/n2g/products/fields", name="api.action.n2g.getProductFields", methods={"GET"})
      * @param Request $request
      * @param Context $context

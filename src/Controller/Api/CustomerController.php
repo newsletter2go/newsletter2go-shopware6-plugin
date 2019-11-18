@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,6 +30,7 @@ class CustomerController extends AbstractController
     }
 
     /**
+     * @RouteScope(scopes={"api"})
      * @Route("/api/v{version}/n2g/customers", name="api.action.n2g.getCustomers", methods={"GET"})
      * @param Request $request
      * @param Context $context
@@ -144,6 +146,7 @@ class CustomerController extends AbstractController
     }
 
     /**
+     * @RouteScope(scopes={"api"})
      * @Route("/api/v{version}/n2g/customers/subscribe", name="api.action.n2g.subscribeCustomer", methods={"POST"})
      * @param Request $request
      * @param Context $context
@@ -166,6 +169,7 @@ class CustomerController extends AbstractController
     }
 
     /**
+     * @RouteScope(scopes={"api"})
      * @Route("/api/v{version}/n2g/customers/unsubscribe", name="api.action.n2g.unsubscribeCustomer", methods={"POST"})
      * @param Request $request
      * @param Context $context
@@ -283,6 +287,7 @@ class CustomerController extends AbstractController
 
 
     /**
+     * @RouteScope(scopes={"api"})
      * @Route("/api/v{version}/n2g/customers/count", name="api.action.n2g.getCustomers.count", methods={"GET"})
      * @param Request $request
      * @param Context $context

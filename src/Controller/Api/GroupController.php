@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -17,6 +18,7 @@ class GroupController extends AbstractController
     const GROUP_NEWSLETTER_RECEIVER = 'newsletter_receiver';
 
     /**
+     * @RouteScope(scopes={"api"})
      * @Route("/api/v{version}/n2g/groups", name="api.action.n2g.getGroups", methods={"GET"})
      * @return JsonResponse
      */

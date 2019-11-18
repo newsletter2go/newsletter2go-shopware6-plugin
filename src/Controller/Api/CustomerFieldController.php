@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Language\LanguageEntity;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Salutation\SalutationEntity;
@@ -45,6 +46,7 @@ class CustomerFieldController extends AbstractController
     }
 
     /**
+     * @RouteScope(scopes={"api"})
      * @Route("/api/v{version}/n2g/customers/fields", name="api.action.n2g.getCustomerFields", methods={"GET"})
      * @param Request $request
      * @param Context $context

@@ -6,6 +6,7 @@ namespace Newsletter2go\Controller\Api;
 use Newsletter2go\Entity\Newsletter2goConfig;
 use Newsletter2go\Service\Newsletter2goConfigService;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,6 +26,7 @@ class CallbackController extends AbstractController
     }
 
     /**
+     * @RouteScope(scopes={"api"})
      * @Route("/newsletter2go/v{version}/callback", name="newsletter2go.callback", methods={"POST"})
      * @param Request $request
      * @param Context $context

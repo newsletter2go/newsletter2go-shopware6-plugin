@@ -5,8 +5,9 @@ namespace Newsletter2go\Controller\Api;
 
 use Newsletter2go\Entity\Newsletter2goConfig;
 use Newsletter2go\Service\Newsletter2goConfigService;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -24,6 +25,7 @@ class ConversionTrackingController
     }
 
     /**
+     * @RouteScope(scopes={"api"})
      * @Route(path="/api/v{version}/n2g/tracking", name="api.action.n2g.updateTracking", methods={"PUT"})
      * @param Request $request
      * @param Context $context
@@ -47,6 +49,7 @@ class ConversionTrackingController
     }
 
     /**
+     * @RouteScope(scopes={"api"})
      * @Route(path="/api/v{version}/n2g/tracking", name="api.action.n2g.getTracking", methods={"GET"})
      * @param Request $request
      * @param Context $context

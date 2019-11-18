@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\Plugin\PluginEntity;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -15,6 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class PluginController extends AbstractController
 {
     /**
+     * @RouteScope(scopes={"api"})
      * @Route("/api/v{version}/n2g/test", name="api.action.n2g.testConnection", methods={"GET"})
      */
     public function testConnectionAction(): JsonResponse
@@ -25,6 +27,7 @@ class PluginController extends AbstractController
     }
 
     /**
+     * @RouteScope(scopes={"api"})
      * @Route("/api/v{version}/n2g/info", name="api.action.n2g.getPluginInfo", methods={"GET"})
      */
     public function getPluginInfoAction(): JsonResponse

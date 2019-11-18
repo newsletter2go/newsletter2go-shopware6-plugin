@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Language\LanguageEntity;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -15,6 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class LanguageController extends AbstractController
 {
     /**
+     * @RouteScope(scopes={"api"})
     * @Route("/api/v{version}/n2g/languages", name="api.action.n2g.getLanguages", methods={"GET"})
     */
     public function getLanguagesAction(): JsonResponse

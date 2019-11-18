@@ -8,6 +8,7 @@ use Newsletter2go\Model\Auth;
 use Newsletter2go\Service\ApiService;
 use Newsletter2go\Service\Newsletter2goConfigService;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -35,6 +36,7 @@ class BackendController extends AbstractController
     }
 
     /**
+     * @RouteScope(scopes={"api"})
      * @Route(path="/api/v{version}/n2g/connection", name="api.action.n2g.connection", methods={"GET"})
      * @param Request $request
      * @param Context $context
@@ -53,6 +55,7 @@ class BackendController extends AbstractController
     }
 
     /**
+     * @RouteScope(scopes={"api"})
      * @Route(path="/api/v{version}/n2g/connection", name="api.action.n2g.disconnection", methods={"DELETE"})
      * @param Request $request
      * @param Context $context
@@ -104,6 +107,7 @@ class BackendController extends AbstractController
     }
 
     /**
+     * @RouteScope(scopes={"api"})
      * @Route(path="/api/v{version}/n2g/integration", name="api.action.n2g.integration", methods={"GET"})
      * @return JsonResponse
      */
@@ -150,6 +154,7 @@ class BackendController extends AbstractController
     }
 
     /**
+     * @RouteScope(scopes={"api"})
      * @Route(path="/api/v{version}/n2g/company", name="api.action.n2g.company", methods={"GET"})
      * @param Request $request
      * @param Context $context
