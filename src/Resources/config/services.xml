@@ -1,0 +1,62 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+
+        <service class="Newsletter2go\Service\ApiService" id="Newsletter2go\Service\ApiService">
+            <argument type="string"/>
+            <argument type="string"/>
+            <argument type="string"/>
+        </service>
+
+        <service id="Newsletter2go\Entity\Newsletter2goConfigDefinition">
+            <tag name="shopware.entity.definition" entity="newsletter2go_config"/>
+        </service>
+
+        <service class="Newsletter2go\Service\Newsletter2goConfigService" id="Newsletter2go\Service\Newsletter2goConfigService">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Newsletter2go\Entity\Newsletter2goConfigDefinition"/>
+        </service>
+
+        <service id="Newsletter2go\Controller\Api\CallbackController" public="true">
+            <argument type="service" id="Newsletter2go\Service\Newsletter2goConfigService"/>
+        </service>
+
+        <service id="Newsletter2go\Controller\Api\CustomerFieldController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition"/>
+        </service>
+
+        <service id="Newsletter2go\Controller\Api\ProductFieldController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition"/>
+        </service>
+
+        <service id="Newsletter2go\Controller\Api\ProductController" public="true">
+            <argument type="service" id="Newsletter2go\Controller\Api\ProductFieldController"/>
+        </service>
+
+        <service id="Newsletter2go\Controller\Api\CustomerController" public="true">
+            <argument type="service" id="Newsletter2go\Controller\Api\CustomerFieldController"/>
+        </service>
+
+        <service id="Newsletter2go\Controller\BackendController" public="true">
+            <argument type="service" id="Newsletter2go\Service\Newsletter2goConfigService"/>
+        </service>
+
+        <service id="Newsletter2go\Controller\Api\ConversionTrackingController" public="true">
+            <argument type="service" id="Newsletter2go\Service\Newsletter2goConfigService"/>
+        </service>
+
+        <service id="Newsletter2go\Subscriber\ConversionTracking">
+            <tag name="kernel.event_subscriber"/>
+            <argument type="service" id="Newsletter2go\Service\Newsletter2goConfigService"/>
+        </service>
+
+    </services>
+</container>
+
+
