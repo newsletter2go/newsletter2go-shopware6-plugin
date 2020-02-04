@@ -1,14 +1,16 @@
-{% sw_extends '@Storefront/page/checkout/finish/index.html.twig' %}
+{% sw_extends '@Storefront/storefront/page/checkout/finish/index.html.twig' %}
 
 {% block base_script_hmr_mode %}
     {{ parent() }}
 
     {% if page.conversionTracking == true %}
 
-        <script id="n2g_script">
-            !function(e,t,n,c,r,a,i){e.Newsletter2GoTrackingObject=r,e[r]=e[r]||function(){(e[r].q=e[r].q||[]).push(arguments)},e[r].l=1*new Date,a=t.createElement(n),i=t.getElementsByTagName(n)[0],a.async=1,a.src=c,i.parentNode.insertBefore(a,i)}(window,document,"script","https://static.newsletter2go.com/utils.js","n2g");
-            n2g('create', '{{ page.companyId }}');
+        <script type="text/javascript" id="n2g_script">
+            !function(e,t,n,c,r,a,i) { e.Newsletter2GoTrackingObject=r,e[r]=e[r]||function() { (e[r].q=e[r].q||[]).push(arguments) },
+                e[r].l=1*new Date,a=t.createElement(n),i=t.getElementsByTagName(n)[0],a.async=1,
+                a.src=c,i.parentNode.insertBefore(a,i) } (window,document,"script","//static.newsletter2go.com/utils.js","n2g");
 
+            n2g('create', '{{ page.companyId }}');
             // create transaction
             var transaction = {
                 'id': 'SW{{ page.order.orderNumber }}',
@@ -29,20 +31,18 @@
             // add items to transaction
             {% for lineItem in page.order.lineItems.elements %}
 
-                var item = {
-                    'id': 'SW{{ page.order.orderNumber }}',
-                    'name': '{{ lineItem.label }}',
-                    'sku': '{{ lineItem.id }}',
-                    'category': '',
-                    'price': '{{ lineItem.totalPrice }}',
-                    'quantity': '{{ lineItem.quantity }}'
-                };
-
-            {% if lineItem.payload.categories is defined %}
-                item.category = '{{ lineItem.payload.categories|first }}';
-            {% endif %}
-
-            n2g('ecommerce:addItem', item);
+            n2g('ecommerce:addItem',  {
+                'id': 'SW{{ page.order.orderNumber }}',
+                'name': '{{ lineItem.label }}',
+                'sku': '{{ lineItem.id }}',
+                {% if lineItem.payload.categories is defined %}
+                    'category' : '{{ lineItem.payload.categories|first }}',
+                {% else %}
+                    'category' : '',
+                {% endif %}
+                'price': '{{ lineItem.totalPrice }}',
+                'quantity': '{{ lineItem.quantity }}'
+            });
 
             {% endfor %}
 

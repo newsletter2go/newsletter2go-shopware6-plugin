@@ -1,8 +1,10 @@
-import { Module } from 'src/core/shopware';
-import newsletter2goIndex from './page/newsletter2go-index';
+import './page/newsletter2go-index';
 import './extension/sw-settings-index';
+
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
+
+const { Module } = Shopware;
 
 Module.register('newsletter2go-app', {
     type: 'plugin',
@@ -20,7 +22,7 @@ Module.register('newsletter2go-app', {
 
     routes: {
         index: {
-            component: newsletter2goIndex,
+            component: 'newsletter2go-index',
             path: 'index',
             meta: {
                 parentPath: 'sw.settings.index'

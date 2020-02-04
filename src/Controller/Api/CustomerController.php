@@ -4,6 +4,7 @@ namespace Newsletter2go\Controller\Api;
 
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Content\Newsletter\NewsletterSubscriptionServiceInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -62,21 +63,22 @@ class CustomerController extends AbstractController
 
             if ($offset) {
                 if (!is_numeric($offset)) {
-                    $offset = (int) $offset;
+                    $offset = (int)$offset;
                 }
                 $criteria->setOffset($offset);
             }
 
             if (!is_numeric($limit)) {
-                $limit = (int) $limit;
+                $limit = (int)$limit;
             }
 
             $criteria->setLimit($limit);
 
             if ($groupId) {
 
-                if ($groupId === GroupController::GROUP_NEWSLETTER_RECEIVER) {
-                    $preparedNewsletterReceiver = $this->getPreparedNewsletterReceiver($onlySubscribed, $offset, $limit, $emails, $subShopId, $fields);
+                if ($groupId === GroupController::GROUP_NEWSLETTER_RECIPIENT) {
+                    $preparedNewsletterReceiver = $this->getPreparedNewsletterReceiver($onlySubscribed, $offset, $limit,
+                        $emails, $subShopId, $fields);
 
                     $response['success'] = true;
                     $response['data'] = $preparedNewsletterReceiver;
@@ -96,10 +98,10 @@ class CustomerController extends AbstractController
                 $criteria->addFilter(new EqualsAnyFilter('customer.email', $emails));
             }
 
-            $promotionAssociationCriteria = new Criteria();
-            $promotionAssociationCriteria->addFilter(new EqualsFilter('active', 1));
-            $promotionAssociationCriteria->addAssociation('discounts');
-            $criteria->addAssociation('promotions', $promotionAssociationCriteria);
+            //$promotionAssociationCriteria = new Criteria();
+            //$promotionAssociationCriteria->addFilter(new EqualsFilter('active', 1));
+            //$promotionAssociationCriteria->addAssociation('discounts');
+            //$criteria->addAssociation('promotions', $promotionAssociationCriteria);
             $criteria->addAssociation('language');
 
             $result = $customerRepository->search($criteria, $context)->getEntities();
@@ -115,10 +117,16 @@ class CustomerController extends AbstractController
         return new JsonResponse($response);
     }
 
-    private function getPreparedNewsletterReceiver($onlySubscribed, $offset = null, $limit = null, $emails = [], $subShopId = null, $fields = null)
-    {
-        /** @var EntityRepositoryInterface $newsletterReceiverRepository */
-        $newsletterReceiverRepository = $this->container->get('newsletter_receiver.repository');
+    private function getPreparedNewsletterReceiver(
+        $onlySubscribed,
+        $offset = null,
+        $limit = null,
+        $emails = [],
+        $subShopId = null,
+        $fields = null
+    ) {
+        /** @var EntityRepositoryInterface $newsletterRecipientRepository */
+        $newsletterRecipientRepository = $this->container->get('newsletter_recipient.repository');
         $criteria = new Criteria();
 
         if ($offset && is_numeric($offset)) {
@@ -130,7 +138,11 @@ class CustomerController extends AbstractController
         }
 
         if ($onlySubscribed) {
-            $criteria->addFilter(new EqualsFilter('status', CustomerFieldController::NEWSLETTER_RECEIVER_STATUS_SUBSCRIBED));
+            $criteria->addFilter(new EqualsAnyFilter('status', [
+                NewsletterSubscriptionServiceInterface::MAIL_TYPE_OPT_IN,
+                NewsletterSubscriptionServiceInterface::STATUS_DIRECT,
+                NewsletterSubscriptionServiceInterface::MAIL_TYPE_REGISTER,
+                NewsletterSubscriptionServiceInterface::STATUS_OPT_IN]));
         }
 
         if (!empty($emails)) {
@@ -141,7 +153,7 @@ class CustomerController extends AbstractController
             $criteria->addFilter(new EqualsFilter('salesChannelId', $subShopId));
         }
 
-        $list = $newsletterReceiverRepository->search($criteria, Context::createDefaultContext())->getElements();
+        $list = $newsletterRecipientRepository->search($criteria, Context::createDefaultContext())->getElements();
         return $this->customerFieldController->prepareNewsletterReceiver($list, $fields);
     }
 
@@ -252,13 +264,13 @@ class CustomerController extends AbstractController
         $response = [];
 
         if ($status) {
-            $status = CustomerFieldController::NEWSLETTER_RECEIVER_STATUS_SUBSCRIBED;
+            $status = NewsletterSubscriptionServiceInterface::STATUS_DIRECT;
         } else {
-            $status = CustomerFieldController::NEWSLETTER_RECEIVER_STATUS_UNSUBSCRIBED;
+            $status = NewsletterSubscriptionServiceInterface::STATUS_OPT_OUT;
         }
 
         /** @var EntityRepositoryInterface $newsletterReceiver */
-        $newsletterReceiver = $this->container->get('newsletter_receiver.repository');
+        $newsletterReceiver = $this->container->get('newsletter_recipient.repository');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('email', $email));
         /** @var CustomerEntity $customer */
@@ -282,8 +294,6 @@ class CustomerController extends AbstractController
 
         return ['response' => $response, 'code' => $statusCode];
     }
-
-
 
 
     /**
@@ -311,7 +321,7 @@ class CustomerController extends AbstractController
 
             if ($groupId) {
 
-                if ($groupId === GroupController::GROUP_NEWSLETTER_RECEIVER) {
+                if ($groupId === GroupController::GROUP_NEWSLETTER_RECIPIENT) {
                     $response['success'] = true;
                     $response['count'] = count($this->getPreparedNewsletterReceiver($onlySubscribed));
 

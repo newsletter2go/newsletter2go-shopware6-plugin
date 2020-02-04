@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class CallbackController extends AbstractController
@@ -27,12 +28,12 @@ class CallbackController extends AbstractController
 
     /**
      * @RouteScope(scopes={"api"})
-     * @Route("/newsletter2go/v{version}/callback", name="newsletter2go.callback", methods={"POST"})
+     * @Route("/api/v{version}/n2g/callback", name="api.action.n2g.callback", methods={"POST"}, defaults={"auth_required"=false})
      * @param Request $request
      * @param Context $context
      * @return JsonResponse
      */
-    public function authAction(Request $request, Context $context): JsonResponse
+    public function authAction(Request $request, Context $context): Response
     {
         $response = [];
         $config = [];

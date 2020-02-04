@@ -1,9 +1,8 @@
-import { Mixin } from 'src/core/shopware';
 import template from './newsletter2go-index.html.twig';
 
-export default {
-    name: 'newsletter2go-index',
+const { Mixin } = Shopware;
 
+Shopware.Component.register('newsletter2go-index', {
     template,
 
     inject: ['ConversionTrackingService', 'ConnectionService'],
@@ -32,6 +31,7 @@ export default {
         this.createdComponent();
         this.testConnection();
     },
+
     computed: {},
 
     methods: {
@@ -137,5 +137,11 @@ export default {
                 this.isLoading = false;
             });
         }
-    }
-};
+    },
+
+    metaInfo() {
+        return {
+            title: this.$createTitle()
+        };
+    },
+});

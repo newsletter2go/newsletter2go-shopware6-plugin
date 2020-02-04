@@ -33,6 +33,6 @@ SQL;
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
+        $connection->executeQuery("DROP TABLE IF EXISTS `newsletter2go_config`;");
     }
 }
