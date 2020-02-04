@@ -1,0 +1,27 @@
+{
+    "newsletter2go": {
+        "header": "Newsletter2Go",
+        "general": {
+            "mainMenuItemGeneral": "Newsletter2Go",
+            "mainHeader": "Newsletter2Go Settings",
+            "accountConfigurationTitle" : "Account Settings",
+            "conversionTrackingTitle" : "Conversion-Tracking"
+        },
+        "settingForm": {
+            "connectButton" : "Connect to Newsletter2Go",
+            "disconnectButton" : "Disconnect",
+            "conversionTrackingSwitch" : "Activate",
+            "buttonLabelSave": "Save",
+            "buttonLabelConfirm" : "Confirm",
+            "buttonLabelCancel" : "Cancel",
+            "titleSaveSuccess": "Settings",
+            "titleSaveError": "Settings Error",
+            "titleDisconnectDialog": "Disconnect",
+            "messageDisconnectDialog": "Do you really want to disconnect?",
+            "messageSaveSuccess": "Settings saved successfully",
+            "messageSaveError": "Settings are not saved",
+            "messageConnectedSuccess": "Connected successfully with company ID: ",
+            "messageConnectedError": "Not connected"
+        }
+    }
+}

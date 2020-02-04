@@ -1,0 +1,56 @@
+{% sw_extends '@Storefront/storefront/page/checkout/finish/index.html.twig' %}
+
+{% block base_script_hmr_mode %}
+    {{ parent() }}
+
+    {% if page.conversionTracking == true %}
+
+        <script type="text/javascript" id="n2g_script">
+            !function(e,t,n,c,r,a,i) { e.Newsletter2GoTrackingObject=r,e[r]=e[r]||function() { (e[r].q=e[r].q||[]).push(arguments) },
+                e[r].l=1*new Date,a=t.createElement(n),i=t.getElementsByTagName(n)[0],a.async=1,
+                a.src=c,i.parentNode.insertBefore(a,i) } (window,document,"script","//static.newsletter2go.com/utils.js","n2g");
+
+            n2g('create', '{{ page.companyId }}');
+            // create transaction
+            var transaction = {
+                'id': 'SW{{ page.order.orderNumber }}',
+                'affiliation': '',
+                'revenue': '{{ page.order.price.totalPrice }}',
+                'shipping': '{{ page.order.shippingCosts.totalPrice }}',
+                'tax': '{{ page.order.price.totalPrice - page.order.price.netPrice }}'
+            };
+
+            {% if page.order.salesChannel is defined %}
+                transaction.affiliation = '{{ page.order.salesChannel.name }}';
+            {% else %}
+                transaction.affiliation = '{{ page.order.salesChannelId }}';
+            {% endif %}
+
+            n2g('ecommerce:addTransaction', transaction);
+
+            // add items to transaction
+            {% for lineItem in page.order.lineItems.elements %}
+
+            n2g('ecommerce:addItem',  {
+                'id': 'SW{{ page.order.orderNumber }}',
+                'name': '{{ lineItem.label }}',
+                'sku': '{{ lineItem.id }}',
+                {% if lineItem.payload.categories is defined %}
+                    'category' : '{{ lineItem.payload.categories|first }}',
+                {% else %}
+                    'category' : '',
+                {% endif %}
+                'price': '{{ lineItem.totalPrice }}',
+                'quantity': '{{ lineItem.quantity }}'
+            });
+
+            {% endfor %}
+
+            //send data
+            n2g('ecommerce:send');
+        </script>
+
+    {% endif %}
+
+{% endblock %}
+
