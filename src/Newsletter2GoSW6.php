@@ -19,7 +19,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\Routing\RouteCollectionBuilder;
 
-class Newsletter2go extends Plugin
+class Newsletter2GoSW6 extends Plugin
 {
 
     public function postInstall(InstallContext $context): void
