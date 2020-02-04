@@ -9,9 +9,10 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
-use Shopware\Core\Content\NewsletterReceiver\NewsletterReceiverEntity;
+use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
+use Shopware\Core\Content\Newsletter\NewsletterSubscriptionServiceInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
+use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\Framework\CustomField\Aggregate\CustomFieldSet\CustomFieldSetEntity;
 use Shopware\Core\Framework\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationEntity;
 use Shopware\Core\Framework\CustomField\CustomFieldEntity;
@@ -229,13 +230,28 @@ class CustomerFieldController extends AbstractController
                         $preparedCustomerList[$key][$fieldId] = $customFields[$customFieldOriginalName];
                     }
                 } elseif ($field->getId() === 'billingCountry') {
-                        $preparedCustomerList[$key][$fieldId] = $customerEntity->getDefaultBillingAddress()->getCountry()->getName();
+                    $defaultBillingAddress = $customerEntity->getDefaultBillingAddress();
+                    if ($defaultBillingAddress instanceof CustomerAddressEntity) {
+                        $country = $defaultBillingAddress->getCountry();
+                        if ($country instanceof CountryEntity) {
+                            $preparedCustomerList[$key][$fieldId] = $country->getName();
+                        }
+                    }
                 } elseif($field->getId() === 'billingCity') {
-                    $preparedCustomerList[$key][$fieldId] = $customerEntity->getDefaultBillingAddress()->getCity();
+                    $defaultBillingAddress = $customerEntity->getDefaultBillingAddress();
+                    if ($defaultBillingAddress instanceof CustomerAddressEntity) {
+                        $preparedCustomerList[$key][$fieldId] = $defaultBillingAddress->getCity();
+                    }
                 } elseif($field->getId() === 'defaultPaymentMethod') {
-                    $preparedCustomerList[$key][$fieldId] = $customerEntity->getDefaultPaymentMethod()->getName();
+                    $defaultPaymentMethod = $customerEntity->getDefaultPaymentMethod();
+                    if ($defaultPaymentMethod instanceof PaymentMethodEntity) {
+                        $preparedCustomerList[$key][$fieldId] = $defaultPaymentMethod->getName();
+                    }
                 } elseif($field->getId() === 'salesChannelName') {
-                    $preparedCustomerList[$key][$fieldId] = $customerEntity->getSalesChannel()->getName();
+                    $salesChannel = $customerEntity->getSalesChannel();
+                    if ($salesChannel instanceof SalesChannelEntity) {
+                        $preparedCustomerList[$key][$fieldId] = $salesChannel->getName();
+                    }
                 } else {
                     $preparedCustomerList[$key][$fieldId] = '';
                 }
@@ -271,7 +287,7 @@ class CustomerFieldController extends AbstractController
     {
         $preparedList = [];
 
-        /** @var NewsletterReceiverEntity $newsletterReceiver */
+        /** @var NewsletterRecipientEntity $newsletterReceiver */
         foreach ($newsletterReceiverList as $newsletterReceiver) {
             $preparedList[$newsletterReceiver->getId()] = [
                 'id' => $newsletterReceiver->getId()
@@ -296,10 +312,13 @@ class CustomerFieldController extends AbstractController
                             $preparedList[$newsletterReceiver->getId()][$fieldId] =$newsletterReceiver->getLastName() ?: '';
                             break;
                         case 'groupId':
-                            $preparedList[$newsletterReceiver->getId()][$fieldId] = GroupController::GROUP_NEWSLETTER_RECEIVER;
+                            $preparedList[$newsletterReceiver->getId()][$fieldId] = GroupController::GROUP_NEWSLETTER_RECIPIENT;
                             break;
                         case 'newsletter':
-                            $preparedList[$newsletterReceiver->getId()][$fieldId] = $newsletterReceiver->getStatus() === self::NEWSLETTER_RECEIVER_STATUS_SUBSCRIBED;
+                            $preparedList[$newsletterReceiver->getId()][$fieldId] = !in_array($newsletterReceiver->getStatus(), [
+                                NewsletterSubscriptionServiceInterface::STATUS_OPT_OUT,
+                                NewsletterSubscriptionServiceInterface::STATUS_NOT_SET
+                            ]);
                             break;
                         case 'billingCountry':
                             $preparedList[$newsletterReceiver->getId()][$fieldId] = '';
@@ -311,13 +330,19 @@ class CustomerFieldController extends AbstractController
                             $preparedList[$newsletterReceiver->getId()][$fieldId] = '';
                             break;
                         case 'salesChannelId':
-                            $preparedList[$newsletterReceiver->getId()][$fieldId] = $newsletterReceiver->getSalesChannel()->getId() ?: '';
+                            $newsletterRecipientSAlesChannel = $newsletterReceiver->getSalesChannel();
+                            if ($newsletterRecipientSAlesChannel instanceof SalesChannelEntity) {
+                                $preparedList[$newsletterReceiver->getId()][$fieldId] = $newsletterRecipientSAlesChannel->getId() ?: '';
+                            }
                             break;
                         case 'salesChannelName':
                             $preparedList[$newsletterReceiver->getId()][$fieldId] = $newsletterReceiver->getLastName() ?: '';
                             break;
                         case 'language':
-                            $preparedList[$newsletterReceiver->getId()][$fieldId] = $newsletterReceiver->getLanguage()->getName() ?: '';
+                            $recipientLanguage = $newsletterReceiver->getLanguage();
+                            if ($recipientLanguage instanceof \Shopware\Core\System\Language\LanguageEntity) {
+                                $preparedList[$newsletterReceiver->getId()][$fieldId] = $newsletterReceiver->getLanguage()->getName() ?: '';
+                            }
                             break;
                         case 'updatedAt':
                             $preparedList[$newsletterReceiver->getId()][$fieldId] = $newsletterReceiver->getUpdatedAt() ?: '';
@@ -335,7 +360,7 @@ class CustomerFieldController extends AbstractController
         return $preparedList;
     }
 
-    private function prepareCustomFields(NewsletterReceiverEntity $newsletterReceiver, $fieldId)
+    private function prepareCustomFields(NewsletterRecipientEntity $newsletterReceiver, $fieldId)
     {
         $result = '';
         $fieldWithoutPrefix = substr($fieldId, 4);

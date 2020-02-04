@@ -52,9 +52,7 @@ class ProductController extends AbstractController
             $criteria = new Criteria();
             $criteria->addAssociation('media');
             if ($languageId) {
-                $translationCriteria = new Criteria();
-                $translationCriteria->addFilter(new EqualsFilter('languageId', $languageId));
-                $criteria->addAssociation('translations', $translationCriteria);
+                $criteria->addAssociation('translations');
             }
             $criteria->addFilter(new EqualsFilter('active', 1));
             if ($productNumber) {
@@ -74,7 +72,7 @@ class ProductController extends AbstractController
                 throw new \Exception("Product with product number ${productNumber} not found");
             }
 
-            $product = $this->productFieldController->prepareProductAttributes($product);
+            $product = $this->productFieldController->prepareProductAttributes($product, $languageId);
             $response['success'] = true;
             $response['data'] = $product;
 

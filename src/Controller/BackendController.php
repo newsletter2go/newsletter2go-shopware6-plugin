@@ -122,7 +122,7 @@ class BackendController extends AbstractController
         $params = [];
         $params['ref'] = $this->ref;
         $params['url'] = getenv('APP_URL');
-        $params['callback'] = getenv('APP_URL') . "/newsletter2go/{$apiVersion}/callback";
+        $params['callback'] = getenv('APP_URL') . "/api/v{$apiVersion}/n2g/callback";
 
         try {
             $n2gConfigs = $this->newsletter2goConfigService->getConfigByFieldNames([

@@ -4,6 +4,8 @@ namespace Newsletter2go\Controller\Api;
 
 
 use Newsletter2go\Model\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Symfony\Component\Routing\Annotation\Route;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
@@ -12,14 +14,13 @@ use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
-use Shopware\Core\Framework\CustomField\Aggregate\CustomFieldSet\CustomFieldSetEntity;
-use Shopware\Core\Framework\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationEntity;
-use Shopware\Core\Framework\CustomField\CustomFieldEntity;
+use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
+use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetEntity;
+use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationEntity;
+use Shopware\Core\System\CustomField\CustomFieldEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Pricing\Price;
 use Shopware\Core\System\Tax\TaxEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -132,14 +133,14 @@ class ProductFieldController extends AbstractController
         return $fields;
     }
 
-    public function prepareProductAttributes(ProductEntity $productEntity): array
+    public function prepareProductAttributes(ProductEntity $productEntity, $languageId = null): array
     {
-        $preparedCustomerList = [];
+        $preparedProductList = [];
         $fields = array_merge($this->getProductDefaultFields(), $this->_getProductCustomFields());
 
         //translations are set if correct language id is set
         if (!empty($productEntity->getTranslations()) && !empty(!empty($productEntity->getTranslations()->getElements()))) {
-            $productEntity = $this->translateProduct($productEntity);
+            $productEntity = $this->translateProduct($productEntity, $languageId);
         }
 
         /** @var Field $field */
@@ -152,13 +153,13 @@ class ProductFieldController extends AbstractController
                 $attribute = $productEntity->get($fieldId);
 
                 if (is_string($attribute) || is_numeric($attribute) || is_bool($attribute)) {
-                    $preparedCustomerList[$fieldId] = $attribute;
+                    $preparedProductList[$fieldId] = $attribute;
                 } elseif (is_null($attribute)) {
-                    $preparedCustomerList[$fieldId] = '';
+                    $preparedProductList[$fieldId] = '';
                 } elseif ($attribute instanceof Entity) {
-                    $preparedCustomerList[$fieldId] = $this->prepareEntity($attribute);
-                } elseif ($attribute instanceof Price) {
-                    $preparedCustomerList[$fieldId] = $this->preparePriceEntity($attribute);
+                    $preparedProductList[$fieldId] = $this->prepareEntity($attribute);
+                } elseif ($attribute instanceof PriceCollection) {
+                    $preparedProductList[$fieldId] = $this->preparePriceEntity($attribute);
                 } elseif ($attribute instanceof ProductMediaCollection) {
                     $media = [];
                     /** @var ProductMediaEntity $mediaEntity */
@@ -167,7 +168,7 @@ class ProductFieldController extends AbstractController
                             $media[] = $mediaEntity->getMedia()->getUrl();
                         }
                     }
-                    $preparedCustomerList[$fieldId] = $media;
+                    $preparedProductList[$fieldId] = $media;
                 }
 
             } elseif ($isCustomField && !empty($productEntity->getCustomFields())) {
@@ -176,24 +177,38 @@ class ProductFieldController extends AbstractController
                 $customFieldOriginalName = substr($fieldId, 12);
 
                 if (isset($customFields[$customFieldOriginalName])) {
-                    $preparedCustomerList[$fieldId] = $customFields[$customFieldOriginalName];
+                    $preparedProductList[$fieldId] = $customFields[$customFieldOriginalName];
                 }
             } elseif ($fieldId === 'link') {
-                $preparedCustomerList['url'] =  rtrim(getenv('APP_URL'), '/') . '/' ;
-                $preparedCustomerList[$fieldId] = 'detail/' .$productEntity->getId();
+                $preparedProductList['url'] =  rtrim(getenv('APP_URL'), '/') . '/' ;
+                $preparedProductList[$fieldId] = 'detail/' .$productEntity->getId();
             }
 
         }
 
-        return $preparedCustomerList;
+        return $preparedProductList;
     }
 
-    private function translateProduct(ProductEntity $productEntity)
+    private function translateProduct(ProductEntity $productEntity, $languageId = null)
     {
-        /** @var ProductTranslationEntity $translation */
-        $translation = $productEntity->getTranslations()->first();
+        /** @var ProductTranslationCollection $productTranslations */
+        $productTranslations = $productEntity->getTranslations();
+
+        /** @var ProductTranslationEntity $productTranslation */
+        if (!empty($languageId)) {
+            foreach ($productTranslations as $productTranslation) {
+                if ($productTranslation->getLanguageId() == $languageId) {
+                    $translation = $productTranslation;
+                }
+            }
+        }
+
+        if (empty($translation)) {
+            $translation = $productTranslations->first();
+        }
+
         $TranslatedCustomFields = $translation->getCustomFields();
-        $productEntity->setAdditionalText($translation->getAdditionalText());
+        //$productEntity->setAdditionalText($translation->getAdditionalText());
         $productEntity->setName($translation->getName());
         $productEntity->setDescription($translation->getDescription());
         $productEntityCustomFields = $productEntity->getCustomFields();
@@ -211,11 +226,12 @@ class ProductFieldController extends AbstractController
         return $productEntity;
     }
 
-    private function preparePriceEntity(Price $price)
+    private function preparePriceEntity(PriceCollection $price)
     {
+        $price = $price->first();
         return [
-            'net' => $price->getNet() ?: 0,
-            'gross' => $price->getGross() ?: 0
+            'net' => number_format($price->getNet(), 2, '.', '') ?: 0,
+            'gross' => number_format($price->getGross(), 2, '.', '') ?: 0
         ];
     }
 
