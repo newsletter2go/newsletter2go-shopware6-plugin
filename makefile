@@ -1,10 +1,10 @@
-outfile = shopware6-nl2go-$(VERSION).zip
+outfile = Newsletter2GoSW6.zip
 
 $(VERSION): $(outfile)
 
 $(outfile):
-	mkdir newsletter2go
-	cp -R LICENSE composer.json src newsletter2go/
-	zip -r  build.zip ./newsletter2go
+	mkdir Newsletter2GoSW6
+	cp -R composer.json src  CHANGELOG* Newsletter2GoSW6/
+	zip -r  build.zip ./Newsletter2GoSW6
 	mv build.zip $(outfile)
-	rm -Rf ./newsletter2go
+	rm -Rf ./Newsletter2GoSW6

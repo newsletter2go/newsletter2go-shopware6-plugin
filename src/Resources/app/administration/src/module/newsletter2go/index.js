@@ -8,7 +8,7 @@ const { Module } = Shopware;
 
 Module.register('newsletter2go-app', {
     type: 'plugin',
-    name: 'Newsletter2go',
+    name: 'Newsletter2GoSW6',
     description: 'newsletter2go.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
