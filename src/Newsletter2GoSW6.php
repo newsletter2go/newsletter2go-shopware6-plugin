@@ -136,12 +136,4 @@ class Newsletter2GoSW6 extends Plugin
     {
         return 'Newsletter2go\Migration';
     }
-
-    public function getViewPaths(): array
-    {
-        $viewPaths = parent::getViewPaths();
-        $viewPaths[] = 'Resources/views/storefront';
-
-        return $viewPaths;
-    }
 }
