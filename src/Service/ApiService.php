@@ -44,7 +44,7 @@ class ApiService
         try {
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
             if ($authorize) {
@@ -107,22 +107,6 @@ class ApiService
         }
 
         return $result;
-    }
-
-    /**
-     * @return string
-     */
-    public function getRef(): string
-    {
-        return $this->ref;
-    }
-
-    /**
-     * @param string $ref
-     */
-    public function setRef(string $ref): void
-    {
-        $this->ref = $ref;
     }
 
     /**
