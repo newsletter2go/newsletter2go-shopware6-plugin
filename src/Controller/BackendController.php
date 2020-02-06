@@ -111,18 +111,18 @@ class BackendController extends AbstractController
      * @Route(path="/api/v{version}/n2g/integration", name="api.action.n2g.integration", methods={"GET"})
      * @return JsonResponse
      */
-    public function getConnectUrl() :JsonResponse
+    public function getConnectUrl(Request $request) :JsonResponse
     {
-        return new JsonResponse(['integration' => self::CONNECTOR_URL . '?' .http_build_query($this->getConnectorUrlParams())]);
+        return new JsonResponse(['integration' => self::CONNECTOR_URL . '?' .http_build_query($this->getConnectorUrlParams($request))]);
     }
 
-    private function getConnectorUrlParams()
+    private function getConnectorUrlParams(Request $request)
     {
-        $apiVersion = 'v' . PlatformRequest::API_VERSION;
+        $apiVersion = PlatformRequest::API_VERSION;
         $params = [];
         $params['ref'] = $this->ref;
-        $params['url'] = getenv('APP_URL');
-        $params['callback'] = getenv('APP_URL') . "/api/v{$apiVersion}/n2g/callback";
+        $params['url'] = $request->getSchemeAndHttpHost();
+        $params['callback'] = $request->getSchemeAndHttpHost() . "/api/v{$apiVersion}/n2g/callback";
 
         try {
             $n2gConfigs = $this->newsletter2goConfigService->getConfigByFieldNames([
