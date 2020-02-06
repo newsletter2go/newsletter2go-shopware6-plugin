@@ -2,7 +2,7 @@
     "name": "newsletter2go/newsletter2go-shopware6-plugin",
     "description": "Newsletter2go plugin for Shopware 6.1",
     "type": "shopware-platform-plugin",
-    "version": "4.1.00",
+    "version": "4.1.01",
     "license": "MIT",
     "authors": [
         {
