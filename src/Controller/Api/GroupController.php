@@ -19,7 +19,8 @@ class GroupController extends AbstractController
 
     /**
      * @RouteScope(scopes={"api"})
-     * @Route("/api/v{version}/n2g/groups", name="api.action.n2g.getGroups", methods={"GET"})
+     * @Route("/api/v{version}/n2g/groups", name="api.v.action.n2g.getGroups", methods={"GET"})
+     * @Route("/api/n2g/groups", name="api.action.n2g.getGroups", methods={"GET"})
      * @return JsonResponse
      */
     public function getGroupsAction(): JsonResponse

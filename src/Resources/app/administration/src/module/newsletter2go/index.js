@@ -9,6 +9,7 @@ const { Module } = Shopware;
 Module.register('newsletter2go-app', {
     type: 'plugin',
     name: 'Newsletter2GoSW6',
+    title: 'Newsletter2Go',
     description: 'newsletter2go.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
@@ -19,6 +20,16 @@ Module.register('newsletter2go-app', {
         'de-DE': deDE,
         'en-GB': enGB
     },
+
+    settingsItem: [
+        {
+            group: 'plugins',
+            to: 'newsletter2go.app.index',
+            icon: 'default-newsletter2go-logo',
+            backgroundEnabled: true,
+        }
+    ],
+
 
     routes: {
         index: {

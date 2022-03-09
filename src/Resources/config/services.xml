@@ -6,6 +6,10 @@
 
     <services>
 
+        <service id="Newsletter2go\Service\CookieProviderService" decorates="Shopware\Storefront\Framework\Cookie\CookieProviderInterface">
+            <argument type="service" id="Newsletter2go\Service\CookieProviderService.inner" />
+        </service>
+
         <service class="Newsletter2go\Service\ApiService" id="Newsletter2go\Service\ApiService">
             <argument type="string"/>
             <argument type="string"/>
@@ -22,32 +26,71 @@
         </service>
 
         <service id="Newsletter2go\Controller\Api\CallbackController" public="true">
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
             <argument type="service" id="Newsletter2go\Service\Newsletter2goConfigService"/>
         </service>
 
+        <service id="Newsletter2go\Controller\Api\PluginController" public="true">
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="Newsletter2go\Controller\Api\GroupController" public="true">
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="Newsletter2go\Controller\Api\LanguageController" public="true">
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
         <service id="Newsletter2go\Controller\Api\CustomerFieldController" public="true">
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition"/>
         </service>
 
         <service id="Newsletter2go\Controller\Api\ProductFieldController" public="true">
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition"/>
         </service>
 
         <service id="Newsletter2go\Controller\Api\ProductController" public="true">
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
             <argument type="service" id="Newsletter2go\Controller\Api\ProductFieldController"/>
         </service>
 
         <service id="Newsletter2go\Controller\Api\CustomerController" public="true">
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
             <argument type="service" id="Newsletter2go\Controller\Api\CustomerFieldController"/>
         </service>
 
         <service id="Newsletter2go\Controller\BackendController" public="true">
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
             <argument type="service" id="Newsletter2go\Service\Newsletter2goConfigService"/>
         </service>
 
         <service id="Newsletter2go\Controller\Api\ConversionTrackingController" public="true">
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
             <argument type="service" id="Newsletter2go\Service\Newsletter2goConfigService"/>
         </service>
 

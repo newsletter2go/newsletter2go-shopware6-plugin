@@ -17,7 +17,8 @@ class PluginController extends AbstractController
 {
     /**
      * @RouteScope(scopes={"api"})
-     * @Route("/api/v{version}/n2g/test", name="api.action.n2g.testConnection", methods={"GET"})
+     * @Route("/api/v{version}/n2g/test", name="api.v.action.n2g.testConnection", methods={"GET"})
+     * @Route("/api/n2g/test", name="api.action.n2g.testConnection", methods={"GET"})
      */
     public function testConnectionAction(): JsonResponse
     {
@@ -28,7 +29,8 @@ class PluginController extends AbstractController
 
     /**
      * @RouteScope(scopes={"api"})
-     * @Route("/api/v{version}/n2g/info", name="api.action.n2g.getPluginInfo", methods={"GET"})
+     * @Route("/api/v{version}/n2g/info", name="api.v.action.n2g.getPluginInfo", methods={"GET"})
+     * @Route("/api/n2g/info", name="api.action.n2g.getPluginInfo", methods={"GET"})
      */
     public function getPluginInfoAction(): JsonResponse
     {

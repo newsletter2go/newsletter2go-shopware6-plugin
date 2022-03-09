@@ -14,13 +14,13 @@
 <template slot="smart-bar-actions">
 
     {# save button start#}
-    {#                {% block newsletter2go_save_button %}#}
-    {#                    <sw-button variant="primary"#}
-    {#                               @click="onSave"#}
-    {#                               :disabled="!isConnected">#}
-    {#                        {{ $tc('newsletter2go.settingForm.buttonLabelSave') }}#}
-    {#                    </sw-button>#}
-    {#                {% endblock %}#}
+        {% block newsletter2go_save_button %}
+            <sw-button variant="primary"
+                       @click="onSave"
+                       :disabled="!isConnected">
+                {{ $tc('newsletter2go.settingForm.buttonLabelSave') }}
+            </sw-button>
+        {% endblock %}
     {# save button end#}
 
 </template>
@@ -102,14 +102,16 @@
         </sw-card>
         {% endblock %}
 
-        {#                {% block newsletter2go_conversion_tracking %}#}
-        {#                    <sw-card :title="$tc('newsletter2go.general.conversionTrackingTitle')" >#}
-        {#                        <sw-switch-field :label="$tc('newsletter2go.settingForm.conversionTrackingSwitch')"#}
-        {#                                         v-model="setting.conversionTracking"#}
-        {#                                         :disabled="!isConnected">#}
-        {#                        </sw-switch-field>#}
-        {#                    </sw-card>#}
-        {#                {% endblock %}#}
+        {#  conversion tracking start  #}
+        {% block newsletter2go_conversion_tracking %}
+            <sw-card :title="$tc('newsletter2go.general.conversionTrackingTitle')" >
+                <sw-switch-field :label="$tc('newsletter2go.settingForm.conversionTrackingSwitch')"
+                                 v-model="setting.conversionTracking"
+                                 :disabled="!isConnected">
+                </sw-switch-field>
+            </sw-card>
+        {% endblock %}
+        {#  conversion tracking end  #}
 
     </sw-card-view>
 

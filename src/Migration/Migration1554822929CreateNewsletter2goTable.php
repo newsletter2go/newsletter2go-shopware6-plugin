@@ -28,11 +28,11 @@ DEFAULT CHARSET=utf8mb4
 COLLATE=utf8mb4_unicode_ci;
 SQL;
 
-        $connection->executeQuery($query);
+        $connection->executeStatement($query);
     }
 
     public function updateDestructive(Connection $connection): void
     {
-        $connection->executeQuery("DROP TABLE IF EXISTS `newsletter2go_config`;");
+        $connection->executeStatement("DROP TABLE IF EXISTS `newsletter2go_config`;");
     }
 }

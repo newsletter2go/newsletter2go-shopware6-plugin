@@ -4,6 +4,7 @@ namespace Newsletter2go\Subscriber;
 
 
 use Newsletter2go\Entity\Newsletter2goConfig;
+use Newsletter2go\Service\CookieProviderService;
 use Newsletter2go\Service\Newsletter2goConfigService;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -35,13 +36,16 @@ class ConversionTracking implements EventSubscriberInterface
         $assignments = ['conversionTracking' => false];
 
         try {
+            $isCookieAllowed = $event->getRequest()->cookies->get('cookie-preference')
+                && $event->getRequest()->cookies->get(CookieProviderService::COOKIE_KEY);
+
             $configFields = [
                 Newsletter2goConfig::NAME_VALUE_CONVERSION_TRACKING,
                 Newsletter2goConfig::NAME_VALUE_COMPANY_ID
             ];
             $result = $this->configService->getConfigByFieldNames($configFields);
 
-            if (!empty($result) && count($result) === count($configFields)) {
+            if ($isCookieAllowed && !empty($result) && count($result) === count($configFields)) {
                 /** @var Newsletter2goConfig $newsletter2goConfig */
                 foreach ($result as $newsletter2goConfig) {
                     //check if conversion tracking is activated
