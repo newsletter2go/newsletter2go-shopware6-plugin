@@ -37,7 +37,16 @@ class BackendController extends AbstractController
 
     /**
      * @RouteScope(scopes={"api"})
-     * @Route(path="/api/v{version}/n2g/connection", name="api.action.n2g.connection", methods={"GET"})
+     * @Route(
+     *     path="/api/v{version}/n2g/connection",
+     *     name="api.v.action.n2g.connection",
+     *     methods={"GET"}
+     * )
+     * @Route(
+     *     path="/api/n2g/connection",
+     *     name="api.action.n2g.connection",
+     *     methods={"GET"}
+     * )
      * @param Request $request
      * @param Context $context
      * @return JsonResponse
@@ -56,7 +65,16 @@ class BackendController extends AbstractController
 
     /**
      * @RouteScope(scopes={"api"})
-     * @Route(path="/api/v{version}/n2g/connection", name="api.action.n2g.disconnection", methods={"DELETE"})
+     * @Route(
+     *     path="/api/v{version}/n2g/connection",
+     *     name="api.v.action.n2g.disconnection",
+     *     methods={"DELETE"}
+     *)
+     * @Route(
+     *     path="/api/n2g/connection",
+     *     name="api.action.n2g.disconnection",
+     *     methods={"DELETE"}
+     *)
      * @param Request $request
      * @param Context $context
      * @return JsonResponse
@@ -108,7 +126,8 @@ class BackendController extends AbstractController
 
     /**
      * @RouteScope(scopes={"api"})
-     * @Route(path="/api/v{version}/n2g/integration", name="api.action.n2g.integration", methods={"GET"})
+     * @Route(path="/api/v{version}/n2g/integration", name="api.v.action.n2g.integration", methods={"GET"})
+     * @Route(path="/api/n2g/integration", name="api.action.n2g.integration", methods={"GET"})
      * @return JsonResponse
      */
     public function getConnectUrl(Request $request) :JsonResponse
@@ -118,11 +137,10 @@ class BackendController extends AbstractController
 
     private function getConnectorUrlParams(Request $request)
     {
-        $apiVersion = PlatformRequest::API_VERSION;
         $params = [];
         $params['ref'] = $this->ref;
         $params['url'] = $request->getSchemeAndHttpHost();
-        $params['callback'] = $request->getSchemeAndHttpHost() . "/api/v{$apiVersion}/n2g/callback";
+        $params['callback'] = $request->getSchemeAndHttpHost() . "/api/n2g/callback";
 
         try {
             $n2gConfigs = $this->newsletter2goConfigService->getConfigByFieldNames([
@@ -155,7 +173,16 @@ class BackendController extends AbstractController
 
     /**
      * @RouteScope(scopes={"api"})
-     * @Route(path="/api/v{version}/n2g/company", name="api.action.n2g.company", methods={"GET"})
+     * @Route(
+     *     path="/api/v{version}/n2g/company",
+     *     name="api.v.action.n2g.company",
+     *     methods={"GET"}
+     * )
+     * @Route(
+     *     path="/api/n2g/company",
+     *     name="api.action.n2g.company",
+     *     methods={"GET"}
+     *)
      * @param Request $request
      * @param Context $context
      * @return JsonResponse

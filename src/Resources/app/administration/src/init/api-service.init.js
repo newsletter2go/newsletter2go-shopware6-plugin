@@ -1,4 +1,4 @@
-import { Application } from 'src/core/shopware';
+const { Application } = Shopware;
 import ConversionTrackingService
     from '../../src/core/service/api/conversion-tracking.service';
 import ConnectionService

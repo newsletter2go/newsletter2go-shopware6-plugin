@@ -4,7 +4,7 @@ namespace Newsletter2go\Controller\Api;
 
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Content\Newsletter\NewsletterSubscriptionServiceInterface;
+use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -32,7 +32,8 @@ class CustomerController extends AbstractController
 
     /**
      * @RouteScope(scopes={"api"})
-     * @Route("/api/v{version}/n2g/customers", name="api.action.n2g.getCustomers", methods={"GET"})
+     * @Route("/api/v{version}/n2g/customers", name="api.v.action.n2g.getCustomers", methods={"GET"})
+     * @Route("/api/n2g/customers", name="api.action.n2g.getCustomers", methods={"GET"})
      * @param Request $request
      * @param Context $context
      * @return JsonResponse
@@ -139,10 +140,10 @@ class CustomerController extends AbstractController
 
         if ($onlySubscribed) {
             $criteria->addFilter(new EqualsAnyFilter('status', [
-                NewsletterSubscriptionServiceInterface::MAIL_TYPE_OPT_IN,
-                NewsletterSubscriptionServiceInterface::STATUS_DIRECT,
-                NewsletterSubscriptionServiceInterface::MAIL_TYPE_REGISTER,
-                NewsletterSubscriptionServiceInterface::STATUS_OPT_IN]));
+                NewsletterSubscribeRoute::STATUS_OPT_IN,
+                NewsletterSubscribeRoute::OPTION_SUBSCRIBE,
+                NewsletterSubscribeRoute::STATUS_DIRECT,
+                NewsletterSubscribeRoute::STATUS_OPT_IN]));
         }
 
         if (!empty($emails)) {
@@ -159,7 +160,8 @@ class CustomerController extends AbstractController
 
     /**
      * @RouteScope(scopes={"api"})
-     * @Route("/api/v{version}/n2g/customers/subscribe", name="api.action.n2g.subscribeCustomer", methods={"POST"})
+     * @Route("/api/v{version}/n2g/customers/subscribe", name="api.v.action.n2g.subscribeCustomer", methods={"POST"})
+     * @Route("/api/n2g/customers/subscribe", name="api.action.n2g.subscribeCustomer", methods={"POST"})
      * @param Request $request
      * @param Context $context
      * @return JsonResponse
@@ -182,7 +184,8 @@ class CustomerController extends AbstractController
 
     /**
      * @RouteScope(scopes={"api"})
-     * @Route("/api/v{version}/n2g/customers/unsubscribe", name="api.action.n2g.unsubscribeCustomer", methods={"POST"})
+     * @Route("/api/v{version}/n2g/customers/unsubscribe", name="api.v.action.n2g.unsubscribeCustomer", methods={"POST"})
+     * @Route("/api/n2g/customers/unsubscribe", name="api.action.n2g.unsubscribeCustomer", methods={"POST"})
      * @param Request $request
      * @param Context $context
      * @return JsonResponse
@@ -264,9 +267,9 @@ class CustomerController extends AbstractController
         $response = [];
 
         if ($status) {
-            $status = NewsletterSubscriptionServiceInterface::STATUS_DIRECT;
+            $status = NewsletterSubscribeRoute::STATUS_DIRECT;
         } else {
-            $status = NewsletterSubscriptionServiceInterface::STATUS_OPT_OUT;
+            $status = NewsletterSubscribeRoute::STATUS_OPT_OUT;
         }
 
         /** @var EntityRepositoryInterface $newsletterReceiver */
@@ -298,7 +301,8 @@ class CustomerController extends AbstractController
 
     /**
      * @RouteScope(scopes={"api"})
-     * @Route("/api/v{version}/n2g/customers/count", name="api.action.n2g.getCustomers.count", methods={"GET"})
+     * @Route("/api/v{version}/n2g/customers/count", name="api.v.action.n2g.getCustomers.count", methods={"GET"})
+     * @Route("/api/n2g/customers/count", name="api.action.n2g.getCustomers.count", methods={"GET"})
      * @param Request $request
      * @param Context $context
      * @return JsonResponse

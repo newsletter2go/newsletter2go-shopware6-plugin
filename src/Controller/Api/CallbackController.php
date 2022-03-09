@@ -28,7 +28,8 @@ class CallbackController extends AbstractController
 
     /**
      * @RouteScope(scopes={"api"})
-     * @Route("/api/v{version}/n2g/callback", name="api.action.n2g.callback", methods={"POST"}, defaults={"auth_required"=false})
+     * @Route("/api/v{version}/n2g/callback", name="api.v.action.n2g.callback", methods={"POST"}, defaults={"auth_required"=false})
+     * @Route("/api/n2g/callback", name="api.action.n2g.callback", methods={"POST"}, defaults={"auth_required"=false})
      * @param Request $request
      * @param Context $context
      * @return JsonResponse

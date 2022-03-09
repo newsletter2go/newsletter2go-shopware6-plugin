@@ -10,7 +10,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
-use Shopware\Core\Content\Newsletter\NewsletterSubscriptionServiceInterface;
+use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetEntity;
@@ -48,7 +48,8 @@ class CustomerFieldController extends AbstractController
 
     /**
      * @RouteScope(scopes={"api"})
-     * @Route("/api/v{version}/n2g/customers/fields", name="api.action.n2g.getCustomerFields", methods={"GET"})
+     * @Route("/api/v{version}/n2g/customers/fields", name="api.v.action.n2g.getCustomerFields", methods={"GET"})
+     * @Route("/api/n2g/customers/fields", name="api.action.n2g.getCustomerFields", methods={"GET"})
      * @param Request $request
      * @param Context $context
      * @return JsonResponse
@@ -97,7 +98,8 @@ class CustomerFieldController extends AbstractController
                         /** @var CustomFieldEntity $customField */
                         foreach ($customFieldSetEntity->getCustomFields() as $customField) {
                             $fieldName = $customFieldSetEntity->getName() . '__' . $customField->getName();
-                            $fieldDescription = !empty($customField->getTranslated()) ? reset($customField->getTranslated()) : '';
+                            $translated = $customField->getTranslated();
+                            $fieldDescription = !empty($translated) ? reset($translated) : '';
                             $fields[] = new Field(
                                 'n2g_' . $customField->getName(),
                                 DatatypeHelper::convertToN2gDatatype($customField->getType()),
@@ -316,8 +318,8 @@ class CustomerFieldController extends AbstractController
                             break;
                         case 'newsletter':
                             $preparedList[$newsletterReceiver->getId()][$fieldId] = !in_array($newsletterReceiver->getStatus(), [
-                                NewsletterSubscriptionServiceInterface::STATUS_OPT_OUT,
-                                NewsletterSubscriptionServiceInterface::STATUS_NOT_SET
+                                NewsletterSubscribeRoute::STATUS_OPT_OUT,
+                                NewsletterSubscribeRoute::STATUS_NOT_SET
                             ]);
                             break;
                         case 'billingCountry':

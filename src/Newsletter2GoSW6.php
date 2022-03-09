@@ -69,7 +69,7 @@ class Newsletter2GoSW6 extends Plugin
     {
         try {
             $connection = $this->container->get(Connection::class);
-            $connection->executeQuery('DROP TABLE IF EXISTS `newsletter2go_config`');
+            $connection->executeStatement('DROP TABLE IF EXISTS `newsletter2go_config`');
         } catch (\Exception $exception) {
             //
         }
@@ -102,16 +102,16 @@ class Newsletter2GoSW6 extends Plugin
             $connection = $this->container->get(Connection::class);
             $createdAtTimeStampFormat = (new \DateTime())->format('Y-m-d H:i:s');
 
-            $connection->executeQuery("INSERT INTO `newsletter2go_config` VALUES(:id, :name, :value, :createdAt, NULL) ",
+            $connection->executeStatement("INSERT INTO `newsletter2go_config` VALUES(:id, :name, :value, :createdAt, NULL) ",
                 ['id' => Uuid::randomBytes(), 'name' => Newsletter2goConfig::NAME_VALUE_ACCESS_KEY, 'value' => $accessKey, 'createdAt' => $createdAtTimeStampFormat]);
 
-            $connection->executeQuery("INSERT INTO `newsletter2go_config` VALUES(:id, :name, :value, :createdAt, NULL) ",
+            $connection->executeStatement("INSERT INTO `newsletter2go_config` VALUES(:id, :name, :value, :createdAt, NULL) ",
                 ['id' => Uuid::randomBytes(), 'name' => Newsletter2goConfig::NAME_VALUE_SECRET_ACCESS_KEY, 'value' => $secretAccessKey, 'createdAt' => $createdAtTimeStampFormat]);
 
-            $connection->executeQuery("INSERT INTO `newsletter2go_config` VALUES(:id, :name, :value, :createdAt, NULL) ",
+            $connection->executeStatement("INSERT INTO `newsletter2go_config` VALUES(:id, :name, :value, :createdAt, NULL) ",
                 ['id' => Uuid::randomBytes(), 'name' => Newsletter2goConfig::NAME_VALUE_API_KEY, 'value' => md5($accessKey . $secretAccessKey), 'createdAt' => $createdAtTimeStampFormat]);
 
-            $connection->executeQuery("INSERT INTO `newsletter2go_config` VALUES(:id, :name, :value, :createdAt, NULL) ",
+            $connection->executeStatement("INSERT INTO `newsletter2go_config` VALUES(:id, :name, :value, :createdAt, NULL) ",
                 ['id' => Uuid::randomBytes(), 'name' => Newsletter2goConfig::NAME_VALUE_CONVERSION_TRACKING, 'value' => 'false', 'createdAt' => $createdAtTimeStampFormat]);
 
         } catch (\Exception $exception) {
@@ -119,17 +119,11 @@ class Newsletter2GoSW6 extends Plugin
         }
     }
 
-
     public function build(ContainerBuilder $container): void
     {
         parent::build($container);
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/Resources/'));
         $loader->load(__DIR__ . '/Resources/config/services.xml');
-    }
-
-    public function configureRoutes(RouteCollectionBuilder $routes, string $environment): void
-    {
-        $routes->import(__DIR__ . '/Resources/config/routes.xml');
     }
 
     public function getMigrationNamespace(): string

@@ -45,7 +45,8 @@ class ProductFieldController extends AbstractController
 
     /**
      * @RouteScope(scopes={"api"})
-     * @Route("/api/v{version}/n2g/products/fields", name="api.action.n2g.getProductFields", methods={"GET"})
+     * @Route("/api/v{version}/n2g/products/fields", name="api.v.action.n2g.getProductFields", methods={"GET"})
+     * @Route("/api/n2g/products/fields", name="api.action.n2g.getProductFields", methods={"GET"})
      * @param Request $request
      * @param Context $context
      * @return JsonResponse
@@ -113,7 +114,8 @@ class ProductFieldController extends AbstractController
                         /** @var CustomFieldEntity $customField */
                         foreach ($customFieldSetEntity->getCustomFields() as $customField) {
                             $fieldName = $customFieldSetEntity->getName() . '__' . $customField->getName();
-                            $fieldDescription = !empty($customField->getTranslated()) ? reset($customField->getTranslated()) : '';
+                            $translated = $customField->getTranslated();
+                            $fieldDescription = !empty($translated) ? reset($translated) : '';
                             $fields[] = new Field(
                                 'n2g_' . $customField->getName(),
                                 DatatypeHelper::convertToN2gDatatype($customField->getType()),

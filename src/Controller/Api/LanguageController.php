@@ -17,7 +17,8 @@ class LanguageController extends AbstractController
 {
     /**
      * @RouteScope(scopes={"api"})
-    * @Route("/api/v{version}/n2g/languages", name="api.action.n2g.getLanguages", methods={"GET"})
+    * @Route("/api/v{version}/n2g/languages", name="api.v.action.n2g.getLanguages", methods={"GET"})
+    * @Route("/api/n2g/languages", name="api.action.n2g.getLanguages", methods={"GET"})
     */
     public function getLanguagesAction(): JsonResponse
     {
