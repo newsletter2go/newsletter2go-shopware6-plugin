@@ -1,4 +1,4 @@
-# Newsletter2Go - Shopware 4 Plugin
+# Newsletter2Go - Shopware 6 Plugin
 
 To connect Shopware 6 to your Newsletter2go account, synchronize contacts and order them in groups easily.
 
