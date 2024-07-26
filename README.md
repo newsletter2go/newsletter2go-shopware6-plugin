@@ -1,6 +1,6 @@
 # Newsletter2Go - Shopware 6 Plugin
 
-To connect Shopware 6 to your Newsletter2go account, synchronize contacts and order them in groups easily.
+To connect Shopware 6.4 or lower to your Newsletter2go account, synchronize contacts and order them in groups easily.
 
 Enabling [conversion tracking](https://www.newsletter2go.com/features/newsletter-conversion-tracking/) using this plugin is super easy as well.
 
